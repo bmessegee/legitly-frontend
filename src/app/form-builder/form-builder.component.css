@@ -1,0 +1,45 @@
+.form-builder-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin: 20px;
+  }
+  
+  .available-fields, 
+  .available-layouts, 
+  .form-definition, 
+  .form-preview, 
+  .import-definition {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  
+  /* Styles for the drag-drop grid */
+  .fields-drop-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 10px;
+    padding: 10px;
+    border: 1px dashed #aaa;
+  }
+  
+  .field-item {
+    padding: 10px;
+    border: 1px solid #888;
+    border-radius: 4px;
+    background: #f9f9f9;
+    cursor: move;
+  }
+  
+  /* Remove default list styling */
+  .available-fields ul,
+  .available-layouts ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .available-fields li,
+  .available-layouts li {
+    margin-bottom: 5px;
+  }

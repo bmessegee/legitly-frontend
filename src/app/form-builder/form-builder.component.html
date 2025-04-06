@@ -1,0 +1,66 @@
+<div class="form-builder-container">
+
+    <!-- Section: Add Control Fields -->
+    <div class="available-fields">
+      <h3>Available Control Fields</h3>
+      <ul>
+        <li *ngFor="let control of availableControls">
+          <button (click)="addControlField(control.type)">
+            {{ control.label }}
+          </button>
+        </li>
+      </ul>
+    </div>
+  
+    <!-- Section: Add Layout Containers -->
+    <div class="available-layouts">
+      <h3>Available Layout Containers</h3>
+      <ul>
+        <li *ngFor="let layout of availableLayouts">
+          <button (click)="addLayoutField(layout.type)">
+            {{ layout.label }}
+          </button>
+        </li>
+      </ul>
+    </div>
+  
+    <!-- Section: Form Definition List with Drag & Drop -->
+    <div class="form-definition">
+      <h3>Form Definition (Drag & Drop to reorder)</h3>
+      <!-- Wrap the list in a drop container -->
+      <div cdkDropList (cdkDropListDropped)="drop($event)" class="fields-drop-container">
+        <div class="field-item" *ngFor="let field of fields; let i = index" 
+             cdkDrag [cdkDragConstrainPosition]="constrainPosition">
+          <div>
+            <strong>{{ field.templateOptions?.label || field.type }}</strong>
+            ({{ field.type }})
+          </div>
+          <button (click)="removeField(i)">Remove</button>
+        </div>
+      </div>
+      <h4>JSON Definition</h4>
+      <textarea cols="80" rows="10" [value]="exportDefinition()" readonly></textarea>
+    </div>
+  
+    <!-- Section: Form Preview -->
+    <div class="form-preview">
+      <h3>Form Preview</h3>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+        <button type="submit" [disabled]="!form.valid">Submit</button>
+      </form>
+      <div *ngIf="form.valid && model">
+        <h4>Model Value</h4>
+        <pre>{{ model | json }}</pre>
+      </div>
+    </div>
+  
+    <!-- Section: Import JSON Definition -->
+    <div class="import-definition">
+      <h3>Import Form Definition</h3>
+      <textarea #importJson cols="80" rows="10" placeholder="Paste JSON here"></textarea>
+      <br>
+      <button (click)="importDefinition(importJson.value)">Import JSON</button>
+    </div>
+    
+  </div>
