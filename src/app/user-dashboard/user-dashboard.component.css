@@ -19,3 +19,21 @@
 .dashboard-card-content {
   text-align: center;
 }
+
+.title{
+  font:var(--mat-sys-headline-medium)
+}
+.card-icon{
+  font-size:30px;
+  width:30px;
+  height:30px;
+  padding-right: 10px;
+}
+.card-content{
+  color: var(--mat-sys-primary);
+  margin: 20px;
+  padding: 20px;
+  border-radius: var(--mat-sys-corner-medium);
+  background: var(--mat-sys-secondary-container);
+  font-family: roboto;
+}

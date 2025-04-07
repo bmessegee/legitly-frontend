@@ -1,12 +1,12 @@
 <div class="grid-container">
-  <h1 class="mat-h1">Dashboard</h1>
+  <div class="title">Available Services</div>
   <mat-grid-list cols="2" rowHeight="350px">
     @for (card of cards | async; track card) {
       <mat-grid-tile [colspan]="card.cols" [rowspan]="card.rows">
         <mat-card class="dashboard-card">
           <mat-card-header>
             <mat-card-title>
-              {{card.title}}
+              <mat-icon class="card-icon">{{card.icon}}</mat-icon>{{card.title}}
               <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
                 <mat-icon>more_vert</mat-icon>
               </button>
@@ -17,9 +17,8 @@
             </mat-card-title>
           </mat-card-header>
           <mat-card-content class="dashboard-card-content">
-            <div>Card Content Here
-              <button mat-button>Press Me</button>
-            </div>
+            <div class="card-content">{{card.description}}</div>
+            <button mat-button (click)='routeTo(card.link?card.link:"", card.query?card.query:"")'>Start Now</button>
           </mat-card-content>
         </mat-card>
       </mat-grid-tile>
