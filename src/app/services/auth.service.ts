@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { User } from '../models/user';
+import { User } from '../models/user.model';
 
 
 @Injectable({
@@ -12,6 +12,20 @@ export class AuthService {
   // Exposes an observable of the current user state.
   public currentUser$: Observable<User | null>;
 
+  // TODO - Remove once built out
+  testUser: User = {
+    id: 1,
+    username: 'testUser',
+    token: 'dummy-token',
+    tenantId: 101,
+    //tenantRoles: ['admin', 'processor'],
+    customerId: 202,
+    customerRoles: ['regular'],
+    firstName: 'Bob',
+    lastName: 'Messegee',
+    email: 'bmessegee@gmail.com'
+  };
+
   constructor() {
     // Attempt to load user data from localStorage for persistence.
     const storedUser = localStorage.getItem('currentUser');
@@ -19,6 +33,9 @@ export class AuthService {
       storedUser ? JSON.parse(storedUser) : null
     );
     this.currentUser$ = this.currentUserSubject.asObservable();
+
+    // TODO - Remove once login is working
+    this.login(this.testUser);
   }
 
   /**
@@ -71,7 +88,7 @@ export class AuthService {
    * Check if the current user is associated with a tenant.
    */
   isTenantUser(): boolean {
-    return !!this.currentUser?.tenantId;
+    return !!this.currentUser?.tenantRoles;
   }
 
   /**
@@ -96,7 +113,7 @@ export class AuthService {
    * Check if the current user is associated with a customer.
    */
   isCustomerUser(): boolean {
-    return !!this.currentUser?.customerId;
+    return !!this.currentUser?.customerRoles;
   }
 
   /**

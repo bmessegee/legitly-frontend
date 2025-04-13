@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgIf } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { RouterOutlet } from '@angular/router';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-app-navigation',
@@ -23,13 +24,14 @@ import { Router } from '@angular/router';
     MatListModule,
     MatIconModule,
     AsyncPipe,
+    NgIf,
     RouterOutlet
 ]
 })
 export class AppNavigationComponent {
   private breakpointObserver = inject(BreakpointObserver);
   
-  constructor(private router: Router) {}
+  constructor(private router: Router, public authService: AuthService) {}
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
     .pipe(

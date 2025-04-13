@@ -1,1 +1,40 @@
-<p>products works!</p>
+<mat-grid-list cols="3" rowHeight="fit" gutterSize="16px">
+    <!-- Message List Section -->
+    <mat-grid-tile colspan="1">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Messages</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <app-message-list
+            [messages]="messages"
+            (selectMessage)="onSelect($event)">
+          </app-message-list>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+  
+    <!-- Message Detail Section -->
+    <mat-grid-tile colspan="1" *ngIf="selectedMessage">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Message Details</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <app-message-detail [message]="selectedMessage"></app-message-detail>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+  
+    <!-- New Message Form Section -->
+    <mat-grid-tile colspan="1">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>New Message</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <app-new-message (messageSent)="onMessageSent()"></app-new-message>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>

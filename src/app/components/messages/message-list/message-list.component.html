@@ -1,0 +1,12 @@
+<mat-list>
+    <h3 mat-subheader>Messages</h3>
+    <mat-list-item *ngFor="let message of messages"
+                   (click)="onMessageClick(message)"
+                   [ngClass]="{'unread': !message.isRead}">
+      <mat-icon matListIcon>mail</mat-icon>
+      <div matLine>{{ message.subject }}</div>
+      <div matLine>
+        <small>{{ message.timestamp | date:'short' }}</small>
+      </div>
+    </mat-list-item>
+  </mat-list>

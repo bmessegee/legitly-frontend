@@ -1,0 +1,9 @@
+.new-message form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .new-message label {
+    font-weight: bold;
+  }

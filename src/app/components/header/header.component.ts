@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -10,6 +11,6 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
-  public user = {firstName: 'Bob', lastName:'Messegee'};
-
+  
+  public constructor(public authService: AuthService){}
 }

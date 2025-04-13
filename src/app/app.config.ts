@@ -8,6 +8,9 @@ import { FormlyModule } from '@ngx-formly/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { FormlyMaterialModule } from '@ngx-formly/material';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { FormlyWrapperPanelComponent } from './components/formly-wrapper-panel/formly-wrapper-panel.component';
+import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 
 export const appConfig: ApplicationConfig = {
 
@@ -19,13 +22,14 @@ export const appConfig: ApplicationConfig = {
       FormlyModule.forRoot({
         // Optionally register custom wrappers (panel, accordion, etc.)
         wrappers: [
-          // { name: 'panel', component: YourPanelWrapperComponent },
+          { name: 'panel', component: FormlyWrapperPanelComponent },
           // { name: 'accordion', component: YourAccordionWrapperComponent },
         ],
       })),
     FormlyMaterialModule,
-
+    MatNativeDateModule,
+    provideNativeDateAdapter(),
+    provideHttpClient(withInterceptorsFromDi()),
     provideRouter(routes),
-    provideAnimationsAsync(),
     provideAnimationsAsync()]
 };

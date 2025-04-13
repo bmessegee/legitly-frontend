@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { JsonPipe, NgFor, NgIf } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FormlyFieldConfig, FormlyModule, FormlyForm } from '@ngx-formly/core';
+import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 

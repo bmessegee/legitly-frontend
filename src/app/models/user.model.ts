@@ -2,6 +2,10 @@
 // Define an interface for the user object.
 export interface User {
     id: number;
+    firstName: string,
+    lastName: string,
+    email: string,
+    phone?: string,
     username: string;
     token: string;
     // If the user is part of a tenant organization.

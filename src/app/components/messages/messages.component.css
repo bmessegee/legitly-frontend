@@ -1,0 +1,10 @@
+.messaging-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .message-list-container, .message-detail-container, .new-message-container {
+    border: 1px solid #ccc;
+    padding: 10px;
+  }
