@@ -19,7 +19,7 @@ export class ProductForm {
                         {
                             "key": "llcName",
                             "type": "input",
-                            "templateOptions": {
+                            "props": {
                                 "label": "LLC Name",
                                 "placeholder": "Enter your LLC name",
                                 "required": true,
@@ -29,7 +29,7 @@ export class ProductForm {
                         {
                             "key": "certificateOfFormation",
                             "type": "radio",
-                            "templateOptions": {
+                            "props": {
                                 "label": "Certificate of Formation Filing Method",
                                 "required": true,
                                 "options": [
@@ -42,7 +42,7 @@ export class ProductForm {
                         {
                             "key": "filingFees",
                             "type": "input",
-                            "templateOptions": {
+                            "props": {
                                 "label": "Filing Fees",
                                 "placeholder": "Enter estimated filing fees",
                                 "required": false,
@@ -54,14 +54,14 @@ export class ProductForm {
                 {
                     "key": "registeredAgentSection",
                     "wrappers": ["panel"],
-                    "templateOptions": {
+                    "props": {
                         "label": "Registered Agent Information"
                     },
                     "fieldGroup": [
                         {
                             "key": "registeredAgentName",
                             "type": "input",
-                            "templateOptions": {
+                            "props": {
                                 "label": "Registered Agent Name",
                                 "placeholder": "Enter the registered agent's name",
                                 "required": true,
@@ -71,7 +71,7 @@ export class ProductForm {
                         {
                             "key": "registeredAgentAddress",
                             "type": "input",
-                            "templateOptions": {
+                            "props": {
                                 "label": "Registered Agent Address",
                                 "placeholder": "Enter the physical address",
                                 "required": true
@@ -82,7 +82,7 @@ export class ProductForm {
                 {
                     "key": "initialReportSection",
                     "wrappers": ["panel"],
-                    "templateOptions": {
+                    "props": {
                         "label": "Initial Report"
                     },
                     "fieldGroup": [
@@ -102,14 +102,14 @@ export class ProductForm {
                 {
                     "key": "businessIdentifiers",
                     "wrappers": ["panel"],
-                    "templateOptions": {
+                    "props": {
                         "label": "Business Identifiers"
                     },
                     "fieldGroup": [
                         {
                             "key": "ubi",
                             "type": "input",
-                            "templateOptions": {
+                            "props": {
                                 "label": "Unified Business Identifier (UBI)",
                                 "placeholder": "Enter your UBI",
                                 "required": true
@@ -118,7 +118,7 @@ export class ProductForm {
                         {
                             "key": "ein",
                             "type": "input",
-                            "templateOptions": {
+                            "props": {
                                 "label": "Employer Identification Number (EIN)",
                                 "placeholder": "Enter your EIN (if applicable)",
                                 "required": false,
@@ -130,14 +130,14 @@ export class ProductForm {
                 {
                     "key": "optionalDocuments",
                     "wrappers": ["panel"],
-                    "templateOptions": {
+                    "props": {
                         "label": "Optional Documents"
                     },
                     "fieldGroup": [
                         {
                             "key": "operatingAgreement",
                             "type": "radio",
-                            "templateOptions": {
+                            "props": {
                                 "label": "Operating Agreement",
                                 "required": false,
                                 "options": [
@@ -150,7 +150,7 @@ export class ProductForm {
                         {
                             "key": "businessLicenses",
                             "type": "multicheckbox",
-                            "templateOptions": {
+                            "props": {
                                 "label": "Business Licenses and Permits",
                                 "description": "Select the licenses and permits you require assistance with.",
                                 "options": [

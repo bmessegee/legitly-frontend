@@ -1,140 +1,102 @@
+// src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
+import { Router }     from '@angular/router';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { User } from '../models/user.model';
+import { map } from 'rxjs/operators';
+import { User } from '../models/user.model';   // <-- your existing model
 
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
-  // Holds the current user state.
-  private currentUserSubject: BehaviorSubject<User | null>;
-  // Exposes an observable of the current user state.
-  public currentUser$: Observable<User | null>;
+ 
+  private _isAuth$ = new BehaviorSubject<boolean>(false);
+  private _user$   = new BehaviorSubject<User | null>(null);
 
-  // TODO - Remove once built out
-  testUser: User = {
-    id: 1,
-    username: 'testUser',
-    token: 'dummy-token',
-    tenantId: 101,
-    //tenantRoles: ['admin', 'processor'],
-    customerId: 202,
-    customerRoles: ['regular'],
-    firstName: 'Bob',
-    lastName: 'Messegee',
-    email: 'bmessegee@gmail.com'
-  };
+  /** Streams for components to consume */
+  isAuthenticated$: Observable<boolean> = this._isAuth$.asObservable();
+  user$:            Observable<User | null> = this._user$.asObservable();
+  currentUser?:User | null;
 
-  constructor() {
-    // Attempt to load user data from localStorage for persistence.
-    const storedUser = localStorage.getItem('currentUser');
-    this.currentUserSubject = new BehaviorSubject<User | null>(
-      storedUser ? JSON.parse(storedUser) : null
-    );
-    this.currentUser$ = this.currentUserSubject.asObservable();
+  /** OIDC configuration (if you need it elsewhere) */
+  //configuration$ = this.oidc.getConfiguration();
 
-    // TODO - Remove once login is working
-    this.login(this.testUser);
+  constructor(
+    private oidc:   OidcSecurityService,
+    private router: Router
+  ) {
+    // Keep the boolean auth flag up-to-date
+    this.oidc.isAuthenticated$
+      .pipe(map(r => r.isAuthenticated))
+      .subscribe(isAuth => {
+        this._isAuth$.next(isAuth);
+        if (!isAuth) {
+          // clear user model when logged out
+          this._user$.next(null);
+        }
+      });
+
+    // Map raw userData into your User model, pulling out groups
+    this.oidc.userData$.subscribe(raw => {
+      if (raw) {
+        const groupsClaim = raw.userData['cognito:groups'] ?? raw.userData['groups'] ?? [];
+        const groups = Array.isArray(groupsClaim) ? groupsClaim : [groupsClaim];
+
+        const user: User = {
+          sub: raw.userData.sub,
+          email: raw.userData.email,
+          phoneNumber: raw.userData.phone_number ?? raw.userData.phoneNumber,
+          givenName: raw.userData.given_name ?? raw.userData.givenName,
+          familyName: raw.userData.family_name ?? raw.userData.familyName,
+          //groups,
+          // ...and spread any other claim you need
+          //...raw
+        };
+
+        this._user$.next(user);
+      } else {
+        this._user$.next(null);
+      }
+
+      this._user$.subscribe(user =>{
+        this.currentUser = user;
+      } );
+    });
+
+    // Trigger an initial check to bootstrap state
+    this.oidc.checkAuth().subscribe();
   }
 
-  /**
-   * Returns the current user object.
-   */
-  public get currentUser(): User | null {
-    return this.currentUserSubject.value;
+  /** Starts the Cognito login flow */
+  login(): void {
+    this.oidc.authorize();
   }
 
-  /**
-   * Log in the user by setting the current user state.
-   * In a real-world scenario, you would typically call an API to authenticate
-   * and retrieve the user details (including a token) before calling this method.
-   *
-   * @param user - The authenticated user object.
-   */
-  login(user: User): void {
-    // Persist user data in localStorage to maintain session on refresh.
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    // Update the BehaviorSubject to notify subscribers.
-    this.currentUserSubject.next(user);
-    console.log('User logged in:', user);
-  }
-
-  /**
-   * Log out the user by clearing the current user state.
-   */
+  /** Clears state and redirects to Cognito logout */
   logout(): void {
-    // Remove the user data from localStorage.
-    localStorage.removeItem('currentUser');
-    // Update the BehaviorSubject to notify subscribers of the logout.
-    this.currentUserSubject.next(null);
-    console.log('User logged out.');
+    this._isAuth$.next(false);
+    this._user$.next(null);
+    this.oidc.logoff();
+    if (window.sessionStorage) {
+      window.sessionStorage.clear();
+    }
+
+    /*
+    window.location.href =
+      `https://legitly-dev.auth.us-east-1.amazoncognito.com/logout`
+      + `?client_id=7j16s1gd4rt6hpqa8op5098r2e`
+      + `&logout_uri=${encodeURIComponent(window.location.origin)}`;
+      */
   }
-
-  /**
-   * Checks if the user is currently authenticated.
-   *
-   * @returns True if a user is logged in; false otherwise.
-   */
-  isAuthenticated(): boolean {
-    return !!this.currentUser;
+  isAuthenticated():boolean{
+    return this.currentUser != null;
   }
-
-  // ===================================================
-  // Tenant-Specific Authorization Checks
-  // ===================================================
-
-  /**
-   * Check if the current user is associated with a tenant.
-   */
-  isTenantUser(): boolean {
-    return !!this.currentUser?.tenantRoles;
+  isTenantUser() : boolean{
+    return false;
   }
-
-  /**
-   * Determines if the current tenant user has an admin role.
-   */
-  isTenantAdmin(): boolean {
-    return !!this.currentUser?.tenantRoles?.includes('admin');
+  isCustomerUser() : boolean{
+    return true;
   }
-
-  /**
-   * Determines if the current tenant user has a processor role.
-   */
-  isTenantProcessor(): boolean {
-    return !!this.currentUser?.tenantRoles?.includes('processor');
-  }
-
-  // ===================================================
-  // Customer-Specific Authorization Checks
-  // ===================================================
-
-  /**
-   * Check if the current user is associated with a customer.
-   */
-  isCustomerUser(): boolean {
-    return !!this.currentUser?.customerRoles;
-  }
-
-  /**
-   * Determines if the current customer user has an admin role.
-   */
-  isCustomerSuper(): boolean {
-    return !!this.currentUser?.customerRoles?.includes('super');
-  }
-
-  /**
-   * Determines if the current customer user has a regular role.
-   */
-  isCustomerRegular(): boolean {
-    return !!this.currentUser?.customerRoles?.includes('regular');
-  }
-  /**
-   * Optional: Expose the current user observable for additional observability.
-   *
-   * @returns Observable for the current user state.
-   */
-  getUserObservable(): Observable<User | null> {
-    return this.currentUser$;
+  isTenantAdmin() : boolean{
+    return false
   }
 }

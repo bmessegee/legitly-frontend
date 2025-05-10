@@ -20,12 +20,15 @@
     flex-grow: 1;
     text-align: right;
     padding: 15px;
+    margin-left: 10px;
+   
 }
 .cart-icon{
     font-size: 48px;
     width: 48px;
     height: 48px;
     color: var(--mat-sys-primary);
+    cursor: pointer;
 }
 .welcome{
     color: var(--mat-sys-secondary);

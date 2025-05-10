@@ -1,7 +1,14 @@
 <div class="wrapper">
-    <img class="title-icon" src="../../image.png"/>    
+    <img class="title-icon" src="../../image.png" />
     <div class="title">Baldwin Legal Group, PLLC</div>
-    <div class="welcome">Hi {{authService.currentUser?.firstName}}</div>
-    <div class="cart"><mat-icon matListItemIcon class="cart-icon">shopping_cart</mat-icon></div>
+    <div class="welcome">Hi {{auth.currentUser?.givenName}}</div>
+    <div class="cart">
+        <!--<mat-icon *ngIf="authService.isCustomerUser()" matListItemIcon class="cart-icon">shopping_cart</mat-icon>-->
+        <mat-icon matListItemIcon class="cart-icon" [matMenuTriggerFor]="menu">menu</mat-icon>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item (click)="logout()">Logout</button>
+            <button mat-menu-item>Profile</button>
+            <button mat-menu-item>Settings</button>
+          </mat-menu>
+    </div>
 </div>
-

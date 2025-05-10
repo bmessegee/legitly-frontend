@@ -1,0 +1,11 @@
+<!-- src/app/auth/login.component.html -->
+<ng-container *ngIf="auth.isAuthenticated(); else noAuth">
+    <p>✅ Logged in</p>
+    <pre>{{ auth.currentUser | json }}</pre>
+    <button (click)="logout()">Logout</button>
+  </ng-container>
+  
+  <ng-template #noAuth>
+    <button (click)="login()">Login</button>
+    <hr />
+  </ng-template>

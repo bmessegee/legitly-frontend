@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './services/auth-guard';
+import { LoginComponent } from './auth/login/login.component';
 import { UserDashboardComponent } from './components/customer/user-dashboard/user-dashboard.component';
 import { DocumentsComponent } from './components/customer/documents/documents.component';
 import { FormBuilderComponent } from './components/tenant/form-builder/form-builder.component';
@@ -11,6 +12,8 @@ import { TenantOrdersComponent } from './components/tenant/tenant-orders/tenant-
 
 
 export const routes: Routes = [
+    // public login
+    { path: 'login', component: LoginComponent },
     { path: 'messages', component: MessagesComponent, canActivate: [AuthGuard] },
     {
         path: 'customer/dashboard', component: UserDashboardComponent, canActivate: [AuthGuard],
@@ -40,4 +43,8 @@ export const routes: Routes = [
         path: 'tenant/form-builder', component: FormBuilderComponent, canActivate: [AuthGuard],
         data: { roles: ['admin'] }
     },
+
+    // fallback
+    { path: '', redirectTo: 'login', pathMatch: 'full' },
+    { path: '**', redirectTo: 'login' },
 ];

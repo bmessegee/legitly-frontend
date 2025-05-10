@@ -1,13 +1,14 @@
 
 // Define an interface for the user object.
-export interface User {
-    id: number;
-    firstName: string,
-    lastName: string,
-    email: string,
-    phone?: string,
-    username: string;
-    token: string;
+export class User {
+    //id: number;
+    sub?: string;
+    givenName?: string;
+    familyName?: string;
+    email?: string;
+    phoneNumber?: string;
+    //username: string;
+    //token: string;
     // If the user is part of a tenant organization.
     tenantId?: number;
     // Roles available for tenant users. They can be 'admin' and/or 'processor'.

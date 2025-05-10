@@ -24,7 +24,9 @@
     "@ngx-formly/bootstrap": "^6.3.12",
     "@ngx-formly/core": "^6.3.12",
     "@ngx-formly/material": "^6.3.12",
+    "angular-auth-oidc-client": "19.0.0",
     "aws-amplify": "^6.4.0",
+    "component": "^1.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
