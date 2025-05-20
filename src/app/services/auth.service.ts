@@ -16,6 +16,7 @@ export class AuthService {
   isAuthenticated$: Observable<boolean> = this._isAuth$.asObservable();
   user$:            Observable<User | null> = this._user$.asObservable();
   currentUser?:User | null;
+  bearerToken?:string | null;
 
   /** OIDC configuration (if you need it elsewhere) */
   //configuration$ = this.oidc.getConfiguration();
@@ -37,7 +38,7 @@ export class AuthService {
 
     // Map raw userData into your User model, pulling out groups
     this.oidc.userData$.subscribe(raw => {
-      if (raw) {
+      if (raw && raw.userData) {
         const groupsClaim = raw.userData['cognito:groups'] ?? raw.userData['groups'] ?? [];
         const groups = Array.isArray(groupsClaim) ? groupsClaim : [groupsClaim];
 
@@ -47,7 +48,7 @@ export class AuthService {
           phoneNumber: raw.userData.phone_number ?? raw.userData.phoneNumber,
           givenName: raw.userData.given_name ?? raw.userData.givenName,
           familyName: raw.userData.family_name ?? raw.userData.familyName,
-          //groups,
+          groups: groups
           // ...and spread any other claim you need
           //...raw
         };
@@ -62,6 +63,10 @@ export class AuthService {
       } );
     });
 
+    this.oidc.getAccessToken().subscribe((token: string) => {
+      this.bearerToken = token;
+      
+    });
     // Trigger an initial check to bootstrap state
     this.oidc.checkAuth().subscribe();
   }
@@ -91,12 +96,18 @@ export class AuthService {
     return this.currentUser != null;
   }
   isTenantUser() : boolean{
-    return false;
+    return this.checkGroupMember('Tenant');
   }
   isCustomerUser() : boolean{
-    return true;
+    return this.checkGroupMember('Customer');
   }
   isTenantAdmin() : boolean{
-    return false
+   return this.checkGroupMember('Admin');
+  }
+  checkGroupMember(name: string): boolean{
+    if(this.currentUser?.groups?.some(val => {return val == name})){
+      return true;
+    }
+    return false;
   }
 }

@@ -17,34 +17,36 @@ export const routes: Routes = [
     { path: 'messages', component: MessagesComponent, canActivate: [AuthGuard] },
     {
         path: 'customer/dashboard', component: UserDashboardComponent, canActivate: [AuthGuard],
-        data: { roles: ['super', 'regular'] }
+        data: { roles: ['Customer'] }
     },
     {
         path: 'customer/documents', component: DocumentsComponent, canActivate: [AuthGuard],
-        data: { roles: ['super', 'regular'] }
+        data: { roles: ['Customer'] }
     },
     {
         path: 'customer/product', component: ProductComponent, canActivate: [AuthGuard],
-        data: { roles: ['super', 'regular'] }
+        data: { roles: ['Customer'] }
     },
     {
         path: 'customer/orders', component: OrdersComponent, canActivate: [AuthGuard],
-        data: { roles: ['super', 'regular'] }
+        data: { roles: ['Customer'] }
     },
     {
         path: 'tenant/dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard],
-        data: { roles: ['admin', 'processor'] }
+        data: { roles: ['Admin', 'Tenant'] }
     },
     {
         path: 'tenant/orders', component: TenantOrdersComponent, canActivate: [AuthGuard],
-        data: { roles: ['admin', 'processor'] }
+        data: { roles: ['Admin', 'Tenant'] }
     },
     {
         path: 'tenant/form-builder', component: FormBuilderComponent, canActivate: [AuthGuard],
-        data: { roles: ['admin'] }
+        data: { roles: ['Admin'] }
     },
 
     // fallback
+    /*
     { path: '', redirectTo: 'login', pathMatch: 'full' },
     { path: '**', redirectTo: 'login' },
+     */
 ];

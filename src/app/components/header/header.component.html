@@ -1,7 +1,7 @@
 <div class="wrapper">
     <img class="title-icon" src="../../image.png" />
     <div class="title">Baldwin Legal Group, PLLC</div>
-    <div class="welcome">Hi {{auth.currentUser?.givenName}}</div>
+    <div *ngIf="auth.currentUser" class="welcome">Hi {{auth.currentUser?.givenName}}</div>
     <div class="cart">
         <!--<mat-icon *ngIf="authService.isCustomerUser()" matListItemIcon class="cart-icon">shopping_cart</mat-icon>-->
         <mat-icon matListItemIcon class="cart-icon" [matMenuTriggerFor]="menu">menu</mat-icon>

@@ -17,13 +17,9 @@ export class LoginComponent implements OnInit {
   public auth   = inject(AuthService);
   private router = inject(Router);
 
-  // pull in observables directly
-  isAuthenticated$: Observable<boolean>    = this.auth.isAuthenticated$;
-  //user$:        Observable<User | null> = this.auth.user$;
-
   ngOnInit(): void {
     // redirect to dashboard as soon as we see a login
-    this.isAuthenticated$.subscribe(isAuth => {
+    this.auth.user$.subscribe(isAuth => {
       if (isAuth) {
         this.router.navigate(['/customer/dashboard']);
       }

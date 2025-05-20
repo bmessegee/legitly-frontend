@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry, tap } from 'rxjs/operators';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,14 +11,14 @@ export class ApiService {
   // Base URL for your RESTful API
   private baseUrl: string = 'https://api.example.com/';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private auth: AuthService) {}
 
   /**
    * Constructs HTTP headers including Content-Type, Authorization, and Accept.
    * In a production app, consider retrieving the token from an auth service.
    */
   private getHeaders(): HttpHeaders {
-    const token = 'YOUR_BEARER_TOKEN_HERE';  // Replace with your token
+    const token = this.auth.bearerToken;  
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,

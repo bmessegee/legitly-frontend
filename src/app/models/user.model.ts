@@ -17,4 +17,5 @@ export class User {
     customerId?: number;
     // Roles available for customer users. They can be 'super' and/or 'regular'.
     customerRoles?: Array<'super' | 'regular'>;
+    groups?: Array<'Customer' | 'Admin' | 'Tenant'>;
   }
