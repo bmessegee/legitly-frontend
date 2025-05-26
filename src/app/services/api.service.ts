@@ -9,7 +9,7 @@ import { AuthService } from './auth.service';
 })
 export class ApiService {
   // Base URL for your RESTful API
-  private baseUrl: string = 'https://api.example.com/';
+  private baseUrl: string = 'https://sehplat8x2.execute-api.us-east-1.amazonaws.com/prod/';
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 

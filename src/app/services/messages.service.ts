@@ -8,7 +8,7 @@ import { ApiService } from './api.service'; // Adjust the import path as needed
 })
 export class MessagesService {
   // Define the endpoint for messages relative to the API service's base URL.
-  private messagesEndpoint = 'messages';
+  private messagesEndpoint = 'message';
 
   constructor(private apiService: ApiService) {}
 
