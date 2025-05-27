@@ -3,10 +3,10 @@ import { PassedInitialConfig } from 'angular-auth-oidc-client';
 
 export const authConfig: PassedInitialConfig = {
   config: {
-    authority: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_Uhxu4y49V',
+    authority: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_ce5QxzStL',
     redirectUrl: window.location.origin,
     postLogoutRedirectUri: window.location.origin,
-    clientId: '7j16s1gd4rt6hpqa8op5098r2e',
+    clientId: '2dosdloti2cspt1mj8q2vpugsh',
     scope: 'aws.cognito.signin.user.admin email openid phone profile',
     responseType: 'code',
     silentRenew: true,
