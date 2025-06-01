@@ -40,7 +40,7 @@ export class MessagesService {
    *
    * @param messageId The unique identifier of the message to mark as read.
    */
-  markAsRead(messageId: number): Observable<any> {
+  markAsRead(messageId: string): Observable<any> {
     const endpoint = `${this.messagesEndpoint}/${messageId}/read`;
     return this.apiService.put(endpoint, {});
   }

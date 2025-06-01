@@ -1,7 +1,8 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule }                from '@angular/common';
+import { CommonModule, NgIf }                from '@angular/common';
 import { Router }                      from '@angular/router';
 import { AuthService }                 from '../../services/auth.service';
+import { MatButtonModule } from '@angular/material/button';
 import { Observable }                  from 'rxjs';
 import { UserDataResult }              from 'angular-auth-oidc-client';
 import { User } from '../../models/user.model';
@@ -9,7 +10,7 @@ import { User } from '../../models/user.model';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule, NgIf],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
@@ -18,12 +19,7 @@ export class LoginComponent implements OnInit {
   private router = inject(Router);
 
   ngOnInit(): void {
-    // redirect to dashboard as soon as we see a login
-    this.auth.user$.subscribe(isAuth => {
-      if (isAuth) {
-        this.router.navigate(['/customer/dashboard']);
-      }
-    });
+    
   }
 
   login(): void {

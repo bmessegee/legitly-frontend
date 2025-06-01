@@ -5,9 +5,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../services/auth.service';
 import { NgIf, AsyncPipe } from '@angular/common';
-import { Observable } from 'rxjs';
-import { UserDataResult } from 'angular-auth-oidc-client';
-import { User } from '../../models/user.model';
+
 
 @Component({
   selector: 'app-header',

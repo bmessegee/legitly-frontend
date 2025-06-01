@@ -2,11 +2,11 @@
     <h3 mat-subheader>Messages</h3>
     <mat-list-item *ngFor="let message of messages"
                    (click)="onMessageClick(message)"
-                   [ngClass]="{'unread': !message.isRead}">
+                   [ngClass]="{'unread': !message.IsRead}">
       <mat-icon matListIcon>mail</mat-icon>
-      <div matLine>{{ message.subject }}</div>
+      <div matLine>{{ message.Subject }}</div>
       <div matLine>
-        <small>{{ message.timestamp | date:'short' }}</small>
+        <small>{{ message.SentOn | date:'short' }}</small>
       </div>
     </mat-list-item>
   </mat-list>

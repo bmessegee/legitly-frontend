@@ -43,9 +43,9 @@ export class MessagesComponent implements OnInit {
   // Called when a message is selected from the list.
   onSelect(message: Message): void {
     this.selectedMessage = message;
-    if (!message.isRead) {
-      this.messagesService.markAsRead(message.id).subscribe({
-        next: () => { message.isRead = true; },
+    if (!message.IsRead) {
+      this.messagesService.markAsRead(message.MessageId).subscribe({
+        next: () => { message.IsRead = true; },
         error: error => console.error('Failed to mark message as read', error)
       });
     }

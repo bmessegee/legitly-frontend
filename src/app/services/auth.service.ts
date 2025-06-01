@@ -1,41 +1,31 @@
 // src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
-import { Router }     from '@angular/router';
+import { Router } from '@angular/router';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';   // <-- your existing model
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
- 
+
   private _isAuth$ = new BehaviorSubject<boolean>(false);
-  private _user$   = new BehaviorSubject<User | null>(null);
+  private _user$ = new BehaviorSubject<User | null>(null);
 
   /** Streams for components to consume */
   isAuthenticated$: Observable<boolean> = this._isAuth$.asObservable();
-  user$:            Observable<User | null> = this._user$.asObservable();
-  currentUser?:User | null;
-  bearerToken?:string | null;
+  user$: Observable<User | null> = this._user$.asObservable();
+  currentUser?: User | null;
+  bearerToken?: string | null;
 
   /** OIDC configuration (if you need it elsewhere) */
   //configuration$ = this.oidc.getConfiguration();
 
   constructor(
-    private oidc:   OidcSecurityService,
+    private oidc: OidcSecurityService,
     private router: Router
   ) {
-    // Keep the boolean auth flag up-to-date
-    this.oidc.isAuthenticated$
-      .pipe(map(r => r.isAuthenticated))
-      .subscribe(isAuth => {
-        this._isAuth$.next(isAuth);
-        if (!isAuth) {
-          // clear user model when logged out
-          this._user$.next(null);
-        }
-      });
-
+   
     // Map raw userData into your User model, pulling out groups
     this.oidc.userData$.subscribe(raw => {
       if (raw && raw.userData) {
@@ -58,17 +48,21 @@ export class AuthService {
         this._user$.next(null);
       }
 
-      this._user$.subscribe(user =>{
+      this._user$.subscribe(user => {
         this.currentUser = user;
-      } );
+      });
     });
 
-    this.oidc.getAccessToken().subscribe((token: string) => {
-      this.bearerToken = token;
-      
-    });
-    // Trigger an initial check to bootstrap state
-    this.oidc.checkAuth().subscribe();
+    // 3) Kick off initial checkAuth() and then immediately grab the token
+    this.oidc.checkAuth()
+      .pipe(
+        // Once checkAuth() completes, switch to getAccessToken()
+        switchMap(() => this.oidc.getAccessToken())
+      )
+      .subscribe(token => {
+        // Only emits once checkAuth() has already loaded the token
+        this.bearerToken = token;
+      });
   }
 
   /** Starts the Cognito login flow */
@@ -84,28 +78,21 @@ export class AuthService {
     if (window.sessionStorage) {
       window.sessionStorage.clear();
     }
-
-    /*
-    window.location.href =
-      `https://legitly-dev.auth.us-east-1.amazoncognito.com/logout`
-      + `?client_id=7j16s1gd4rt6hpqa8op5098r2e`
-      + `&logout_uri=${encodeURIComponent(window.location.origin)}`;
-      */
   }
-  isAuthenticated():boolean{
+  isAuthenticated(): boolean {
     return this.currentUser != null;
   }
-  isTenantUser() : boolean{
+  isTenantUser(): boolean {
     return this.checkGroupMember('Tenant');
   }
-  isCustomerUser() : boolean{
+  isCustomerUser(): boolean {
     return this.checkGroupMember('Customer');
   }
-  isTenantAdmin() : boolean{
-   return this.checkGroupMember('Admin');
+  isTenantAdmin(): boolean {
+    return this.checkGroupMember('Admin');
   }
-  checkGroupMember(name: string): boolean{
-    if(this.currentUser?.groups?.some(val => {return val == name})){
+  checkGroupMember(name: string): boolean {
+    if (this.currentUser?.groups?.some(val => { return val == name })) {
       return true;
     }
     return false;
