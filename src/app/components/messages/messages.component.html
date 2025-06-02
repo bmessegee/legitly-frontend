@@ -1,21 +1,35 @@
 <div class="messaging-container">
-<mat-grid-list cols="3" rowHeight="fit" gutterSize="16px" style="height: 100%">
-    <!-- Message List Section -->
-    <mat-grid-tile colspan="1">
+  <mat-grid-list cols="4" rowHeight="250px" gutterSize="16px" style="height: 100%">
+    <!-- Message List Section   -->
+    <mat-grid-tile colspan="2" rowspan="3">
       <mat-card>
         <mat-card-header>
           <mat-card-title>Messages</mat-card-title>
         </mat-card-header>
-        <mat-card-content>
+        <mat-card-content style="overflow: auto;">
+          <!--
           <app-message-list
             [messages]="messages"
             (selectMessage)="onSelect($event)">
           </app-message-list>
+          <mat-list>
+            <h3 mat-subheader>Messages</h3>
+            <mat-list-item *ngFor="let message of messages" (click)="onSelect(message)">
+              <mat-icon matListIcon>mail</mat-icon>
+              <div matLine>{{ message.Subject }}</div>
+              <div matLine>
+                <small>{{ message.SentOn | date:'short' }}</small>
+              </div>
+            </mat-list-item>
+          </mat-list>-->
+          <app-message-detail *ngFor="let message of messages" [message]="message"></app-message-detail>
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>
-  
-    <!-- Message Detail Section -->
+
+
+
+    <!-- Message Detail Section 
     <mat-grid-tile colspan="1" *ngIf="selectedMessage">
       <mat-card>
         <mat-card-header>
@@ -25,18 +39,18 @@
           <app-message-detail [message]="selectedMessage"></app-message-detail>
         </mat-card-content>
       </mat-card>
-    </mat-grid-tile>
-  
+    </mat-grid-tile>-->
+
     <!-- New Message Form Section -->
-    <mat-grid-tile colspan="1">
+    <mat-grid-tile colspan="2" rowspan="3">
       <mat-card>
         <mat-card-header>
           <mat-card-title>New Message</mat-card-title>
         </mat-card-header>
-        <mat-card-content>
-          <!--<app-new-message (messageSent)="onMessageSent()"></app-new-message>-->
+        <mat-card-content style="overflow: auto;">
+          <app-new-message (messageSent)="onMessageSent()"></app-new-message>
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>
   </mat-grid-list>
-  </div>
+</div>

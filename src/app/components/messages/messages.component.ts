@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { Message } from '../../models/message.model';
 import { MessagesService } from '../../services/messages.service';
 import { MessageDetailComponent } from './message-detail/message-detail.component';
@@ -7,18 +7,23 @@ import { MessageListComponent } from './message-list/message-list.component';
 import { NewMessageComponent } from './new-message/new-message.component';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-messages',
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.css'],
   imports: [
-    NgIf, 
+    NgIf, NgFor, 
     MatGridListModule,
     MatCardModule,
+    MatListModule,
+    MatIconModule,
     MessageDetailComponent, 
     MessageListComponent, 
-    NewMessageComponent]
+    NewMessageComponent,
+    DatePipe]
 })
 export class MessagesComponent implements OnInit {
   // List of messages.
