@@ -8,7 +8,7 @@ import { ApiService } from './api.service'; // Adjust the import path as needed
 })
 export class MessagesService {
   // Define the endpoint for messages relative to the API service's base URL.
-  private messagesEndpoint = 'message';
+  private endpoint = 'message';
 
   constructor(private apiService: ApiService) {}
 
@@ -18,7 +18,7 @@ export class MessagesService {
    * This delegates the GET request to the ApiService.
    */
   getMessages(): Observable<Message[]> {
-    return this.apiService.get<Message[]>(this.messagesEndpoint);
+    return this.apiService.get<Message[]>(this.endpoint);
   }
 
   /**
@@ -29,7 +29,7 @@ export class MessagesService {
    * @param message Partial message data to be sent.
    */
   sendMessage(message: Partial<Message>): Observable<Message> {
-    return this.apiService.post<Message>(this.messagesEndpoint, message);
+    return this.apiService.post<Message>(this.endpoint, message);
   }
 
   /**
@@ -41,7 +41,7 @@ export class MessagesService {
    * @param messageId The unique identifier of the message to mark as read.
    */
   markAsRead(messageId: string): Observable<any> {
-    const endpoint = `${this.messagesEndpoint}/${messageId}/read`;
+    const endpoint = `${this.endpoint}/${messageId}/read`;
     return this.apiService.put(endpoint, {});
   }
 }

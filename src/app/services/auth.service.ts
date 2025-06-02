@@ -74,7 +74,7 @@ export class AuthService {
   logout(): void {
     this._isAuth$.next(false);
     this._user$.next(null);
-    this.oidc.logoff();
+    this.oidc.logoff().subscribe();
     if (window.sessionStorage) {
       window.sessionStorage.clear();
     }

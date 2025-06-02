@@ -1,5 +1,5 @@
 <div class="wrapper">
-    <img class="title-icon" src="../../image.png" />
+    <img class="title-icon" src="../../image.png" (click)="home()" style="cursor: pointer;"/>
     <div class="title">Baldwin Legal Group, PLLC</div>
     <div *ngIf="auth.currentUser" class="welcome">Hi {{auth.currentUser?.givenName}}</div>
     <div class="cart">

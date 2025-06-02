@@ -5,8 +5,8 @@ export const authConfig: PassedInitialConfig = {
   config: {
     authority: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_fpSWjGp3X',
     clientId: '7sol69mkggitf6rfkamoq0ujns',
-    redirectUrl: window.location.origin,
-    postLogoutRedirectUri: window.location.origin,
+    redirectUrl: window.location.origin + "/login",
+    postLogoutRedirectUri: window.location.origin + "/login",
     scope: 'aws.cognito.signin.user.admin email openid phone profile',
     responseType: 'code',
     silentRenew: true,
