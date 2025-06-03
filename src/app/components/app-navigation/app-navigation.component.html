@@ -1,66 +1,65 @@
+<mat-sidenav-container class="sidenav-container" *ngIf="auth.currentUser">
+  <mat-sidenav #drawer class="sidenav" [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'" [opened]="(isHandset$ | async) === false">
 
-<mat-sidenav-container  class="sidenav-container" *ngIf="auth.currentUser">
-  <mat-sidenav #drawer class="sidenav"  
-      [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-      [mode]="(isHandset$ | async) ? 'over' : 'side'"
-      [opened]="(isHandset$ | async) === false">
-      
     <mat-toolbar></mat-toolbar>
-    
-    <mat-nav-list>
-      <mat-list-item *ngIf="authService.isCustomerUser()" (click)="routeTo('customer/dashboard')">
+
+    <mat-nav-list *ngIf="auth.isAuthenticated()">
+      <mat-list-item (click)="routeTo('dashboard')">
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <div matListItemTitle>Dashboard</div>
         <!--<div matListItemLine>{{folder.updated | date}}</div>-->
+      </mat-list-item>
+      <div *ngFor="let card of cards">
+        <mat-list-item *ngIf="authService.isInRole(card.displayRoles) && card.isNav" (click)='routeTo(card.actionLink?card.actionLink:"")'>
+          <mat-icon matListItemIcon>{{card.icon}}</mat-icon>
+          <div matListItemTitle>{{card.title}}</div>
+          <!--<div matListItemLine>{{folder.updated | date}}</div>-->
+        </mat-list-item>
+      </div>
+ <!--
+      <mat-list-item *ngIf="authService.isCustomerUser()" (click)="routeTo('customer/dashboard')">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <div matListItemTitle>Dashboard</div>
       </mat-list-item>
       <mat-list-item *ngIf="authService.isTenantUser()" (click)="routeTo('tenant/dashboard')">
         <mat-icon matListItemIcon>dashboard</mat-icon>
         <div matListItemTitle>Dashboard</div>
-        <!--<div matListItemLine>{{folder.updated | date}}</div>-->
       </mat-list-item>
       <mat-list-item (click)="routeTo('/messages')">
         <mat-icon matListItemIcon>message</mat-icon>
         <div matListItemTitle>Messages</div>
-        <!--<div matListItemLine>{{folder.updated | date}}</div>-->
       </mat-list-item>
       <mat-list-item *ngIf="authService.isCustomerUser()" (click)="routeTo('customer/orders')">
         <mat-icon matListItemIcon>shopping_cart</mat-icon>
         <div matListItemTitle>Orders</div>
-        <!--<div matListItemLine>{{folder.updated | date}}</div>-->
       </mat-list-item>
       <mat-list-item *ngIf="authService.isTenantUser()" (click)="routeTo('tenant/orders')">
         <mat-icon matListItemIcon>shopping_cart</mat-icon>
         <div matListItemTitle>Orders</div>
-        <!--<div matListItemLine>{{folder.updated | date}}</div>-->
       </mat-list-item>
       <mat-list-item *ngIf="authService.isCustomerUser()" (click)="routeTo('customer/documents')">
         <mat-icon matListItemIcon>folder</mat-icon>
         <div matListItemTitle>Documents</div>
-        <!--<div matListItemLine>{{folder.updated | date}}</div>-->
       </mat-list-item>
       <mat-list-item *ngIf="authService.isTenantAdmin()" (click)="routeTo('tenant/form-builder')">
         <mat-icon matListItemIcon>dynamic_form</mat-icon>
         <div matListItemTitle>Form Builder</div>
-        <!--<div matListItemLine>{{folder.updated | date}}</div>-->
-      </mat-list-item>
+      </mat-list-item>-->
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>
-    <mat-toolbar color="primary" >
+    <mat-toolbar color="primary">
       @if (isHandset$ | async) {
-        <button
-          type="button"
-          aria-label="Toggle sidenav"
-          mat-icon-button
-          (click)="drawer?.toggle()">
-          <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-        </button>
+      <button type="button" aria-label="Toggle sidenav" mat-icon-button (click)="drawer?.toggle()">
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
       }
       <!-- Header content-->
       <span></span>
     </mat-toolbar>
     <!-- Add Content Here -->
-    
-     <router-outlet />
+
+    <router-outlet />
   </mat-sidenav-content>
 </mat-sidenav-container>

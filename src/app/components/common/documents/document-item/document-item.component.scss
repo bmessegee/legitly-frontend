@@ -1,0 +1,26 @@
+ .doc-card {
+     border: 1px solid #ddd;
+     border-radius: 8px;
+     padding: 1rem;
+     background: #fff;
+     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+
+     .doc-name {
+         margin: 0 0 0.5rem 0;
+         font-size: 1.1rem;
+         color: #333;
+     }
+
+     .doc-meta {
+         margin: 0;
+         font-size: 0.9rem;
+         color: #666;
+         line-height: 1.4;
+     }
+ }
+ .card-icon{
+  font-size:24px;
+  width:24px;
+  height:24px;
+  padding-right: 10px;
+}

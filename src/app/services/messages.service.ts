@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Message } from '../models/message.model';
 import { ApiService } from './api.service'; // Adjust the import path as needed
+import { Customer } from '../models/customer.model';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class MessagesService {
   // Define the endpoint for messages relative to the API service's base URL.
   private endpoint = 'message';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService) { }
 
   /**
    * Retrieve all messages.
@@ -21,6 +22,9 @@ export class MessagesService {
     return this.apiService.get<Message[]>(this.endpoint);
   }
 
+  getMessagesForCustomer(customer: Customer): Observable<Message[]> {
+    return this.apiService.get<Message[]>(this.endpoint + "?customerId=" + customer.CustomerId);
+  }
   /**
    * Send a new message.
    *

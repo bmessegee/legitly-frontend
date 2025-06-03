@@ -1,0 +1,29 @@
+<div class="grid-container">
+  <!--<div class="title">Available Services</div>-->
+  <mat-grid-list cols="2" rowHeight="250px">
+    @for (card of cards | async; track card) {
+      <mat-grid-tile [colspan]="card.cols" [rowspan]="card.rows">
+        <mat-card class="dashboard-card" *ngIf="authService.isInRole(card.displayRoles)">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon class="card-icon">{{card.icon}}</mat-icon>{{card.title}}
+              <!--
+              <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              
+              <mat-menu #menu="matMenu" xPosition="before">
+                <button mat-menu-item>Expand</button>
+                <button mat-menu-item>Remove</button>
+              </mat-menu>-->
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="dashboard-card-content">
+            <div class="card-content">{{card.description}}</div>
+            <button mat-button (click)='routeTo(card.actionLink?card.actionLink:"", card.actionQuery?card.actionQuery:"")'>{{card.actionDisplay}}</button>
+          </mat-card-content>
+        </mat-card>
+      </mat-grid-tile>
+    }
+  </mat-grid-list>
+</div>

@@ -91,6 +91,9 @@ export class AuthService {
   isTenantAdmin(): boolean {
     return this.checkGroupMember('Admin');
   }
+  isInRole(groups: string[]){
+    return this.currentUser?.groups?.some(val => {return groups.some(g => {return g == val})});
+  }
   checkGroupMember(name: string): boolean {
     if (this.currentUser?.groups?.some(val => { return val == name })) {
       return true;

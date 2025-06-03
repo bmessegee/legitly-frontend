@@ -1,0 +1,10 @@
+<div class="order-card">
+    <mat-icon class="card-icon">order</mat-icon>
+    <h3 class="order-name">{{ order?.OrderName}}</h3>
+    <p class="order-meta">
+        Ordered On: {{ order?.Created | date:'short' }}<br />
+        Customer: {{ order?.CustomerName }}
+        Price: {{ order?.Price }}
+    </p>
+    <button mat-button (click)="expandOrder()">Open Order</button>
+</div>

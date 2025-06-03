@@ -1,6 +1,6 @@
-import { AfterViewInit, ApplicationRef, Component, inject } from '@angular/core';
+import { AfterViewInit, Component, inject } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe, NgFor, NgIf } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -11,6 +11,7 @@ import { filter, map, shareReplay, take } from 'rxjs/operators';
 import { RouterOutlet } from '@angular/router';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { DASHBOARD_CARDS, DashboardCard } from '../../models/dashboard-card.model';
 
 @Component({
   selector: 'app-app-navigation',
@@ -24,15 +25,14 @@ import { AuthService } from '../../services/auth.service';
     MatListModule,
     MatIconModule,
     AsyncPipe,
-    NgIf,
+    NgIf, NgFor,
     RouterOutlet
   ]
 })
 export class AppNavigationComponent implements AfterViewInit {
   private breakpointObserver = inject(BreakpointObserver);
   public auth = inject(AuthService);
-  private appRef = inject(ApplicationRef);
-
+  public cards: DashboardCard[] = DASHBOARD_CARDS;
   constructor(private router: Router, public authService: AuthService) { }
 
   ngAfterViewInit() {
