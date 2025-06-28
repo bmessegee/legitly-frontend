@@ -16,6 +16,10 @@
     border-radius: var(--mat-sys-corner-medium);
     background: var(--mat-sys-secondary-container);
 }
+.title-wrapper{
+    cursor: pointer;
+    display: flex;
+}
 .cart{
     flex-grow: 1;
     text-align: right;

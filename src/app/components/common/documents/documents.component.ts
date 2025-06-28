@@ -36,6 +36,7 @@ export class DocumentsComponent implements OnInit{
       this.customer = this.customerService.getCurrentUserAsCustomer();
     }
     if(!this.customer){
+      this.loading = false;
       this.error = 'Failed to load customer';
       return;
     }

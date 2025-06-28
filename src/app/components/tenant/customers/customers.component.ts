@@ -2,7 +2,6 @@ import { NgFor, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { CustomerItemComponent } from '../../common/customer-item/customer-item.component';
-import { DocumentService } from '../../../services/document.service';
 import { CustomerService } from '../../../services/customer.service';
 import { Customer } from '../../../models/customer.model';
 
@@ -31,7 +30,7 @@ private customerService = inject(CustomerService);
         this.loading = false;
       },
       error: err => {
-        this.error = 'Failed to load documents';
+        this.error = 'Failed to load customers';
         console.error(err);
         this.loading = false;
       }

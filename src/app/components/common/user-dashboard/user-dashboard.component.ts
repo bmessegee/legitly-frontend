@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Breakpoints, BreakpointObserver } from '@angular/cdk/layout';
 import { map } from 'rxjs/operators';
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, NgIf } from '@angular/common';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,7 +14,7 @@ import { AuthService } from '../../../services/auth.service';
 @Component({
   selector: 'app-user-dashboard',
   templateUrl: './user-dashboard.component.html',
-  styleUrl: './user-dashboard.component.css',
+  styleUrl: './user-dashboard.component.scss',
   standalone: true,
   imports: [
     AsyncPipe,
@@ -22,7 +22,8 @@ import { AuthService } from '../../../services/auth.service';
     MatMenuModule,
     MatIconModule,
     MatButtonModule,
-    MatCardModule
+    MatCardModule,
+    NgIf
 ]
 })
 export class UserDashboardComponent {

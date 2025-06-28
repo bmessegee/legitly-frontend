@@ -1,6 +1,13 @@
+
+<div class="common-wrapper">
+  <div class="common-title">Messages</div>
+  <app-new-message (messageSent)="onMessageSent()"></app-new-message>
+  <app-message-detail *ngFor="let message of messages" [message]="message"></app-message-detail>
+</div>
+
 <div class="messaging-container">
-  <mat-grid-list cols="1" rowHeight="200px" gutterSize="16px" style="height: 100%">
-    <mat-grid-tile colspan="1" rowspan="2">
+  <mat-grid-list cols="4" rowHeight="200px" gutterSize="16px" style="height: 100%">
+    <mat-grid-tile colspan="4" rowspan="1">
       <mat-card>
         <mat-card-header>
           <mat-card-title>New Message</mat-card-title>
@@ -10,9 +17,9 @@
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>
-  
+
     <!-- Message List Section   -->
-    <mat-grid-tile colspan="1" rowspan="4">
+    <mat-grid-tile colspan="4" rowspan="4">
       <mat-card>
         <mat-card-header>
           <mat-card-title>Messages</mat-card-title>
@@ -38,9 +45,9 @@
       </mat-card>
     </mat-grid-tile>
 
-</mat-grid-list>
+  </mat-grid-list>
 
-    <!-- Message Detail Section 
+  <!-- Message Detail Section 
     <mat-grid-tile colspan="1" *ngIf="selectedMessage">
       <mat-card>
         <mat-card-header>
@@ -52,6 +59,6 @@
       </mat-card>
     </mat-grid-tile>-->
 
-    <!-- New Message Form Section -->
-    
+  <!-- New Message Form Section -->
+
 </div>

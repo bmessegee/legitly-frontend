@@ -61,7 +61,7 @@ export interface DashboardCard {
     icon: 'shopping_cart',
     displayRoles: ['Tenant', 'Customer'],
     actionDisplay: 'View Orders',
-    actionLink: '/customer/orders',
+    actionLink: '/orders',
     actionQuery: 'ref=dashboard',
     isNav: true
   },

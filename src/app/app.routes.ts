@@ -5,20 +5,20 @@ import { UserDashboardComponent } from './components/common/user-dashboard/user-
 import { DocumentsComponent } from './components/common/documents/documents.component';
 import { FormBuilderComponent } from './components/tenant/form-builder/form-builder.component';
 import { MessagesComponent } from './components/common/messages/messages.component';
-import { AdminDashboardComponent } from './components/tenant/admin-dashboard/admin-dashboard.component';
 import { ProductComponent } from './components/customer/product/product.component';
 import { OrdersComponent } from './components/common/orders/orders.component';
+import { CustomersComponent } from './components/tenant/customers/customers.component';
 
 
 export const routes: Routes = [
     // public login
     { path: 'login', component: LoginComponent },
     {
-        path: 'customer/dashboard', component: UserDashboardComponent, canActivate: [AuthGuard],
+        path: 'dashboard', component: UserDashboardComponent, canActivate: [AuthGuard],
         data: { roles: ['Customer'] }
     },
     {
-        path: 'documents', component: DocumentsComponent, canActivate: [AuthGuard],
+        path: 'customer/documents', component: DocumentsComponent, canActivate: [AuthGuard],
         data: { roles: ['Customer','Tenant'] }
     },
     {
@@ -34,8 +34,8 @@ export const routes: Routes = [
         data: { roles: ['Customer'] }
     },
     {
-        path: 'tenant/dashboard', component: AdminDashboardComponent, canActivate: [AuthGuard],
-        data: { roles: ['Admin', 'Tenant'] }
+        path: 'tenant/customers', component: CustomersComponent, canActivate: [AuthGuard],
+        data: { roles: ['Tenant, Admin'] }
     },
     {
         path: 'tenant/form-builder', component: FormBuilderComponent, canActivate: [AuthGuard],

@@ -1,14 +1,19 @@
 <div class="wrapper">
-    <img class="title-icon" src="../../image.png" (click)="home()" style="cursor: pointer;"/>
-    <div class="title">Baldwin Legal Group, PLLC</div>
+    <div (click)="home()" class="title-wrapper" >
+        <img class="title-icon" src="../../image.png"  />
+        <div class="title">Baldwin Legal Group, PLLC</div>
+    </div>
+
     <div *ngIf="auth.currentUser" class="welcome">Hi {{auth.currentUser?.givenName}}</div>
     <div class="cart">
         <!--<mat-icon *ngIf="authService.isCustomerUser()" matListItemIcon class="cart-icon">shopping_cart</mat-icon>-->
         <mat-icon matListItemIcon class="cart-icon" [matMenuTriggerFor]="menu">menu</mat-icon>
         <mat-menu #menu="matMenu">
-            <button mat-menu-item (click)="logout()">Logout</button>
-            <button mat-menu-item>Profile</button>
-            <button mat-menu-item>Settings</button>
-          </mat-menu>
+            <button mat-menu-item *ngIf="auth.isAuthenticated()" (click)="logout()">Logout</button>
+            <button mat-menu-item *ngIf="!auth.isAuthenticated()" (click)="login()">Login</button>
+            <!--<button mat-menu-item *ngIf="auth.isAuthenticated()" >Profile</button>-->
+            <!--<button mat-menu-item *ngIf="auth.isAuthenticated()" >Settings</button>-->
+            <button mat-menu-item (click)="help()">Help</button>
+        </mat-menu>
     </div>
 </div>

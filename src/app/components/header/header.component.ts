@@ -25,27 +25,25 @@ export class HeaderComponent {
   public router = inject(Router);
 
   public constructor() {
-
-
   }
+
   public logout() {
     this.auth.logout();
   }
-  public toggleUser() {
-    /*
-    if(this.authService.currentUser?.username =='bmessegee'){
-      this.authService.login(this.authService.testUser1);
-    }else{
-      this.authService.login(this.authService.testUser);
-    }
-      */
+  public login() {
+    this.auth.login();
   }
   public home() {
-    if (this.auth.isCustomerUser()) {
-      this.router.navigate(["./customer/dashboard"]);
-    } else {
-      this.router.navigate(["./tenant/dashboard"]);
-    }
+      this.router.navigate(["./dashboard"]);
 
+  }
+  public help(){
+    // TODO
+  }
+  public profile(){
+    // TODO
+  }
+  public settings(){
+    // TODO
   }
 }

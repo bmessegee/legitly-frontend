@@ -43,11 +43,7 @@ export class AppNavigationComponent implements AfterViewInit {
       .pipe(filter(u => !!u))
       .subscribe(user => {
         window.setTimeout(() => {
-          if (this.auth.isCustomerUser()) {
-            this.router.navigate(['/customer/dashboard']);
-          } else {
-            this.router.navigate(['/tenant/dashboard']);
-          }
+          this.router.navigate(['/dashboard']);
         }, 200)
       });
   }

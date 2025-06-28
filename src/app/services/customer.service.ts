@@ -13,16 +13,26 @@ export class CustomerService {
 
     constructor(private apiService: ApiService, private authService: AuthService) { }
 
-    getCurrentUserAsCustomer(): Customer | null{
-        if(!this.authService.isCustomerUser()){
+    getCurrentUserAsCustomer(): Customer | null {
+        if (!this.authService.isCustomerUser()) {
             return null;
         }
         var user = this.authService.currentUser;
-        //var customer  = new (){
-        //CustomerName: user?.givenName + " " + user?.familyName
-        //CustomerEmail
-      //};
-      return null;
+        if (!user) {
+            return null;
+        }
+        const customer: Customer = {
+            CustomerId: user.customerId || "", 
+            TenantId: user.tenantId || "",                 
+            CustomerName: `${user.givenName ?? ''} ${user.familyName ?? ''}`.trim(),
+            CustomerEmail: user.email ?? '',
+            Created: new Date(),
+            Updated: new Date(),
+            CreatedBy: "",
+            UpdatedBy: "",
+        };
+
+        return customer;
     }
     /**
      * Retrieve all messages.
@@ -32,5 +42,5 @@ export class CustomerService {
     getCustomers(): Observable<Customer[]> {
         return this.apiService.get<Customer[]>(this.endpoint);
     }
-    
+
 }

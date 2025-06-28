@@ -14,7 +14,7 @@ import { Customer } from '../../../models/customer.model';
 @Component({
   selector: 'app-messages',
   templateUrl: './messages.component.html',
-  styleUrls: ['./messages.component.css'],
+  styleUrls: ['./messages.component.scss'],
   imports: [
     NgIf, NgFor, 
     MatGridListModule,
