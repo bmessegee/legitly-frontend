@@ -5,16 +5,19 @@ import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';   // <-- your existing model
+import { Customer } from '../models/customer.model';
+import { ApiService } from './api.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
   private _isAuth$ = new BehaviorSubject<boolean>(false);
   private _user$ = new BehaviorSubject<User | null>(null);
-
+  
   /** Streams for components to consume */
   isAuthenticated$: Observable<boolean> = this._isAuth$.asObservable();
   user$: Observable<User | null> = this._user$.asObservable();
+
   currentUser?: User | null;
   bearerToken?: string | null;
 
@@ -25,7 +28,7 @@ export class AuthService {
     private oidc: OidcSecurityService,
     private router: Router
   ) {
-   
+
     // Map raw userData into your User model, pulling out groups
     this.oidc.userData$.subscribe(raw => {
       if (raw && raw.userData) {
@@ -42,12 +45,12 @@ export class AuthService {
           // ...and spread any other claim you need
           //...raw
         };
-
         this._user$.next(user);
       } else {
         this._user$.next(null);
       }
 
+      // This executed once upon login - trigger one-time setups
       this._user$.subscribe(user => {
         this.currentUser = user;
       });
@@ -62,6 +65,9 @@ export class AuthService {
       .subscribe(token => {
         // Only emits once checkAuth() has already loaded the token
         this.bearerToken = token;
+        if(this.bearerToken){
+          this._isAuth$.next(true);
+        }
       });
   }
 
@@ -91,8 +97,8 @@ export class AuthService {
   isTenantAdmin(): boolean {
     return this.checkGroupMember('Admin');
   }
-  isInRole(groups: string[]){
-    return this.currentUser?.groups?.some(val => {return groups.some(g => {return g == val})});
+  isInRole(groups: string[]) {
+    return this.currentUser?.groups?.some(val => { return groups.some(g => { return g == val }) });
   }
   checkGroupMember(name: string): boolean {
     if (this.currentUser?.groups?.some(val => { return val == name })) {
