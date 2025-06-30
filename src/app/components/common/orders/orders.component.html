@@ -1,7 +1,7 @@
 <div class="common-container">
   <!-- Loading indicator -->
   <div *ngIf="loading" class="loading">
-    Loading your documents…
+    Loading orders…
   </div>
 
   <!-- Error message -->
@@ -11,12 +11,12 @@
 
   <!-- No documents case -->
   <div *ngIf="!loading && !error && orders.length === 0" class="no-docs">
-    You have no orders.
+    No orders found.
   </div>
 
   <!-- Grid of document‐cards -->
   <div class="grid" *ngIf="!loading && !error && orders.length > 0">
-    <div class="loading">We found {{orders.length}} orders for you.</div>
+    <div class="loading">We found {{orders.length}} orders.</div>
     <!-- If tenant user show uploader for this customer -->
      <app-order-item  *ngFor="let doc of orders" [order]="doc"></app-order-item>
   

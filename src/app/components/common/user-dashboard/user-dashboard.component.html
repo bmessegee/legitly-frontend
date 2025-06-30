@@ -2,8 +2,8 @@
   <!--<div class="title">Available Services</div>-->
   <mat-grid-list cols="2" rowHeight="250px">
     @for (card of cards | async; track card) {
-      <mat-grid-tile [colspan]="card.cols" [rowspan]="card.rows">
-        <mat-card class="dashboard-card" *ngIf="authService.isInRole(card.displayRoles)">
+      <mat-grid-tile [colspan]="card.cols" [rowspan]="card.rows" *ngIf="authService.isInRole(card.displayRoles)">
+        <mat-card class="dashboard-card" >
           <mat-card-header>
             <mat-card-title>
               <mat-icon class="card-icon">{{card.icon}}</mat-icon>{{card.title}}

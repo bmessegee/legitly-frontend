@@ -42,7 +42,7 @@ export interface DashboardCard {
   {
     id: 'messages',
     cols: 1,
-    rows: 2,
+    rows: 1,
     title: 'Messages',
     description: 'Send, receive, and view messages',
     icon: 'message',

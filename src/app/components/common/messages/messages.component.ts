@@ -10,6 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { Customer } from '../../../models/customer.model';
+import { CustomerService } from '../../../services/customer.service';
 
 @Component({
   selector: 'app-messages',
@@ -31,13 +32,37 @@ export class MessagesComponent implements OnInit {
   @Input() customer: Customer | null = null;
   // List of messages.
   messages: Message[] = [];
+  loading = true;
+  error: string | null = null;
+
   // The currently selected message (to view details).
   selectedMessage?: Message;
   
-  constructor(private messagesService: MessagesService) {}
+  constructor(private messagesService: MessagesService, private customerService: CustomerService) {}
+
+
+
 
   ngOnInit(): void {
-    this.loadMessages();
+    if(!this.customer){
+      this.customer = this.customerService.getCurrentUserAsCustomer();
+    }
+    if(!this.customer){
+      this.loading = false;
+      this.error = 'Failed to load customer';
+      return;
+    }
+    this.messagesService.getMessagesForCustomer(this.customer).subscribe({
+      next: docs => {
+        this.messages = docs;
+        this.loading = false;
+      },
+      error: err => {
+        this.error = 'Failed to load messages for customer ' + this.customer?.Name;
+        console.error(err);
+        this.loading = false;
+      }
+    });
   }
 
   // Loads messages from the service.

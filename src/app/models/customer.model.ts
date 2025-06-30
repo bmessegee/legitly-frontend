@@ -1,7 +1,7 @@
 export interface Customer {
     CustomerId: string;
     TenantId: string;
-    CustomerName: string;
+    Name: string;
     CustomerEmail: string;
     Created: Date;
     Updated: Date;

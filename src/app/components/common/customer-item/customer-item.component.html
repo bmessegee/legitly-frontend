@@ -1,18 +1,18 @@
-<div class="doc-card">
-    <mat-icon class="card-icon">person</mat-icon>
-    <h3 class="doc-name">{{ customer?.CustomerName }}</h3>
-    <p class="doc-meta">
+<div class="common-card">
+    <mat-icon class="common-card-icon">person</mat-icon>
+    <h3 class="common-name">{{ customer?.Name }}</h3>
+    <p class="common-meta">
         Created: {{ customer?.Created| date:'short' }}<br />
         Customer ID: {{ customer?.CustomerId }}
     </p>
     <!-- TODO Expando of customer orders-->
-    <app-orders></app-orders>
+    <app-orders [customer]="customer"></app-orders>
 
     <!-- TODO Expando of customer documents-->
-    <app-documents></app-documents>
+    <app-documents [customer]="customer"></app-documents>
 
-    <!-- TODO Expando of customer documents-->
-    <app-messages></app-messages>
+    <!-- TODO Expando of customer messages
+    <app-messages [customer]="customer"></app-messages>-->
     
     <button mat-button>TODO</button>
 </div>

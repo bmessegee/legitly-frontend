@@ -46,7 +46,7 @@ export class DocumentsComponent implements OnInit{
         this.loading = false;
       },
       error: err => {
-        this.error = 'Failed to load documents for customer ' + this.customer?.CustomerName;
+        this.error = 'Failed to load documents for customer ' + this.customer?.Name;
         console.error(err);
         this.loading = false;
       }

@@ -15,7 +15,7 @@ export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     {
         path: 'dashboard', component: UserDashboardComponent, canActivate: [AuthGuard],
-        data: { roles: ['Customer'] }
+        data: { roles: ['Customer', 'Tenant'] }
     },
     {
         path: 'customer/documents', component: DocumentsComponent, canActivate: [AuthGuard],
@@ -35,7 +35,7 @@ export const routes: Routes = [
     },
     {
         path: 'tenant/customers', component: CustomersComponent, canActivate: [AuthGuard],
-        data: { roles: ['Tenant, Admin'] }
+        data: { roles: ['Tenant', 'Admin'] }
     },
     {
         path: 'tenant/form-builder', component: FormBuilderComponent, canActivate: [AuthGuard],

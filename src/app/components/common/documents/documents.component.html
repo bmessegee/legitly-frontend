@@ -1,7 +1,7 @@
 <div class="common-container">
   <!-- Loading indicator -->
   <div *ngIf="loading" class="loading">
-    Loading your documents…
+    Loading documents…
   </div>
 
   <!-- Error message -->
@@ -11,12 +11,12 @@
 
   <!-- No documents case -->
   <div *ngIf="!loading && !error && documents.length === 0" class="no-docs">
-    You have no documents.
+    No documents found.
   </div>
 
   <!-- Grid of document‐cards -->
   <div class="grid" *ngIf="!loading && !error && documents.length > 0">
-    <div class="loading">We found {{documents.length}} documents for you.</div>
+    <div class="loading">We found {{documents.length}} documents.</div>
     <!-- TODO Add filter-->
     <!-- If tenant user show uploader for this customer -->
      <div *ngIf="authService.isTenantUser()">TODO - Upload new documents here</div>

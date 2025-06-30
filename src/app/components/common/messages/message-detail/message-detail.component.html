@@ -1,3 +1,4 @@
+<!--
 <mat-card *ngIf="message" class="message-detail">
     <mat-card-header>
       <mat-card-title>{{ message.Subject }}</mat-card-title>
@@ -7,3 +8,15 @@
       <p>{{ message.Content }}</p>
     </mat-card-content>
   </mat-card>
+-->
+  <div class="common-card">
+    <mat-icon class="common-card-icon">drafts</mat-icon>
+    <h3 class="common-name">{{ message?.Subject }}</h3>
+    <p class="common-meta">
+        Sent: {{ message?.SentOn| date:'short' }}<br />
+    </p>
+    <p class="common-meta">
+        {{ message?.Content}}
+    </p>
+    <button mat-button >Reply</button>
+</div>
