@@ -12,8 +12,8 @@
   <!-- No documents case -->
   <div *ngIf="!loading && !error && documents.length === 0" class="no-docs">
     No documents found.
-    <!-- If tenant user show uploader for this customer -->
-    <div *ngIf="authService.isTenantUser()">
+    <!-- Show uploader for both customer and tenant users -->
+    <div *ngIf="customer?.CustomerId">
       <app-document-upload [customerId]="customer?.CustomerId"></app-document-upload>
     </div>
   </div>
@@ -22,8 +22,8 @@
   <div class="grid" *ngIf="!loading && !error && documents.length > 0">
     <div class="loading">We found {{documents.length}} documents.</div>
     <!-- TODO Add filter-->
-    <!-- If tenant user show uploader for this customer -->
-     <div *ngIf="authService.isTenantUser()">
+    <!-- Show uploader for both customer and tenant users -->
+     <div *ngIf="customer?.CustomerId">
        <app-document-upload [customerId]="customer?.CustomerId"></app-document-upload>
      </div>
     <app-document-item *ngFor="let doc of documents" [document]="doc"></app-document-item>

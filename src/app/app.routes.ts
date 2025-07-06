@@ -10,7 +10,6 @@ import { OrdersComponent } from './components/common/orders/orders.component';
 import { CustomersComponent } from './components/tenant/customers/customers.component';
 import { CartComponent } from './components/common/cart/cart.component';
 import { CheckoutComponent } from './components/customer/checkout/checkout.component';
-import { DocumentUploadComponent } from './components/common/document-upload/document-upload.component';
 
 
 export const routes: Routes = [
@@ -22,10 +21,6 @@ export const routes: Routes = [
     },
     {
         path: 'customer/documents', component: DocumentsComponent, canActivate: [AuthGuard],
-        data: { roles: ['Customer','Tenant'] }
-    },
-    {
-        path: 'upload', component: DocumentUploadComponent, canActivate: [AuthGuard],
         data: { roles: ['Customer','Tenant'] }
     },
     {

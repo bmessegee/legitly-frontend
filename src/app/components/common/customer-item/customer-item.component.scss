@@ -1,1 +1,58 @@
  @import url("../common.styles.scss");
+
+.customer-expansion-panel {
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.customer-icon {
+  margin-right: 8px;
+  color: #666;
+}
+
+.customer-name {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.customer-id, .customer-created {
+  font-size: 12px;
+  color: #666;
+  margin-right: 16px;
+}
+
+.customer-details {
+  padding: 16px 0;
+}
+
+.tab-content {
+  padding: 16px 0;
+  min-height: 200px;
+}
+
+.lazy-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  color: #666;
+  font-style: italic;
+}
+
+.filter-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.filter-field {
+  width: 100%;
+  max-width: 400px;
+}
+
+.results-count {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+}

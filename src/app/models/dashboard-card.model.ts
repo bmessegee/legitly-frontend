@@ -46,7 +46,7 @@ export interface DashboardCard {
     title: 'Messages',
     description: 'Send, receive, and view messages',
     icon: 'message',
-    displayRoles: ['Tenant', 'Customer'],
+    displayRoles: ['Customer'],
     actionDisplay: 'View Messages',
     actionLink: '/messages',
     actionQuery: 'ref=dashboard',
@@ -59,7 +59,7 @@ export interface DashboardCard {
     title: 'Orders',
     description: 'View past and pending orders',
     icon: 'shopping_cart',
-    displayRoles: ['Tenant', 'Customer'],
+    displayRoles: ['Customer'],
     actionDisplay: 'View Orders',
     actionLink: '/orders',
     actionQuery: 'ref=dashboard',
@@ -91,30 +91,4 @@ export interface DashboardCard {
     actionQuery: 'ref=dashboard',
     isNav: true
   },
-  {
-    id: 'document-upload',
-    cols: 1,
-    rows: 1,
-    title: 'Upload Documents',
-    description: 'Upload legal documents securely',
-    icon: 'cloud_upload',
-    displayRoles: ['Customer', 'Tenant'],
-    actionDisplay: 'Upload Files',
-    actionLink: '/upload',
-    actionQuery: 'ref=dashboard',
-    isNav: true
-  },
-  {
-    id: 'products',
-    cols: 1,
-    rows: 1,
-    title: 'Products',
-    description: 'View all product listings',
-    icon: 'folder',
-    displayRoles: ['Tenant', 'Admin'],
-    actionDisplay: 'View Product Listings',
-    actionLink: '/tenant/templates',
-    actionQuery: 'ref=dashboard',
-    isNav: true
-  }
 ];

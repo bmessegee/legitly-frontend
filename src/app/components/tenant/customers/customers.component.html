@@ -9,15 +9,43 @@
     {{ error }}
   </div>
 
-  <!-- No documents case -->
+  <!-- Filter section -->
+  <div *ngIf="!loading && !error && customers.length > 0" class="filter-section">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Filter customers by name</mat-label>
+      <input 
+        matInput 
+        [(ngModel)]="filterText" 
+        (input)="onFilterChange()"
+        placeholder="Search customer names...">
+      <mat-icon matSuffix>search</mat-icon>
+      <button 
+        *ngIf="filterText" 
+        matSuffix 
+        mat-icon-button 
+        (click)="clearFilter()"
+        type="button">
+        <mat-icon>clear</mat-icon>
+      </button>
+    </mat-form-field>
+    
+    <div class="results-count">
+      Showing {{ filteredCustomers.length }} of {{ customers.length }} customers
+    </div>
+  </div>
+
+  <!-- No customers case -->
   <div *ngIf="!loading && !error && customers.length === 0" class="no-docs">
     No customers found.
   </div>
 
-  <!-- Grid of document‐cards -->
-  <div class="grid" *ngIf="!loading && !error && customers.length > 0">
-    <div class="loading">We found {{customers.length}} customers.</div>
-    <!-- If tenant user show uploader for this customer -->
-     <app-customer-item  *ngFor="let doc of customers" [customer]="doc"></app-customer-item>
+  <!-- No filtered results case -->
+  <div *ngIf="!loading && !error && customers.length > 0 && filteredCustomers.length === 0" class="no-docs">
+    No customers match your filter criteria.
+  </div>
+
+  <!-- Grid of customer cards -->
+  <div class="grid" *ngIf="!loading && !error && filteredCustomers.length > 0">
+    <app-customer-item *ngFor="let customer of filteredCustomers" [customer]="customer"></app-customer-item>
   </div>
 </div>
