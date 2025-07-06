@@ -1,18 +1,122 @@
 .wrapper {
-    padding: 10px;
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.product-header {
+    margin-bottom: 30px;
+    padding: 20px;
+    border-radius: var(--mat-sys-corner-medium);
+    background: var(--mat-sys-surface-container);
+    border: 1px solid var(--mat-sys-outline-variant);
 }
 
 .title {
-    font: var(--mat-sys-headline-small)
+    font: var(--mat-sys-headline-small);
+    color: var(--mat-sys-primary);
+    margin-bottom: 10px;
 }
-.price{
-    font: var(--mat-sys-title-medium)
+
+.price {
+    font: var(--mat-sys-title-medium);
+    color: var(--mat-sys-secondary);
+    margin-bottom: 15px;
+    font-weight: 600;
 }
+
 .instructions {
     color: var(--mat-sys-primary);
-    margin: 10px;
-    padding: 10px;
+    margin: 15px 0;
+    padding: 15px;
     border-radius: var(--mat-sys-corner-medium);
     background: var(--mat-sys-secondary-container);
     font-family: roboto;
+    line-height: 1.5;
+}
+
+.product-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    
+    .add-to-cart-button {
+        background-color: #4caf50;
+        color: white;
+        font-weight: 500;
+        
+        mat-icon {
+            margin-right: 8px;
+        }
+        
+        &:hover {
+            background-color: #45a049;
+        }
+    }
+    
+    .view-cart-button {
+        mat-icon {
+            margin-right: 8px;
+        }
+    }
+}
+
+.form-section {
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: var(--mat-sys-corner-medium);
+    background: var(--mat-sys-surface);
+    border: 1px solid var(--mat-sys-outline-variant);
+    
+    h3 {
+        color: var(--mat-sys-primary);
+        margin-bottom: 10px;
+        font: var(--mat-sys-title-large);
+    }
+    
+    .form-description {
+        color: var(--mat-sys-on-surface-variant);
+        margin-bottom: 20px;
+        font-style: italic;
+    }
+}
+
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    
+    .submit-button {
+        mat-icon {
+            margin-right: 8px;
+        }
+    }
+}
+
+// Responsive design
+@media (max-width: 600px) {
+    .wrapper {
+        padding: 10px;
+    }
+    
+    .product-header, .form-section {
+        padding: 15px;
+    }
+    
+    .product-actions {
+        flex-direction: column;
+        
+        button {
+            width: 100%;
+        }
+    }
+    
+    .title {
+        font: var(--mat-sys-headline-small);
+    }
+    
+    .price {
+        font: var(--mat-sys-title-medium);
+    }
 }

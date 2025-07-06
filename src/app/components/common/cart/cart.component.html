@@ -1,0 +1,121 @@
+<div class="cart-container">
+  <mat-card class="cart-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>shopping_cart</mat-icon>
+        Shopping Cart
+        <span class="cart-count-badge" *ngIf="cartCount$ | async as count">
+          <mat-icon matBadge="{{count}}" matBadgeColor="accent">shopping_cart</mat-icon>
+        </span>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div *ngIf="cartItems$ | async as items; else emptyCart">
+        <mat-list *ngIf="items.length > 0; else emptyCart">
+          <mat-list-item *ngFor="let item of items; let last = last">
+            <div class="cart-item">
+              <div class="item-details">
+                <h3 class="item-name">{{ item.ProductName }}</h3>
+                <p class="item-description">{{ item.Description }}</p>
+                <p class="item-price">${{ item.Price | number:'1.2-2' }}</p>
+              </div>
+
+              <div class="item-controls">
+                <div class="quantity-controls">
+                  <button 
+                    mat-icon-button 
+                    (click)="decreaseQuantity(item)"
+                    [disabled]="item.Quantity <= 1"
+                    aria-label="Decrease quantity">
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                  
+                  <span class="quantity">{{ item.Quantity }}</span>
+                  
+                  <button 
+                    mat-icon-button 
+                    (click)="increaseQuantity(item)"
+                    aria-label="Increase quantity">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+
+                <div class="item-total">
+                  <strong>${{ getItemTotal(item) | number:'1.2-2' }}</strong>
+                </div>
+
+                <button 
+                  mat-icon-button 
+                  color="warn" 
+                  (click)="removeItem(item)"
+                  aria-label="Remove item">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+            
+            <mat-divider *ngIf="!last"></mat-divider>
+          </mat-list-item>
+        </mat-list>
+
+        <div class="cart-summary" *ngIf="items.length > 0">
+          <mat-divider></mat-divider>
+          <div class="summary-row">
+            <span class="summary-label">Total Items:</span>
+            <span class="summary-value">{{ cartCount$ | async }}</span>
+          </div>
+          <div class="summary-row total-row">
+            <span class="summary-label">Total Amount:</span>
+            <span class="summary-value">${{ cartTotal$ | async | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <div class="cart-actions" *ngIf="items.length > 0">
+          <button 
+            mat-button 
+            color="primary" 
+            (click)="continueShopping()"
+            class="action-button">
+            <mat-icon>arrow_back</mat-icon>
+            Continue Shopping
+          </button>
+          
+          <button 
+            mat-button 
+            color="warn" 
+            (click)="clearCart()"
+            class="action-button">
+            <mat-icon>clear</mat-icon>
+            Clear Cart
+          </button>
+          
+          <button 
+            mat-raised-button 
+            color="accent" 
+            (click)="proceedToCheckout()"
+            class="action-button checkout-button">
+            <mat-icon>payment</mat-icon>
+            Proceed to Checkout
+          </button>
+        </div>
+      </div>
+
+      <ng-template #emptyCart>
+        <div class="empty-cart">
+          <mat-icon class="empty-cart-icon">shopping_cart</mat-icon>
+          <h3>Your cart is empty</h3>
+          <p>Add some legal services to get started!</p>
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="continueShopping()"
+            class="shop-button">
+            <mat-icon>store</mat-icon>
+            Browse Services
+          </button>
+        </div>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+</div>

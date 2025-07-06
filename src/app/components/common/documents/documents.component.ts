@@ -7,6 +7,7 @@ import { DocumentItemComponent } from "./document-item/document-item.component";
 import { Customer } from '../../../models/customer.model';
 import { CustomerService } from '../../../services/customer.service';
 import { AuthService } from '../../../services/auth.service';
+import { DocumentUploadComponent } from '../document-upload/document-upload.component';
 
 @Component({
   selector: 'app-documents',
@@ -15,7 +16,8 @@ import { AuthService } from '../../../services/auth.service';
     NgIf, 
     NgFor, 
     MatButtonModule, 
-    DocumentItemComponent
+    DocumentItemComponent,
+    DocumentUploadComponent
   ],
   templateUrl: './documents.component.html',
   styleUrl: './documents.component.scss'

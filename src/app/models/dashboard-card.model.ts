@@ -92,6 +92,19 @@ export interface DashboardCard {
     isNav: true
   },
   {
+    id: 'document-upload',
+    cols: 1,
+    rows: 1,
+    title: 'Upload Documents',
+    description: 'Upload legal documents securely',
+    icon: 'cloud_upload',
+    displayRoles: ['Customer', 'Tenant'],
+    actionDisplay: 'Upload Files',
+    actionLink: '/upload',
+    actionQuery: 'ref=dashboard',
+    isNav: true
+  },
+  {
     id: 'products',
     cols: 1,
     rows: 1,

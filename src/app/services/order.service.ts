@@ -29,4 +29,22 @@ export class OrderService {
     getOrder(id: string): Observable<string> {
         return this.apiService.get<string>(this.endpoint + "/" + id);
     }
+
+    /**
+     * Create a new order.
+     *
+     * This delegates the POST request to the ApiService.
+     */
+    createOrder(order: Order): Observable<Order> {
+        return this.apiService.post<Order>(this.endpoint, order);
+    }
+
+    /**
+     * Update an existing order.
+     *
+     * This delegates the PUT request to the ApiService.
+     */
+    updateOrder(order: Order): Observable<Order> {
+        return this.apiService.put<Order>(this.endpoint, order);
+    }
 }

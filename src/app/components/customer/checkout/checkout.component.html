@@ -1,0 +1,190 @@
+<div class="checkout-container">
+  <mat-card class="checkout-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>payment</mat-icon>
+        Checkout
+      </mat-card-title>
+      <mat-card-subtitle>Complete your legal service order</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-stepper #stepper [linear]="true" class="checkout-stepper">
+        
+        <!-- Step 1: Order Review -->
+        <mat-step [stepControl]="customerForm" label="Review Order">
+          <div class="step-content">
+            <h3>Order Summary</h3>
+            
+            <div class="order-items" *ngIf="cartItems$ | async as items">
+              <div class="order-item" *ngFor="let item of items">
+                <div class="item-details">
+                  <h4>{{ item.ProductName }}</h4>
+                  <p class="item-description">{{ item.Description }}</p>
+                  <div class="item-pricing">
+                    <span class="quantity">Qty: {{ item.Quantity }}</span>
+                    <span class="price">${{ item.Price | number:'1.2-2' }} each</span>
+                    <span class="line-total">${{ getItemTotal(item) | number:'1.2-2' }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <mat-divider></mat-divider>
+              
+              <div class="order-total">
+                <div class="total-row">
+                  <span class="total-label">Total Amount:</span>
+                  <span class="total-amount">${{ cartTotal$ | async | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-actions">
+              <button mat-button (click)="goBack()">
+                <mat-icon>arrow_back</mat-icon>
+                Back to Cart
+              </button>
+              <button mat-raised-button color="primary" matStepperNext>
+                <mat-icon>arrow_forward</mat-icon>
+                Continue
+              </button>
+            </div>
+          </div>
+        </mat-step>
+
+        <!-- Step 2: Customer Information -->
+        <mat-step [stepControl]="customerForm" label="Customer Information">
+          <div class="step-content">
+            <h3>Contact Information</h3>
+            
+            <form [formGroup]="customerForm" class="customer-form">
+              <div class="form-row">
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>First Name</mat-label>
+                  <input matInput formControlName="firstName" required>
+                  <mat-error *ngIf="customerForm.get('firstName')?.hasError('required')">
+                    First name is required
+                  </mat-error>
+                  <mat-error *ngIf="customerForm.get('firstName')?.hasError('minlength')">
+                    First name must be at least 2 characters
+                  </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="form-field">
+                  <mat-label>Last Name</mat-label>
+                  <input matInput formControlName="lastName" required>
+                  <mat-error *ngIf="customerForm.get('lastName')?.hasError('required')">
+                    Last name is required
+                  </mat-error>
+                  <mat-error *ngIf="customerForm.get('lastName')?.hasError('minlength')">
+                    Last name must be at least 2 characters
+                  </mat-error>
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline" class="form-field full-width">
+                <mat-label>Email Address</mat-label>
+                <input matInput type="email" formControlName="email" required>
+                <mat-error *ngIf="customerForm.get('email')?.hasError('required')">
+                  Email is required
+                </mat-error>
+                <mat-error *ngIf="customerForm.get('email')?.hasError('email')">
+                  Please enter a valid email address
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="form-field full-width">
+                <mat-label>Phone Number</mat-label>
+                <input matInput formControlName="phoneNumber" required>
+                <mat-error *ngIf="customerForm.get('phoneNumber')?.hasError('required')">
+                  Phone number is required
+                </mat-error>
+                <mat-error *ngIf="customerForm.get('phoneNumber')?.hasError('pattern')">
+                  Please enter a valid phone number
+                </mat-error>
+              </mat-form-field>
+            </form>
+
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>
+                <mat-icon>arrow_back</mat-icon>
+                Previous
+              </button>
+              <button 
+                mat-raised-button 
+                color="primary" 
+                matStepperNext
+                [disabled]="!customerForm.valid">
+                <mat-icon>arrow_forward</mat-icon>
+                Continue to Payment
+              </button>
+            </div>
+          </div>
+        </mat-step>
+
+        <!-- Step 3: Payment -->
+        <mat-step [stepControl]="paymentForm" label="Payment">
+          <div class="step-content">
+            <h3>Payment Information</h3>
+            
+            <form [formGroup]="paymentForm" class="payment-form">
+              <mat-form-field appearance="outline" class="form-field full-width">
+                <mat-label>Name on Card</mat-label>
+                <input matInput formControlName="nameOnCard" required>
+                <mat-error *ngIf="paymentForm.get('nameOnCard')?.hasError('required')">
+                  Name on card is required
+                </mat-error>
+              </mat-form-field>
+
+              <div class="card-element-container">
+                <label class="card-label">Card Information</label>
+                <div #cardElement class="card-element">
+                  <!-- Stripe Elements will mount here -->
+                </div>
+                <div class="card-helper-text">
+                  <mat-icon class="security-icon">lock</mat-icon>
+                  Your payment information is secure and encrypted
+                </div>
+              </div>
+
+              <div class="payment-summary">
+                <div class="summary-row">
+                  <span>Total Amount:</span>
+                  <span class="amount">${{ cartTotal$ | async | number:'1.2-2' }}</span>
+                </div>
+              </div>
+
+              <div class="terms-section">
+                <mat-checkbox formControlName="agreeToTerms" required>
+                  I agree to the <a href="#" target="_blank">Terms of Service</a> and 
+                  <a href="#" target="_blank">Privacy Policy</a>
+                </mat-checkbox>
+                <mat-error *ngIf="paymentForm.get('agreeToTerms')?.hasError('required') && paymentForm.get('agreeToTerms')?.touched">
+                  You must agree to the terms to continue
+                </mat-error>
+              </div>
+            </form>
+
+            <div class="step-actions">
+              <button mat-button matStepperPrevious [disabled]="isProcessing">
+                <mat-icon>arrow_back</mat-icon>
+                Previous
+              </button>
+              <button 
+                mat-raised-button 
+                color="accent" 
+                (click)="processPayment()"
+                [disabled]="!isFormValid() || isProcessing"
+                class="pay-button">
+                <mat-spinner diameter="20" *ngIf="isProcessing"></mat-spinner>
+                <mat-icon *ngIf="!isProcessing">payment</mat-icon>
+                {{ isProcessing ? 'Processing...' : 'Complete Payment' }}
+              </button>
+            </div>
+          </div>
+        </mat-step>
+
+      </mat-stepper>
+    </mat-card-content>
+  </mat-card>
+</div>

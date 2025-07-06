@@ -1,14 +1,51 @@
 <div class="wrapper">
-    <div class="title">{{this.formConfig?.title}}</div>
-    <div class="price">Cost: ${{this.formConfig?.cost}}</div>
-    <div class="instructions">
-        {{this.formConfig?.instructions}}
-       
+    <div class="product-header">
+        <div class="title">{{this.formConfig?.title}}</div>
+        <div class="price">Cost: ${{this.formConfig?.cost | number:'1.2-2'}}</div>
+        <div class="instructions">
+            {{this.formConfig?.instructions}}
+        </div>
+        
+        <div class="product-actions">
+            <button 
+                mat-raised-button 
+                color="accent" 
+                (click)="addToCart()"
+                class="add-to-cart-button">
+                <mat-icon>add_shopping_cart</mat-icon>
+                Add to Cart
+            </button>
+            
+            <button 
+                mat-button 
+                color="primary" 
+                (click)="goToCart()"
+                class="view-cart-button">
+                <mat-icon>shopping_cart</mat-icon>
+                View Cart
+            </button>
+        </div>
     </div>
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-      <button type="submit" [disabled]="!form.valid">Submit</button>
-    </form>
+
+    <div class="form-section">
+        <h3>Service Details Form</h3>
+        <p class="form-description">Fill out this form to provide details for your service. You can submit this form now or add the service to your cart and fill it out during checkout.</p>
+        
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+          <div class="form-actions">
+              <button 
+                  mat-raised-button 
+                  color="primary" 
+                  type="submit" 
+                  [disabled]="!form.valid"
+                  class="submit-button">
+                  <mat-icon>send</mat-icon>
+                  Submit Service Request
+              </button>
+          </div>
+        </form>
+    </div>
     <div *ngIf="form.valid && model">
       <h4>Model Value</h4>
       <pre>{{ model | json }}</pre>

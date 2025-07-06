@@ -8,6 +8,9 @@ import { MessagesComponent } from './components/common/messages/messages.compone
 import { ProductComponent } from './components/customer/product/product.component';
 import { OrdersComponent } from './components/common/orders/orders.component';
 import { CustomersComponent } from './components/tenant/customers/customers.component';
+import { CartComponent } from './components/common/cart/cart.component';
+import { CheckoutComponent } from './components/customer/checkout/checkout.component';
+import { DocumentUploadComponent } from './components/common/document-upload/document-upload.component';
 
 
 export const routes: Routes = [
@@ -22,12 +25,24 @@ export const routes: Routes = [
         data: { roles: ['Customer','Tenant'] }
     },
     {
+        path: 'upload', component: DocumentUploadComponent, canActivate: [AuthGuard],
+        data: { roles: ['Customer','Tenant'] }
+    },
+    {
         path: 'messages', component: MessagesComponent, canActivate: [AuthGuard],
         data: { roles: ['Customer','Tenant'] }
     },
     {
         path: 'orders', component: OrdersComponent, canActivate: [AuthGuard],
         data: { roles: ['Customer','Tenant'] }
+    },
+    {
+        path: 'cart', component: CartComponent, canActivate: [AuthGuard],
+        data: { roles: ['Customer'] }
+    },
+    {
+        path: 'checkout', component: CheckoutComponent, canActivate: [AuthGuard],
+        data: { roles: ['Customer'] }
     },
     {
         path: 'customer/product', component: ProductComponent, canActivate: [AuthGuard],

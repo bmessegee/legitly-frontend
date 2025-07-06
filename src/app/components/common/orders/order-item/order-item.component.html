@@ -1,10 +1,10 @@
 <div class="common-card">
     <mat-icon class="common-card-icon">order</mat-icon>
-    <h3 class="common-name">{{ order?.OrderName}}</h3>
+    <h3 class="common-name">{{ order?.OrderId}}</h3>
     <p class="common-meta">
         Ordered On: {{ order?.Created | date:'short' }}<br />
-        Customer: {{ order?.CustomerName }}
-        Price: {{ order?.Price }}
+        Customer: {{ order?.CustomerDetails?.FirstName + " " +  order?.CustomerDetails?.LastName }}
+        Price: {{ order?.TotalAmount }}
     </p>
     <button mat-button (click)="expandOrder()">Open Order</button>
 </div>

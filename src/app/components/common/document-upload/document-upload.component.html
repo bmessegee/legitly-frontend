@@ -1,0 +1,178 @@
+<div class="upload-container">
+  <mat-card class="upload-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>cloud_upload</mat-icon>
+        Document Upload
+      </mat-card-title>
+      <mat-card-subtitle>
+        <span *ngIf="!customerId">Upload your legal documents securely</span>
+        <span *ngIf="customerId">Upload documents for customer</span>
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      
+      <!-- Upload Form -->
+      <form [formGroup]="uploadForm" class="upload-form">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category" required>
+            <mat-option *ngFor="let category of documentCategories" [value]="category.value">
+              {{ category.label }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="uploadForm.get('category')?.hasError('required')">
+            Category is required
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Description (Optional)</mat-label>
+          <textarea 
+            matInput 
+            formControlName="description" 
+            placeholder="Describe the document(s)..."
+            rows="3">
+          </textarea>
+        </mat-form-field>
+      </form>
+
+      <!-- File Drop Zone -->
+      <div 
+        class="drop-zone"
+        [class.drag-over]="isDragOver"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)"
+        (click)="selectFiles()">
+        
+        <div class="drop-zone-content">
+          <mat-icon class="upload-icon">cloud_upload</mat-icon>
+          <h3>Drop files here or click to browse</h3>
+          <p>Supported formats: PDF, Images, Word, Excel, Text files</p>
+          <p class="size-limit">Maximum file size: 10MB</p>
+        </div>
+
+        <input 
+          #fileInput 
+          type="file" 
+          multiple 
+          hidden 
+          accept=".pdf,.jpg,.jpeg,.png,.gif,.txt,.doc,.docx,.xls,.xlsx"
+          (change)="onFileInputChange($event)">
+      </div>
+
+      <!-- Selected Files List -->
+      <div *ngIf="selectedFiles.length > 0" class="selected-files">
+        <div class="files-header">
+          <h3>Selected Files ({{ selectedFiles.length }})</h3>
+          <button mat-button color="warn" (click)="clearFiles()">
+            <mat-icon>clear_all</mat-icon>
+            Clear All
+          </button>
+        </div>
+
+        <mat-list class="files-list">
+          <mat-list-item *ngFor="let file of selectedFiles; let i = index" class="file-item">
+            <mat-icon matListItemIcon [attr.aria-label]="file.type">
+              {{ getFileIcon(file) }}
+            </mat-icon>
+            
+            <div matListItemTitle class="file-info">
+              <span class="file-name">{{ file.name }}</span>
+              <span class="file-size">{{ formatFileSize(file.size) }}</span>
+            </div>
+
+            <button 
+              mat-icon-button 
+              color="warn" 
+              (click)="removeFile(i)"
+              matTooltip="Remove file"
+              matListItemMeta>
+              <mat-icon>remove_circle</mat-icon>
+            </button>
+          </mat-list-item>
+        </mat-list>
+
+        <div class="upload-actions">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="uploadFiles()"
+            [disabled]="!uploadForm.valid || selectedFiles.length === 0"
+            class="upload-button">
+            <mat-icon>cloud_upload</mat-icon>
+            Upload {{ selectedFiles.length }} File(s)
+          </button>
+        </div>
+      </div>
+
+      <!-- Upload Progress -->
+      <div *ngIf="uploadProgress$ | async as progressList" class="upload-progress">
+        <div *ngIf="progressList.length > 0" class="progress-section">
+          <div class="progress-header">
+            <h3>Upload Progress</h3>
+            <button mat-button (click)="clearAllProgress()">
+              <mat-icon>clear_all</mat-icon>
+              Clear All
+            </button>
+          </div>
+
+          <mat-list class="progress-list">
+            <mat-list-item *ngFor="let progress of progressList" class="progress-item">
+              <mat-icon 
+                matListItemIcon 
+                [style.color]="getProgressColor(progress) === 'warn' ? '#f44336' : 
+                              getProgressColor(progress) === 'primary' ? '#4caf50' : '#2196f3'">
+                {{ getStatusIcon(progress) }}
+              </mat-icon>
+              
+              <div matListItemTitle class="progress-info">
+                <div class="progress-file-name">{{ progress.fileName }}</div>
+                <div class="progress-details">
+                  <mat-progress-bar 
+                    [mode]="progress.status === 'uploading' ? 'determinate' : 'determinate'"
+                    [value]="progress.progress"
+                    [color]="getProgressColor(progress)">
+                  </mat-progress-bar>
+                  <span class="progress-text">
+                    {{ progress.progress }}% 
+                    <span class="progress-status">({{ progress.status }})</span>
+                  </span>
+                </div>
+                <div *ngIf="progress.error" class="progress-error">
+                  Error: {{ progress.error }}
+                </div>
+              </div>
+
+              <button 
+                mat-icon-button 
+                (click)="clearProgress(progress.documentId)"
+                matTooltip="Clear progress"
+                matListItemMeta>
+                <mat-icon>close</mat-icon>
+              </button>
+            </mat-list-item>
+          </mat-list>
+        </div>
+      </div>
+
+      <!-- Help Text -->
+      <div class="help-section">
+        <mat-divider></mat-divider>
+        <div class="help-content">
+          <h4>File Upload Guidelines</h4>
+          <ul>
+            <li>Maximum file size: 10MB per file</li>
+            <li>Supported formats: PDF, JPEG, PNG, GIF, TXT, DOC, DOCX, XLS, XLSX</li>
+            <li>Files are uploaded securely and encrypted</li>
+            <li>You can upload multiple files at once</li>
+            <li>Processing may take a few moments after upload</li>
+          </ul>
+        </div>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+</div>
