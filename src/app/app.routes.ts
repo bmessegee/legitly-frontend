@@ -8,6 +8,7 @@ import { MessagesComponent } from './components/common/messages/messages.compone
 import { ProductComponent } from './components/customer/product/product.component';
 import { OrdersComponent } from './components/common/orders/orders.component';
 import { CustomersComponent } from './components/tenant/customers/customers.component';
+import { MessagesInboxComponent } from './components/tenant/messages-inbox/messages-inbox.component';
 import { CartComponent } from './components/common/cart/cart.component';
 import { CheckoutComponent } from './components/customer/checkout/checkout.component';
 
@@ -45,6 +46,10 @@ export const routes: Routes = [
     },
     {
         path: 'tenant/customers', component: CustomersComponent, canActivate: [AuthGuard],
+        data: { roles: ['Tenant', 'Admin'] }
+    },
+    {
+        path: 'tenant/messages-inbox', component: MessagesInboxComponent, canActivate: [AuthGuard],
         data: { roles: ['Tenant', 'Admin'] }
     },
     {

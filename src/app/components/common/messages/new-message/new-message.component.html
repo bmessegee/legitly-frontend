@@ -1,24 +1,20 @@
 <mat-card class="new-message">
-  <!--<mat-card-title>Compose New Message</mat-card-title>-->
+  <mat-card-title>{{ isReply ? 'Reply to Message' : 'Compose New Message' }}</mat-card-title>
+  
   <form [formGroup]="messageForm" (ngSubmit)="onSubmit()">
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Recipient ID</mat-label>
-      <input matInput type="number" formControlName="recipientId" placeholder="Enter Recipient ID">
-    </mat-form-field>
-
-    <mat-form-field appearance="fill" class="full-width">
+    <mat-form-field appearance="fill" class="full-width" *ngIf="!isReply">
       <mat-label>Subject</mat-label>
       <input matInput type="text" formControlName="subject" placeholder="Message subject">
     </mat-form-field>
 
     <mat-form-field appearance="fill" class="full-width">
-      <mat-label>Message</mat-label>
-      <textarea matInput formControlName="body" placeholder="Write your message"></textarea>
+      <mat-label>{{ isReply ? 'Reply' : 'Message' }}</mat-label>
+      <textarea matInput formControlName="content" placeholder="Write your message" rows="6"></textarea>
     </mat-form-field>
 
     <div style="margin: 16px; text-align: center;">
       <button mat-raised-button color="primary" type="submit" [disabled]="!messageForm.valid">
-        Send Message
+        {{ isReply ? 'Send Reply' : 'Send Message' }}
       </button>
     </div>
   </form>

@@ -1,0 +1,192 @@
+<div class="inbox-container">
+  <!-- Header -->
+  <div class="inbox-header">
+    <h2>
+      <mat-icon>inbox</mat-icon>
+      Messages Inbox
+      <mat-badge *ngIf="getUnreadCount() > 0" [matBadge]="getUnreadCount()" matBadgeColor="accent">
+      </mat-badge>
+    </h2>
+    
+    <!-- Filter -->
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Search messages</mat-label>
+      <input 
+        matInput 
+        [(ngModel)]="filterText" 
+        (input)="onFilterChange()"
+        placeholder="Search by subject, customer, or content...">
+      <mat-icon matSuffix>search</mat-icon>
+      <button 
+        *ngIf="filterText" 
+        matSuffix 
+        mat-icon-button 
+        (click)="clearFilter()"
+        type="button">
+        <mat-icon>clear</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading">
+    <mat-icon>hourglass_empty</mat-icon>
+    Loading messages...
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error">
+    <mat-icon>error</mat-icon>
+    {{ error }}
+    <button mat-button (click)="loadTenantInbox()">Retry</button>
+  </div>
+
+  <!-- Main content -->
+  <div *ngIf="!loading && !error" class="inbox-content">
+    
+    <!-- No messages -->
+    <div *ngIf="filteredThreads.length === 0" class="no-messages">
+      <mat-icon>inbox</mat-icon>
+      <h3>No messages found</h3>
+      <p *ngIf="filterText">Try adjusting your search criteria.</p>
+      <p *ngIf="!filterText">No conversations yet. Messages will appear here when customers send them.</p>
+    </div>
+
+    <!-- Messages layout -->
+    <div *ngIf="filteredThreads.length > 0" class="messages-layout">
+      
+      <!-- Thread list -->
+      <div class="thread-list">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Conversations ({{ filteredThreads.length }})</mat-card-title>
+          </mat-card-header>
+          
+          <mat-list>
+            <mat-list-item 
+              *ngFor="let thread of filteredThreads" 
+              (click)="selectThread(thread)"
+              [class.selected]="selectedThread?.ThreadId === thread.ThreadId"
+              class="thread-item">
+              
+              <mat-icon matListItemIcon [class.unread]="thread.UnreadCount > 0">
+                {{ thread.UnreadCount > 0 ? 'mark_email_unread' : 'mark_email_read' }}
+              </mat-icon>
+              
+              <div matListItemTitle class="thread-title">
+                <div class="subject-line">
+                  <span class="subject">{{ thread.Subject }}</span>
+                  <mat-badge 
+                    *ngIf="thread.UnreadCount > 0" 
+                    [matBadge]="thread.UnreadCount" 
+                    matBadgeSize="small"
+                    matBadgeColor="accent">
+                  </mat-badge>
+                </div>
+                <div class="thread-meta">
+                  <span class="customer">{{ getCustomerName(thread.CustomerId) }}</span>
+                  <span class="date">{{ formatMessageDate(thread.LastMessageDate) }}</span>
+                </div>
+                <div class="thread-preview">{{ getThreadPreview(thread) }}</div>
+              </div>
+              
+              <mat-icon matListItemMeta class="thread-arrow">chevron_right</mat-icon>
+            </mat-list-item>
+          </mat-list>
+        </mat-card>
+      </div>
+
+      <!-- Thread detail -->
+      <div class="thread-detail" *ngIf="selectedThread">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>{{ selectedThread.Subject }}</mat-card-title>
+            <mat-card-subtitle>
+              Conversation with {{ getCustomerName(selectedThread.CustomerId) }}
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <!-- Messages in thread -->
+            <div class="messages-container">
+              <div 
+                *ngFor="let message of selectedThread.Messages" 
+                class="message-item"
+                [class.sent-by-me]="message.SenderId === authService.currentUser?.userId"
+                [class.unread]="!message.IsRead && message.RecipientId === authService.currentUser?.userId">
+                
+                <div class="message-header">
+                  <div class="sender">
+                    <mat-icon>{{ message.SenderId === authService.currentUser?.userId ? 'account_circle' : 'person' }}</mat-icon>
+                    <span>{{ getMessageSenderName(message) }}</span>
+                  </div>
+                  <div class="message-date">
+                    {{ message.SentOn | date:'medium' }}
+                  </div>
+                </div>
+                
+                <div class="message-content">
+                  {{ message.Content }}
+                </div>
+                
+                <div class="message-actions">
+                  <button 
+                    mat-button 
+                    color="primary" 
+                    (click)="showReply(message)"
+                    [disabled]="showReplyForm">
+                    <mat-icon>reply</mat-icon>
+                    Reply
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reply form -->
+            <div *ngIf="showReplyForm" class="reply-form">
+              <mat-divider></mat-divider>
+              <h4>Reply to {{ getMessageSenderName(selectedMessageForReply!) }}</h4>
+              
+              <mat-form-field appearance="outline" class="reply-input">
+                <mat-label>Your reply</mat-label>
+                <textarea 
+                  matInput 
+                  [(ngModel)]="replyText"
+                  placeholder="Type your reply here..."
+                  rows="4"
+                  maxlength="2000">
+                </textarea>
+                <mat-hint>{{ replyText.length }}/2000</mat-hint>
+              </mat-form-field>
+              
+              <div class="reply-actions">
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  (click)="sendReply()"
+                  [disabled]="!replyText.trim()">
+                  <mat-icon>send</mat-icon>
+                  Send Reply
+                </button>
+                <button mat-button (click)="cancelReply()">
+                  Cancel
+                </button>
+              </div>
+            </div>
+
+            <!-- Quick reply button -->
+            <div *ngIf="!showReplyForm" class="quick-reply">
+              <button 
+                mat-raised-button 
+                color="primary" 
+                (click)="showReply()">
+                <mat-icon>reply</mat-icon>
+                Reply to Thread
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>

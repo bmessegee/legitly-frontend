@@ -37,6 +37,7 @@ export class AuthService {
 
         const user: User = {
           sub: raw.userData.sub,
+          userId: raw.userData.sub, // Map userId to sub for consistency
           email: raw.userData.email,
           phoneNumber: raw.userData.phone_number ?? raw.userData.phoneNumber,
           givenName: raw.userData.given_name ?? raw.userData.givenName,

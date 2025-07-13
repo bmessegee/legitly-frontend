@@ -1,51 +1,76 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Message } from '../models/message.model';
-import { ApiService } from './api.service'; // Adjust the import path as needed
+import { Message, MessageThread, MessageType } from '../models/message.model';
+import { ApiService } from './api.service';
 import { Customer } from '../models/customer.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MessagesService {
-  // Define the endpoint for messages relative to the API service's base URL.
   private endpoint = 'message';
 
   constructor(private apiService: ApiService) { }
 
   /**
-   * Retrieve all messages.
-   *
-   * This delegates the GET request to the ApiService.
+   * Get all message threads for tenant inbox
    */
+  getTenantInbox(): Observable<MessageThread[]> {
+    return this.apiService.get<MessageThread[]>(`messages/tenant/inbox`);
+  }
+
+  /**
+   * Get message threads for a specific customer
+   */
+  getCustomerThreads(customerId: string): Observable<MessageThread[]> {
+    return this.apiService.get<MessageThread[]>(`messages/customer/${customerId}/threads`);
+  }
+
+  /**
+   * Get all messages in a specific thread
+   */
+  getMessageThread(threadId: string): Observable<Message[]> {
+    return this.apiService.get<Message[]>(`messages/thread/${threadId}`);
+  }
+
+  /**
+   * Create a new message thread (first message in conversation)
+   */
+  createMessageThread(message: Message): Observable<Message> {
+    return this.apiService.post<Message>(`messages/thread`, message);
+  }
+
+  /**
+   * Reply to an existing message
+   */
+  replyToMessage(parentMessageId: string, content: string): Observable<Message> {
+    return this.apiService.post<Message>(`messages/reply/${parentMessageId}`, { content });
+  }
+
+  /**
+   * Mark a specific message as read
+   */
+  markAsRead(messageId: string): Observable<any> {
+    return this.apiService.post(`messages/mark-read/${messageId}`, {});
+  }
+
+  /**
+   * Mark entire thread as read
+   */
+  markThreadAsRead(threadId: string): Observable<any> {
+    return this.apiService.post(`messages/thread/${threadId}/mark-read`, {});
+  }
+
+  // Legacy methods for backward compatibility
   getMessages(): Observable<Message[]> {
     return this.apiService.get<Message[]>(this.endpoint);
   }
 
   getMessagesForCustomer(customer: Customer): Observable<Message[]> {
-    return this.apiService.get<Message[]>(this.endpoint + "?customerId=" + customer.CustomerId);
-  }
-  /**
-   * Send a new message.
-   *
-   * This delegates the POST request to the ApiService.
-   *
-   * @param message Partial message data to be sent.
-   */
-  sendMessage(message: Partial<Message>): Observable<Message> {
-    return this.apiService.post<Message>(this.endpoint, message);
+    return this.apiService.get<Message[]>(`${this.endpoint}?customerId=${customer.CustomerId}`);
   }
 
-  /**
-   * Mark a message as read.
-   *
-   * This delegates the PUT request to the ApiService by appending `/read`
-   * to the message endpoint.
-   *
-   * @param messageId The unique identifier of the message to mark as read.
-   */
-  markAsRead(messageId: string): Observable<any> {
-    const endpoint = `${this.endpoint}/${messageId}/read`;
-    return this.apiService.put(endpoint, {});
+  sendMessage(message: Partial<Message>): Observable<Message> {
+    return this.apiService.post<Message>(this.endpoint, message);
   }
 }

@@ -79,6 +79,19 @@ export interface DashboardCard {
     isNav: true
   },
   {
+    id: 'tenant-messages-inbox',
+    cols: 2,
+    rows: 1,
+    title: 'Messages Inbox',
+    description: 'View all customer messages and conversations',
+    icon: 'inbox',
+    displayRoles: ['Tenant', 'Admin'],
+    actionDisplay: 'View Inbox',
+    actionLink: '/tenant/messages-inbox',
+    actionQuery: '',
+    isNav: true
+  },
+  {
     id: 'documents',
     cols: 1,
     rows: 1,
