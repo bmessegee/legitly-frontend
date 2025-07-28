@@ -42,9 +42,9 @@ export class AuthService {
           phoneNumber: raw.userData.phone_number ?? raw.userData.phoneNumber,
           givenName: raw.userData.given_name ?? raw.userData.givenName,
           familyName: raw.userData.family_name ?? raw.userData.familyName,
-          groups: groups
-          // ...and spread any other claim you need
-          //...raw
+          groups: groups,
+          tenantId: raw.userData['custom:tenantId'] || raw.userData.tenantId || '',
+          customerId: raw.userData['custom:customerId'] || raw.userData.customerId || ''
         };
         this._user$.next(user);
       } else {

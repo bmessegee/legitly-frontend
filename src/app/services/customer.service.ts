@@ -30,23 +30,24 @@ export class CustomerService {
         }
         if(this.customer){
             return this.customer;
-        }else{
-            return null;
         }
-        /*     
-        const customer: Customer = {
-            CustomerId: user.customerId || "", 
-            TenantId: user.tenantId || "",                 
-            CustomerName: `${user.givenName ?? ''} ${user.familyName ?? ''}`.trim(),
-            CustomerEmail: user.email ?? '',
-            Created: new Date(),
-            Updated: new Date(),
-            CreatedBy: "",
-            UpdatedBy: "",
-        };
-
-        return customer;
-        */
+        
+        // If customer isn't loaded from API yet, create one from user data
+        if (user.customerId && user.tenantId) {
+            const customer: Customer = {
+                CustomerId: user.customerId, 
+                TenantId: user.tenantId,                 
+                Name: `${user.givenName ?? ''} ${user.familyName ?? ''}`.trim(),
+                CustomerEmail: user.email ?? '',
+                Created: new Date(),
+                Updated: new Date(),
+                CreatedBy: user.userId || '',
+                UpdatedBy: user.userId || '',
+            };
+            return customer;
+        }
+        
+        return null;
     }
 
     // Called to initialize the customer if exists

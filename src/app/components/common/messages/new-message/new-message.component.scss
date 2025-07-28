@@ -1,9 +1,37 @@
+.dialog-content {
+  min-width: 500px;
+}
+
+mat-dialog-content {
+  padding: 16px 24px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-dialog-actions {
+  padding: 8px 24px 16px 24px;
+  gap: 8px;
+}
+
 .new-message form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .new-message label {
-    font-weight: bold;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.new-message label {
+  font-weight: bold;
+}

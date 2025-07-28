@@ -8,25 +8,38 @@
       </mat-badge>
     </h2>
     
-    <!-- Filter -->
-    <mat-form-field appearance="outline" class="filter-field">
-      <mat-label>Search messages</mat-label>
-      <input 
-        matInput 
-        [(ngModel)]="filterText" 
-        (input)="onFilterChange()"
-        placeholder="Search by subject, customer, or content...">
-      <mat-icon matSuffix>search</mat-icon>
+    <div class="header-actions">
+      <!-- New Message Button -->
       <button 
-        *ngIf="filterText" 
-        matSuffix 
-        mat-icon-button 
-        (click)="clearFilter()"
-        type="button">
-        <mat-icon>clear</mat-icon>
+        mat-raised-button 
+        color="primary" 
+        (click)="openNewMessageModal()"
+        class="compose-button">
+        <mat-icon>add</mat-icon>
+        New Message
       </button>
-    </mat-form-field>
+      
+      <!-- Filter -->
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Search messages</mat-label>
+        <input 
+          matInput 
+          [(ngModel)]="filterText" 
+          (input)="onFilterChange()"
+          placeholder="Search by subject, customer, or content...">
+        <mat-icon matSuffix>search</mat-icon>
+        <button 
+          *ngIf="filterText" 
+          matSuffix 
+          mat-icon-button 
+          (click)="clearFilter()"
+          type="button">
+          <mat-icon>clear</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
   </div>
+
 
   <!-- Loading -->
   <div *ngIf="loading" class="loading">
@@ -128,58 +141,15 @@
                 <div class="message-content">
                   {{ message.Content }}
                 </div>
-                
-                <div class="message-actions">
-                  <button 
-                    mat-button 
-                    color="primary" 
-                    (click)="showReply(message)"
-                    [disabled]="showReplyForm">
-                    <mat-icon>reply</mat-icon>
-                    Reply
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Reply form -->
-            <div *ngIf="showReplyForm" class="reply-form">
-              <mat-divider></mat-divider>
-              <h4>Reply to {{ getMessageSenderName(selectedMessageForReply!) }}</h4>
-              
-              <mat-form-field appearance="outline" class="reply-input">
-                <mat-label>Your reply</mat-label>
-                <textarea 
-                  matInput 
-                  [(ngModel)]="replyText"
-                  placeholder="Type your reply here..."
-                  rows="4"
-                  maxlength="2000">
-                </textarea>
-                <mat-hint>{{ replyText.length }}/2000</mat-hint>
-              </mat-form-field>
-              
-              <div class="reply-actions">
-                <button 
-                  mat-raised-button 
-                  color="primary" 
-                  (click)="sendReply()"
-                  [disabled]="!replyText.trim()">
-                  <mat-icon>send</mat-icon>
-                  Send Reply
-                </button>
-                <button mat-button (click)="cancelReply()">
-                  Cancel
-                </button>
               </div>
             </div>
 
             <!-- Quick reply button -->
-            <div *ngIf="!showReplyForm" class="quick-reply">
+            <div class="quick-reply">
               <button 
                 mat-raised-button 
                 color="primary" 
-                (click)="showReply()">
+                (click)="openReplyModal()">
                 <mat-icon>reply</mat-icon>
                 Reply to Thread
               </button>

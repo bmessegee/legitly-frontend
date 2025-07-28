@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Message, MessageThread, MessageType } from '../models/message.model';
 import { ApiService } from './api.service';
 import { Customer } from '../models/customer.model';
@@ -23,7 +24,21 @@ export class MessagesService {
    * Get message threads for a specific customer
    */
   getCustomerThreads(customerId: string): Observable<MessageThread[]> {
-    return this.apiService.get<MessageThread[]>(`messages/customer/${customerId}/threads`);
+    return this.apiService.get<MessageThread[] | MessageThread>(`messages/customer/${customerId}/threads`)
+      .pipe(
+        map(response => {
+          console.log('Raw API response:', response);
+          // Handle case where API returns single thread object instead of array
+          if (Array.isArray(response)) {
+            return response;
+          } else if (response && typeof response === 'object') {
+            // Single thread object, wrap in array
+            return [response as MessageThread];
+          } else {
+            return [];
+          }
+        })
+      );
   }
 
   /**

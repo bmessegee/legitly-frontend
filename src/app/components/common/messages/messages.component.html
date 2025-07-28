@@ -1,4 +1,23 @@
 <div class="messages-container">
+  <!-- Header -->
+  <div class="messages-header" *ngIf="!loading && !error">
+    <h2>
+      <mat-icon>chat</mat-icon>
+      Messages
+    </h2>
+    
+    <div class="header-actions">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        (click)="openNewMessageModal()"
+        class="compose-button">
+        <mat-icon>add</mat-icon>
+        New Message
+      </button>
+    </div>
+  </div>
+
   <!-- Loading indicator -->
   <div *ngIf="loading" class="loading">
     Loading message threads…
@@ -9,38 +28,33 @@
     {{ error }}
   </div>
 
+
+
   <!-- No message threads case -->
   <div *ngIf="!loading && !error && messageThreads.length === 0" class="no-threads">
     <mat-card>
       <mat-card-content>
         <p>No message conversations found.</p>
-        <button mat-raised-button color="primary" (click)="toggleNewMessage()">
-          Start New Conversation
-        </button>
+        <p>Click "New Message" above to start your first conversation.</p>
       </mat-card-content>
     </mat-card>
   </div>
 
   <!-- Main messaging interface -->
-  <div class="messaging-grid" *ngIf="!loading && !error">
-    <mat-grid-list cols="3" rowHeight="fit" gutterSize="16px">
+  <div class="messaging-container" *ngIf="!loading && !error && messageThreads.length > 0">
+    <div class="messaging-layout">
       
       <!-- Thread List Section -->
-      <mat-grid-tile colspan="1" rowspan="1">
+      <div class="thread-list-section">
         <mat-card class="thread-list-card">
           <mat-card-header>
             <mat-card-title>Conversations</mat-card-title>
-            <div class="spacer"></div>
-            <button mat-icon-button color="primary" (click)="toggleNewMessage()" 
-                    matTooltip="Start New Conversation">
-              <mat-icon>add</mat-icon>
-            </button>
           </mat-card-header>
           <mat-card-content>
             <mat-list *ngIf="messageThreads.length > 0">
-              <mat-list-item *ngFor="let thread of messageThreads" 
+              <mat-list-item *ngFor="let thread of messageThreads; let i = index" 
                            (click)="onSelectThread(thread)"
-                           [class.selected]="selectedThread?.ThreadId === thread.ThreadId">
+                           [class.selected]="selectedThread?.Subject === thread.Subject && selectedThread?.CustomerId === thread.CustomerId">
                 <mat-icon matListIcon>
                   {{ thread.UnreadCount > 0 ? 'mark_email_unread' : 'email' }}
                 </mat-icon>
@@ -56,33 +70,23 @@
               </mat-list-item>
             </mat-list>
             <div *ngIf="messageThreads.length === 0" class="empty-state">
-              No conversations yet.
+              No conversations yet. Use "New Message" above to start one.
             </div>
           </mat-card-content>
         </mat-card>
-      </mat-grid-tile>
+      </div>
 
       <!-- Conversation View Section -->
-      <mat-grid-tile colspan="2" rowspan="1">
+      <div class="conversation-section">
         <mat-card class="conversation-card">
-          <!-- New Message Form (when visible) -->
-          <div *ngIf="showNewMessage" class="new-message-section">
-            <app-new-message 
-              [isReply]="false"
-              [customerId]="customer?.CustomerId"
-              [tenantId]="getTenantId()"
-              (messageSent)="onMessageSent()">
-            </app-new-message>
-            <mat-divider></mat-divider>
-          </div>
-
           <!-- Selected Thread Conversation -->
-          <div *ngIf="selectedThread && !showNewMessage">
+          <div *ngIf="selectedThread">
             <mat-card-header>
               <mat-card-title>{{ selectedThread.Subject }}</mat-card-title>
               <div class="spacer"></div>
               <button mat-icon-button color="primary" 
-                      matTooltip="Reply to conversation">
+                      matTooltip="Reply to conversation"
+                      (click)="openReplyModal()">
                 <mat-icon>reply</mat-icon>
               </button>
             </mat-card-header>
@@ -99,32 +103,20 @@
                   <div class="message-content">{{ message.Content }}</div>
                 </div>
               </div>
-              
-              <!-- Quick Reply Section -->
-              <div class="reply-section" *ngIf="selectedThread">
-                <app-new-message 
-                  [isReply]="true"
-                  [parentMessage]="selectedThreadMessages[selectedThreadMessages.length - 1]"
-                  (messageSent)="onMessageSent()">
-                </app-new-message>
-              </div>
             </mat-card-content>
           </div>
 
           <!-- No Thread Selected State -->
-          <div *ngIf="!selectedThread && !showNewMessage" class="no-selection">
+          <div *ngIf="!selectedThread" class="no-selection">
             <mat-card-content class="center-content">
               <mat-icon class="large-icon">chat</mat-icon>
               <h3>Select a conversation</h3>
               <p>Choose a conversation from the list to view messages</p>
-              <button mat-raised-button color="primary" (click)="toggleNewMessage()">
-                Start New Conversation
-              </button>
             </mat-card-content>
           </div>
         </mat-card>
-      </mat-grid-tile>
+      </div>
 
-    </mat-grid-list>
+    </div>
   </div>
 </div>

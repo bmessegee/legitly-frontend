@@ -1,5 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { NgFor, NgIf, DatePipe } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,14 +9,19 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { FormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { MessageThread, Message, MessageType } from '../../../models/message.model';
+import { Customer } from '../../../models/customer.model';
 import { MessagesService } from '../../../services/messages.service';
 import { AuthService } from '../../../services/auth.service';
 import { CustomerService } from '../../../services/customer.service';
+import { NewMessageComponent } from '../../common/messages/new-message/new-message.component';
 
 @Component({
   selector: 'app-messages-inbox',
@@ -25,6 +31,7 @@ import { CustomerService } from '../../../services/customer.service';
     NgFor,
     DatePipe,
     FormsModule,
+    ReactiveFormsModule,
     MatCardModule,
     MatListModule,
     MatIconModule,
@@ -33,8 +40,11 @@ import { CustomerService } from '../../../services/customer.service';
     MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
+    MatTooltipModule,
     MatExpansionModule,
-    MatTabsModule
+    MatTabsModule,
+    MatDialogModule
   ],
   templateUrl: './messages-inbox.component.html',
   styleUrls: ['./messages-inbox.component.scss']
@@ -43,6 +53,8 @@ export class MessagesInboxComponent implements OnInit {
   private messagesService = inject(MessagesService);
   public authService = inject(AuthService);
   private customerService = inject(CustomerService);
+  private fb = inject(FormBuilder);
+  private dialog = inject(MatDialog);
 
   messageThreads: MessageThread[] = [];
   filteredThreads: MessageThread[] = [];
@@ -50,12 +62,30 @@ export class MessagesInboxComponent implements OnInit {
   loading = true;
   error: string | null = null;
   filterText = '';
-  replyText = '';
-  showReplyForm = false;
-  selectedMessageForReply?: Message;
+
+  // New message functionality
+  availableCustomers: Customer[] = [];
 
   ngOnInit(): void {
     this.loadTenantInbox();
+    this.loadAvailableCustomers();
+  }
+
+  openNewMessageModal(): void {
+    const dialogRef = this.dialog.open(NewMessageComponent, {
+      width: '600px',
+      data: {
+        isReply: false,
+        tenantId: this.authService.currentUser?.tenantId,
+        availableCustomers: this.availableCustomers
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.success) {
+        this.loadTenantInbox();
+      }
+    });
   }
 
   loadTenantInbox(): void {
@@ -96,11 +126,9 @@ export class MessagesInboxComponent implements OnInit {
 
   selectThread(thread: MessageThread): void {
     this.selectedThread = thread;
-    this.showReplyForm = false;
-    this.selectedMessageForReply = undefined;
     
     // Mark thread as read
-    if (thread.UnreadCount > 0) {
+    if (thread.UnreadCount > 0 && thread.ThreadId) {
       this.messagesService.markThreadAsRead(thread.ThreadId).subscribe({
         next: () => {
           thread.UnreadCount = 0;
@@ -116,43 +144,38 @@ export class MessagesInboxComponent implements OnInit {
     }
   }
 
-  showReply(message?: Message): void {
-    this.selectedMessageForReply = message || this.getLastMessage();
-    this.showReplyForm = true;
-    this.replyText = '';
-  }
+  openReplyModal(message?: Message): void {
+    const targetMessage = message || this.getLastMessage();
+    if (!targetMessage) return;
+    
+    const dialogRef = this.dialog.open(NewMessageComponent, {
+      width: '600px',
+      data: {
+        isReply: true,
+        parentMessage: targetMessage,
+        customerId: this.selectedThread?.CustomerId,
+        tenantId: this.authService.currentUser?.tenantId,
+        threadSubject: this.selectedThread?.Subject
+      }
+    });
 
-  cancelReply(): void {
-    this.showReplyForm = false;
-    this.selectedMessageForReply = undefined;
-    this.replyText = '';
-  }
-
-  sendReply(): void {
-    if (!this.selectedMessageForReply || !this.replyText.trim()) {
-      return;
-    }
-
-    this.messagesService.replyToMessage(this.selectedMessageForReply.MessageId, this.replyText).subscribe({
-      next: (reply) => {
-        // Add reply to current thread
-        if (this.selectedThread) {
-          this.selectedThread.Messages.push(reply);
-          this.selectedThread.LastMessageDate = reply.SentOn;
-          this.selectedThread.LastSender = reply.SenderId;
-        }
-        
-        this.cancelReply();
-        
-        // Refresh inbox to get updated thread order
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.success) {
         this.loadTenantInbox();
-      },
-      error: (err) => {
-        console.error('Error sending reply:', err);
-        this.error = 'Failed to send reply';
+        // Refresh selected thread
+        if (this.selectedThread) {
+          const refreshedThread = this.messageThreads.find(t => 
+            t.ThreadId === this.selectedThread?.ThreadId
+          );
+          if (refreshedThread) {
+            this.selectedThread = refreshedThread;
+          }
+        }
       }
     });
   }
+
+
 
   getCustomerName(customerId: string): string {
     // You might want to load customer names or use a customer lookup service
@@ -196,4 +219,21 @@ export class MessagesInboxComponent implements OnInit {
     const preview = lastMessage?.Content || '';
     return preview.length > 100 ? preview.substring(0, 100) + '...' : preview;
   }
+
+  // New message functionality methods
+  loadAvailableCustomers(): void {
+    this.customerService.getCustomers().subscribe({
+      next: (customers) => {
+        this.availableCustomers = customers;
+      },
+      error: (error) => {
+        console.error('Error loading customers:', error);
+      }
+    });
+  }
+
+  getCustomerDisplayName(customer: Customer): string {
+    return customer.Name || customer.Name || `Customer ${customer.CustomerId}`;
+  }
+
 }

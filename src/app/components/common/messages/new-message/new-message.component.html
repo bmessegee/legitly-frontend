@@ -1,21 +1,30 @@
-<mat-card class="new-message">
-  <mat-card-title>{{ isReply ? 'Reply to Message' : 'Compose New Message' }}</mat-card-title>
+<div class="dialog-content">
+  <h2 mat-dialog-title>{{ isReply ? 'Reply to Message' : 'Compose New Message' }}</h2>
   
-  <form [formGroup]="messageForm" (ngSubmit)="onSubmit()">
-    <mat-form-field appearance="fill" class="full-width" *ngIf="!isReply">
-      <mat-label>Subject</mat-label>
-      <input matInput type="text" formControlName="subject" placeholder="Message subject">
-    </mat-form-field>
+  <mat-dialog-content>
+    <form [formGroup]="messageForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="fill" class="full-width" *ngIf="!isReply">
+        <mat-label>Subject</mat-label>
+        <input matInput type="text" formControlName="subject" placeholder="Message subject">
+      </mat-form-field>
 
-    <mat-form-field appearance="fill" class="full-width">
-      <mat-label>{{ isReply ? 'Reply' : 'Message' }}</mat-label>
-      <textarea matInput formControlName="content" placeholder="Write your message" rows="6"></textarea>
-    </mat-form-field>
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>{{ isReply ? 'Reply' : 'Message' }}</mat-label>
+        <textarea matInput formControlName="content" placeholder="Write your message" rows="6"></textarea>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
 
-    <div style="margin: 16px; text-align: center;">
-      <button mat-raised-button color="primary" type="submit" [disabled]="!messageForm.valid">
-        {{ isReply ? 'Send Reply' : 'Send Message' }}
-      </button>
+  <mat-dialog-actions align="end">
+    <!-- Debug info - remove after testing -->
+    <div style="font-size: 12px; color: #666; margin-right: auto;">
+      Form Valid: {{ messageForm.valid }} | Content: {{ messageForm.get('content')?.value?.length || 0 }} chars
     </div>
-  </form>
-</mat-card>
+    
+    <button mat-button (click)="onCancel()" [disabled]="sending">Cancel</button>
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="!messageForm.valid || sending">
+      <span *ngIf="sending">Sending...</span>
+      <span *ngIf="!sending">{{ isReply ? 'Send Reply' : 'Send Message' }}</span>
+    </button>
+  </mat-dialog-actions>
+</div>
