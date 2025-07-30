@@ -10,6 +10,7 @@ import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
 import { ProductForm } from '../../../models/product-form';
 import { FormlyMatDatepickerModule }from '@ngx-formly/material/datepicker';
 import { CartService } from '../../../services/cart.service';
+import { businessNameValidator } from '../../../validators/business-name.validator';
 
 @Component({
   selector: 'app-product',
@@ -37,6 +38,10 @@ export class ProductComponent {
   fields: FormlyFieldConfig[] = [];
 
   selectedForm = "";
+  
+  // Make validator available as component property
+  businessNameValidator = businessNameValidator();
+  
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -59,11 +64,48 @@ export class ProductComponent {
       //const importedFields = JSON.parse(json);
       if (Array.isArray(this.formConfig.fields)) {
         this.fields = this.formConfig.fields;
+        // Add async validator to LLC name field
+        this.addBusinessNameValidator();
       } else {
         alert('Invalid form definition JSON. Expected an array of fields.');
       }
     } catch (e) {
       alert('Error parsing JSON: ' + e);
+    }
+  }
+
+  private addBusinessNameValidator() {
+    // Find the LLC name field and add the async validator
+    const findField = (fields: any[]): any => {
+      for (const field of fields) {
+        if (field.key === 'llcName') {
+          return field;
+        }
+        if (field.fieldGroup) {
+          const found = findField(field.fieldGroup);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const llcNameField = findField(this.fields);
+    if (llcNameField) {
+      llcNameField.asyncValidators = {
+        businessName: businessNameValidator()
+      };
+      
+      // Add validation messages
+      llcNameField.validation = {
+        messages: {
+          businessNameTaken: (error: any, field: any) => 
+            error?.message || 'This business name is already taken. Please choose a different name.',
+          invalidLLCName: (error: any, field: any) => 
+            error?.message || 'LLC name must contain "Limited Liability Company", "Limited Liability Co.", "L.L.C.", or "LLC"',
+          businessNameCheckFailed: (error: any, field: any) => 
+            error?.message || 'Unable to verify name availability. Please try again.'
+        }
+      };
     }
   }
 

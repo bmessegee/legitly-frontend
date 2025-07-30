@@ -135,6 +135,13 @@ export class DocumentUploadService {
   }
 
   /**
+   * Delete document by ID
+   */
+  deleteDocument(id: string): Observable<void> {
+    return this.apiService.delete<void>(`${this.endpoint}/${id}`);
+  }
+
+  /**
    * Update upload progress
    */
   private updateUploadProgress(

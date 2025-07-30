@@ -10,6 +10,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { FormlyMaterialModule } from '@ngx-formly/material';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FormlyWrapperPanelComponent } from './components/formly-wrapper-panel/formly-wrapper-panel.component';
+import { FileFieldComponent } from './components/formly-fields/file-field/file-field.component';
+// import { businessNameValidator } from './validators/business-name.validator';
 import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { authConfig } from './auth/auth.config';
 import { provideAuth } from 'angular-auth-oidc-client';
@@ -27,6 +29,12 @@ export const appConfig: ApplicationConfig = {
           { name: 'panel', component: FormlyWrapperPanelComponent },
           // { name: 'accordion', component: YourAccordionWrapperComponent },
         ],
+        types: [
+          { name: 'file', component: FileFieldComponent },
+        ],
+        // asyncValidators: [
+        //   { name: 'businessName', validation: businessNameValidator },
+        // ],
       })),
     FormlyMaterialModule,
     MatNativeDateModule,
