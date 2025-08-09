@@ -1,23 +1,17 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from './api.service'; // Adjust the import path as needed
-import { Order } from '../models/order.model';
+import { ApiService } from './api.service';
+import { Order, OrderItem, OrderStatus } from '../models/order.model';
 import { Customer } from '../models/customer.model';
 
 @Injectable({
     providedIn: 'root'
 })
 export class OrderService {
-    // Define the endpoint for messages relative to the API service's base URL.
     private endpoint = 'order';
 
     constructor(private apiService: ApiService) { }
 
-    /**
-     * Retrieve all messages.
-     *
-     * This delegates the GET request to the ApiService.
-     */
     getOrders(): Observable<Order[]> {
         return this.apiService.get<Order[]>(this.endpoint);
     }
@@ -26,25 +20,61 @@ export class OrderService {
         return this.apiService.get<Order[]>(this.endpoint + "?customerId=" + customer.CustomerId );
     }
 
-    getOrder(id: string): Observable<string> {
-        return this.apiService.get<string>(this.endpoint + "/" + id);
+    getOrder(id: string): Observable<Order> {
+        return this.apiService.get<Order>(this.endpoint + "/" + id);
     }
 
-    /**
-     * Create a new order.
-     *
-     * This delegates the POST request to the ApiService.
-     */
     createOrder(order: Order): Observable<Order> {
         return this.apiService.post<Order>(this.endpoint, order);
     }
 
-    /**
-     * Update an existing order.
-     *
-     * This delegates the PUT request to the ApiService.
-     */
     updateOrder(order: Order): Observable<Order> {
         return this.apiService.put<Order>(this.endpoint, order);
+    }
+
+    createOrderFromForm(formData: any, formType: string, productId: string, productName: string, price: number, customerId: string): Order {
+        const orderItem: OrderItem = {
+            ProductId: productId,
+            ProductName: productName,
+            Description: `${productName} form submission`,
+            Price: price,
+            Quantity: 1,
+            LineTotal: price,
+            FormData: formData,
+            FormType: formType
+        };
+
+        return {
+            OrderId: '',
+            CustomerId: customerId,
+            TenantProcessorId: '',
+            PaymentId: '',
+            OrderFormId: '',
+            Status: OrderStatus.Created,
+            TotalAmount: price,
+            OrderItems: [orderItem],
+            CustomerDetails: {
+                FirstName: '',
+                LastName: '',
+                Email: '',
+                PhoneNumber: ''
+            },
+            Created: new Date(),
+            Updated: new Date(),
+            CreatedBy: customerId,
+            UpdatedBy: customerId
+        };
+    }
+
+    updateOrderFormData(order: Order, formData: any, productId: string): Order {
+        const updatedOrder = { ...order };
+        const orderItem = updatedOrder.OrderItems.find(item => item.ProductId === productId);
+        
+        if (orderItem) {
+            orderItem.FormData = formData;
+            updatedOrder.Updated = new Date();
+        }
+
+        return updatedOrder;
     }
 }

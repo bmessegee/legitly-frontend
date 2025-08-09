@@ -3,8 +3,14 @@
     <mat-list-item *ngFor="let message of messages"
                    (click)="onMessageClick(message)"
                    [ngClass]="{'unread': !message.IsRead}">
-      <mat-icon matListIcon>mail</mat-icon>
-      <div matLine>{{ message.Subject }}</div>
+      <mat-icon matListIcon>{{ message.IsRead ? 'mail_outline' : 'mail' }}</mat-icon>
+      <div matLine>{{ message.DisplayTitle || message.Subject }}</div>
+      <div matLine class="message-sender">
+        <small>From: {{ message.SenderDisplayName || 'Support' }}</small>
+      </div>
+      <div matLine class="message-preview" *ngIf="message.PreviewText">
+        <small>{{ message.PreviewText }}</small>
+      </div>
       <div matLine>
         <small>{{ message.SentOn | date:'short' }}</small>
       </div>

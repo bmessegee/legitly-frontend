@@ -17,36 +17,32 @@ export function businessNameValidator(): AsyncValidatorFn {
     // Check basic LLC name requirements first
     if (!isValidLLCName(businessName)) {
       return of({ 
-        invalidLLCName: { 
-          value: businessName,
+        invalidLLCName: {
           message: 'LLC name must contain "Limited Liability Company", "Limited Liability Co.", "L.L.C.", or "LLC"'
-        } 
+        }
       });
     }
     
     // Debounce the API call by 800ms to avoid too many requests
     return timer(800).pipe(
-      switchMap(() => apiService.get<{isAvailable: boolean}>(`business-name/check?name=${encodeURIComponent(businessName)}`)),
+      switchMap(() => apiService.get<{isAvailable: boolean, businessName: string, existingBusinesses: number, totalResults: number}>(`business-name/check?name=${encodeURIComponent(businessName)}`)),
       map(response => {
-        if (response.isAvailable) {
-          return null; // Name is available
+        if (response && response.isAvailable === true) {
+          return null; // Name is available, no validation error
         } else {
           return { 
-            businessNameTaken: { 
-              value: businessName,
+            businessNameTaken: {
               message: 'This business name is already registered in Washington State. Please choose a different name.'
-            } 
+            }
           };
         }
       }),
       catchError((error) => {
         console.error('Business name validation error:', error);
-        // Return validation error for API failures so user knows to try again
         return of({ 
-          businessNameCheckFailed: { 
-            value: businessName,
+          businessNameCheckFailed: {
             message: 'Unable to verify name availability. Please check your connection and try again.'
-          } 
+          }
         });
       })
     );

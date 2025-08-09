@@ -1,7 +1,7 @@
 import { Component, inject, Input } from '@angular/core';
 import { OrderService } from '../../../services/order.service';
 import { Order } from '../../../models/order.model';
-import { DatePipe, NgIf } from '@angular/common';
+import { DatePipe, NgIf, NgFor } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { OrderItemComponent } from './order-item/order-item.component';
 import { Customer } from '../../../models/customer.model';
@@ -10,7 +10,7 @@ import { CustomerService } from '../../../services/customer.service';
 @Component({
   selector: 'app-orders',
   imports: [
-    NgIf,
+    NgIf, NgFor,
     MatButtonModule,
     OrderItemComponent],
   templateUrl: './orders.component.html',

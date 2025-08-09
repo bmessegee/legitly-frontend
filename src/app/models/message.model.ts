@@ -21,6 +21,11 @@ export interface Message {
     Updated?: string;
     CreatedBy?: string | null;
     UpdatedBy?: string | null;
+    
+    // Friendly display names for UI (instead of showing MessageId)
+    DisplayTitle?: string; // e.g., "Message from John Doe" or "Re: LLC Formation Question"
+    SenderDisplayName?: string; // e.g., "John Doe" instead of sender ID
+    PreviewText?: string; // First 100 chars of content for preview
 }
 
 export enum MessageType {
@@ -43,4 +48,9 @@ export interface MessageThread {
     LastMessageDate: string;
     UnreadCount: number;
     LastSender: string;
+    
+    // Friendly display properties
+    DisplayTitle?: string; // e.g., "Conversation with Legitly Support"
+    LastSenderDisplayName?: string; // e.g., "John Doe" instead of ID
+    LastMessagePreview?: string; // Preview of last message
 }

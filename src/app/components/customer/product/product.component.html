@@ -1,12 +1,14 @@
 <div class="wrapper">
+    <!--
     <div class="product-header">
         <div class="title">{{this.formConfig?.title}}</div>
         <div class="price">Cost: ${{this.formConfig?.cost | number:'1.2-2'}}</div>
         <div class="instructions">
             {{this.formConfig?.instructions}}
         </div>
-        
+       
         <div class="product-actions">
+             
             <button 
                 mat-raised-button 
                 color="accent" 
@@ -26,10 +28,10 @@
             </button>
         </div>
     </div>
-
+-->
     <div class="form-section">
-        <h3>Service Details Form</h3>
-        <p class="form-description">Fill out this form to provide details for your service. You can submit this form now or add the service to your cart and fill it out during checkout.</p>
+        <h3>{{this.formConfig?.title}}</h3>
+        <p class="form-description">{{this.formConfig.instructions}}</p>
         
         <form [formGroup]="form" (ngSubmit)="onSubmit()">
           <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
@@ -41,7 +43,7 @@
                   [disabled]="!form.valid"
                   class="submit-button">
                   <mat-icon>send</mat-icon>
-                  Submit Service Request
+                  Submit
               </button>
           </div>
         </form>

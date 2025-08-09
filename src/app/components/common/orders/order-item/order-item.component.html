@@ -1,10 +1,46 @@
 <div class="common-card">
-    <mat-icon class="common-card-icon">order</mat-icon>
-    <h3 class="common-name">{{ order?.OrderId}}</h3>
+    <mat-icon class="common-card-icon">receipt</mat-icon>
+    <h3 class="common-name">{{ order?.DisplayName || order?.OrderId}}</h3>
     <p class="common-meta">
         Ordered On: {{ order?.Created | date:'short' }}<br />
-        Customer: {{ order?.CustomerDetails?.FirstName + " " +  order?.CustomerDetails?.LastName }}
-        Price: {{ order?.TotalAmount }}
+        Customer: {{ order?.CustomerDetails?.FirstName + " " +  order?.CustomerDetails?.LastName }}<br/>
+        Status: {{ order?.Status }}<br/>
+        Total: ${{ order?.TotalAmount }}
     </p>
-    <button mat-button (click)="expandOrder()">Open Order</button>
+    
+    <!-- Order Items Section -->
+    <div class="order-items" *ngIf="isExpanded">
+        <h4>Items:</h4>
+        <div *ngFor="let item of order?.OrderItems; let i = index" class="order-item-detail">
+            <div class="item-header">
+                <span class="item-title">{{ item.FormTitle || item.ProductName }}</span>
+                <span class="item-price">${{ item.Price }}</span>
+                <button mat-icon-button (click)="expandOrderItem(i)" 
+                        *ngIf="item.IsExpandable" 
+                        [attr.aria-label]="'Expand ' + item.ProductName">
+                    <mat-icon>{{ expandedItems.has(i) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+            </div>
+            <p class="item-summary" *ngIf="item.FormSummary">{{ item.FormSummary }}</p>
+            
+            <!-- Expanded form data -->
+            <div class="expanded-form-data" *ngIf="expandedItems.has(i) && expandedFormData.has(i)">
+                <pre>{{ expandedFormData.get(i) | json }}</pre>
+                <button mat-button color="primary" (click)="editOrderItem(i)">
+                    <mat-icon>edit</mat-icon>
+                    Edit Form
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="order-actions">
+        <button mat-button (click)="toggleExpand()">
+            {{ isExpanded ? 'Collapse' : 'View Details' }}
+        </button>
+        <button mat-button color="primary" (click)="editOrder()" *ngIf="canEdit()">
+            <mat-icon>edit</mat-icon>
+            Edit
+        </button>
+    </div>
 </div>

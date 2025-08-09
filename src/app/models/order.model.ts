@@ -12,6 +12,8 @@ export interface Order {
     Updated: Date;
     CreatedBy: string;
     UpdatedBy: string;
+    DisplayName?: string; // Friendly display name for UI
+    Description?: string; // Optional description
 }
 
 export interface OrderItem {
@@ -21,6 +23,11 @@ export interface OrderItem {
     Price: number;
     Quantity: number;
     LineTotal: number;
+    FormData?: any; // Store the form data for this product/service
+    FormType?: string; // Type of form (e.g., 'llc-formation2')
+    FormTitle?: string; // Friendly display title for the form
+    FormSummary?: string; // Summary of key form data for display
+    IsExpandable?: boolean; // Flag to indicate if this item can be expanded
 }
 
 export interface CustomerDetails {
@@ -44,4 +51,23 @@ export interface CartItem {
     Description: string;
     Price: number;
     Quantity: number;
+    FormData?: any; // Store the form data for this product/service
+    FormType?: string; // Type of form (e.g., 'llc-formation2')
+    FormTitle?: string; // Friendly display title for the form
+    FormSummary?: string; // Summary of key form data for display
+    IsExpandable?: boolean; // Flag to indicate if this item can be expanded
+    CartItemId?: string; // Unique identifier for this cart item
+    AddedToCart?: Date; // When this item was added to cart
+}
+
+export interface Cart {
+    CustomerId: string;
+    Items: CartItem[];
+    TotalAmount: number;
+    ItemCount: number;
+    SessionId?: string;
+    Created?: Date;
+    Updated?: Date;
+    CreatedBy?: string;
+    UpdatedBy?: string;
 }

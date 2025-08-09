@@ -23,7 +23,7 @@ export interface DashboardCard {
     displayRoles: ['Customer'],
     actionDisplay: 'Get Started',
     actionLink: '/customer/product',
-    actionQuery: 'llc-formation2',
+    actionQuery: 'llc-formation',
     isNav: false
   },
   {
