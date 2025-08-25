@@ -29,7 +29,11 @@ export class OrderService {
     }
 
     updateOrder(order: Order): Observable<Order> {
-        return this.apiService.put<Order>(this.endpoint, order);
+        return this.apiService.put<Order>(this.endpoint + "/" + order.OrderId, order);
+    }
+
+    deleteOrder(id: string): Observable<any> {
+        return this.apiService.delete(this.endpoint + "/" + id);
     }
 
     createOrderFromForm(formData: any, formType: string, productId: string, productName: string, price: number, customerId: string): Order {

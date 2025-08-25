@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { CartItem, Order, Cart } from '../models/order.model';
+import { CartItem, Order, Cart, OrderStatus } from '../models/order.model';
 import { ApiService } from './api.service';
 
 @Injectable({
@@ -19,6 +19,7 @@ export class CartService {
     this.loadOrdersFromStorage();
   }
 
+
   get cartItems$(): Observable<CartItem[]> {
     return this.cartItemsSubject.asObservable();
   }
@@ -30,7 +31,11 @@ export class CartService {
   get cartTotal$(): Observable<number> {
     return new Observable(observer => {
       this.cartItemsSubject.subscribe(items => {
-        const total = items.reduce((sum, item) => sum + (item.Price * item.Quantity), 0);
+        const total = items.reduce((sum, item) => {
+          const price = Number(item.Price) || 0;
+          const quantity = Number(item.Quantity) || 0;
+          return sum + (price * quantity);
+        }, 0);
         observer.next(total);
       });
     });
@@ -74,6 +79,7 @@ export class CartService {
     FormData: any;
     FormType: string;
     FormTitle?: string;
+    OrderId?: string;
   }): Observable<CartItem> {
     const cartItem: CartItem = {
       ProductId: formData.ProductId,
@@ -87,7 +93,8 @@ export class CartService {
       FormSummary: this.generateFormSummary(formData.FormData, formData.FormType),
       IsExpandable: true,
       CartItemId: this.generateCartItemId(),
-      AddedToCart: new Date()
+      AddedToCart: new Date(),
+      OrderId: formData.OrderId
     };
 
     // Add to backend cart
@@ -103,8 +110,15 @@ export class CartService {
 
   removeFromCart(productId: string): void {
     const currentItems = this.cartItemsSubject.value;
+    const itemToRemove = currentItems.find(item => item.ProductId === productId);
     const updatedItems = currentItems.filter(item => item.ProductId !== productId);
+    
     this.updateCart(updatedItems);
+    
+    // If the removed item has an OrderId, revert it to in-progress status
+    if (itemToRemove?.OrderId) {
+      this.revertOrderToInProgress(itemToRemove.OrderId);
+    }
   }
 
   updateQuantity(productId: string, quantity: number): void {
@@ -123,6 +137,15 @@ export class CartService {
   }
 
   clearCart(): void {
+    const currentItems = this.cartItemsSubject.value;
+    
+    // Revert all orders with OrderIds back to in-progress status
+    currentItems.forEach(item => {
+      if (item.OrderId) {
+        this.revertOrderToInProgress(item.OrderId);
+      }
+    });
+    
     this.updateCart([]);
   }
 
@@ -136,12 +159,16 @@ export class CartService {
 
   getCartTotal(): number {
     const items = this.cartItemsSubject.value;
-    return items.reduce((sum, item) => sum + (item.Price * item.Quantity), 0);
+    return items.reduce((sum, item) => {
+      const price = Number(item.Price) || 0;
+      const quantity = Number(item.Quantity) || 0;
+      return sum + (price * quantity);
+    }, 0);
   }
 
   private updateCart(items: CartItem[]): void {
     this.cartItemsSubject.next(items);
-    this.cartCountSubject.next(items.reduce((sum, item) => sum + item.Quantity, 0));
+    this.cartCountSubject.next(items.reduce((sum, item) => sum + (Number(item.Quantity) || 0), 0));
     this.saveCartToStorage(items);
   }
 
@@ -249,5 +276,65 @@ export class CartService {
       return `Company: ${llcName}, Filing: ${formationType}`;
     }
     return 'Form data available';
+  }
+
+  // Add an existing order to cart
+  addOrderToCart(order: Order): boolean {
+    console.log('CartService: Adding order to cart', order.OrderId);
+    
+    if (order.OrderItems.length === 0) {
+      console.log('CartService: Order has no items');
+      return false;
+    }
+    
+    const currentItems = this.cartItemsSubject.value;
+    // Check if this order is already in cart
+    const existingIndex = currentItems.findIndex(item => item.OrderId === order.OrderId);
+    
+    if (existingIndex !== -1) {
+      console.log('CartService: Order already in cart');
+      return false; // Already in cart
+    }
+    
+    const firstItem = order.OrderItems[0];
+    const cartItem: CartItem = {
+      ProductId: firstItem.ProductId,
+      ProductName: firstItem.ProductName,
+      Description: firstItem.Description,
+      Price: firstItem.Price,
+      Quantity: firstItem.Quantity,
+      FormData: firstItem.FormData,
+      FormType: firstItem.FormType,
+      FormTitle: firstItem.FormTitle || firstItem.ProductName,
+      FormSummary: firstItem.FormSummary,
+      IsExpandable: firstItem.IsExpandable || true,
+      CartItemId: this.generateCartItemId(),
+      AddedToCart: new Date(),
+      OrderId: order.OrderId
+    };
+
+    // Add new item to cart
+    currentItems.push(cartItem);
+    this.updateCart(currentItems);
+    
+    console.log('CartService: Order added to cart successfully', {
+      orderId: order.OrderId,
+      cartItemId: cartItem.CartItemId,
+      cartItemCount: currentItems.length
+    });
+    
+    return true; // Successfully added
+  }
+
+  private revertOrderToInProgress(orderId: string): void {
+    // Make API call to revert order status back to Created (in-progress)
+    this.apiService.put(`order/${orderId}/status`, { status: OrderStatus.Created }).subscribe({
+      next: () => {
+        console.log(`Order ${orderId} reverted to in-progress status`);
+      },
+      error: (error) => {
+        console.error(`Error reverting order ${orderId} status:`, error);
+      }
+    });
   }
 }

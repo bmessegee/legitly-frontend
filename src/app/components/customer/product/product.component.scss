@@ -94,6 +94,17 @@
     }
 }
 
+.loading-form {
+    margin-top: 30px;
+    padding: 40px 20px;
+    text-align: center;
+    border-radius: var(--mat-sys-corner-medium);
+    background: var(--mat-sys-surface-container);
+    border: 1px solid var(--mat-sys-outline-variant);
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-large);
+}
+
 // Responsive design
 @media (max-width: 600px) {
     .wrapper {

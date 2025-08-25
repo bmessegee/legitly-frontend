@@ -38,9 +38,37 @@
         <button mat-button (click)="toggleExpand()">
             {{ isExpanded ? 'Collapse' : 'View Details' }}
         </button>
-        <button mat-button color="primary" (click)="editOrder()" *ngIf="canEdit()">
-            <mat-icon>edit</mat-icon>
-            Edit
+        
+        <!-- In-progress orders (Created status) -->
+        <ng-container *ngIf="isInProgress()">
+            <button mat-button color="primary" (click)="continueOrder()">
+                <mat-icon>play_arrow</mat-icon>
+                Continue
+            </button>
+        </ng-container>
+        
+        <!-- Submitted orders (but not yet paid) -->
+        <ng-container *ngIf="isSubmitted()">
+            <button mat-button color="primary" (click)="editOrder()">
+                <mat-icon>edit</mat-icon>
+                Edit
+            </button>
+            <button mat-button color="accent" (click)="addToCart()">
+                <mat-icon>add_shopping_cart</mat-icon>
+                Add to Cart
+            </button>
+        </ng-container>
+        
+        <!-- Delete button for all editable orders (Created or Submitted) -->
+        <button mat-button color="warn" (click)="deleteOrder()" *ngIf="canDelete()">
+            <mat-icon>delete</mat-icon>
+            Delete
         </button>
+        
+        <!-- Read-only orders (Processing, Completed, Rejected) -->
+        <span *ngIf="isReadOnly()" class="readonly-indicator">
+            <mat-icon>lock</mat-icon>
+            Read Only
+        </span>
     </div>
 </div>

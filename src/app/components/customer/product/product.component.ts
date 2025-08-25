@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DecimalPipe, JsonPipe, NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { FormlyMaterialModule } from '@ngx-formly/material';
@@ -11,13 +11,14 @@ import { ProductForm } from '../../../models/product-form';
 import { FormlyMatDatepickerModule }from '@ngx-formly/material/datepicker';
 import { CartService } from '../../../services/cart.service';
 import { OrderService } from '../../../services/order.service';
-import { Order } from '../../../models/order.model';
+import { Order, OrderStatus } from '../../../models/order.model';
 import { businessNameValidator } from '../../../validators/business-name.validator';
+import { AuthService } from '../../../services/auth.service';
+import { CustomerService } from '../../../services/customer.service';
 
 @Component({
   selector: 'app-product',
   imports: [
-    JsonPipe,
     NgIf,
     FormlyMaterialModule,
     FormlyModule,
@@ -26,13 +27,12 @@ import { businessNameValidator } from '../../../validators/business-name.validat
     FormlyMatDatepickerModule,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule,
-    DecimalPipe
+    MatSnackBarModule
   ],
   templateUrl: './product.component.html',
   styleUrl: './product.component.scss'
 })
-export class ProductComponent {
+export class ProductComponent implements OnDestroy {
   formConfig: any;
   form = new FormGroup({});
   model: any = {};
@@ -41,6 +41,8 @@ export class ProductComponent {
 
   selectedForm = "";
   currentOrder: Order | null = null;
+  autoSaveTimeoutId: any = null;
+  hasFormChanged = false;
   
   // Make validator available as component property
   businessNameValidator = businessNameValidator();
@@ -50,7 +52,9 @@ export class ProductComponent {
     private router: Router,
     private cartService: CartService,
     private orderService: OrderService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private authService: AuthService,
+    private customerService: CustomerService
   ) {
     this.route.queryParamMap
       .subscribe((p: any) => {
@@ -63,7 +67,14 @@ export class ProductComponent {
         if (orderId) {
           this.loadOrderData(orderId);
         } else if (this.selectedForm) { 
-          this.loadForm(this.selectedForm); 
+          console.log('Loading form for:', this.selectedForm);
+          this.loadForm(this.selectedForm);
+          // Check for existing in-progress order for this product after a short delay
+          // to ensure authentication is fully loaded
+          setTimeout(() => {
+            console.log('Checking for existing order for form:', this.selectedForm);
+            this.checkForExistingOrder();
+          }, 1000);
         }
       }
       );
@@ -77,6 +88,8 @@ export class ProductComponent {
         this.fields = this.formConfig.fields;
         // Add async validator to LLC name field
         this.addBusinessNameValidator();
+        // Set up form change detection for auto-save
+        this.setupFormChangeDetection();
       } else {
         alert('Invalid form definition JSON. Expected an array of fields.');
       }
@@ -123,10 +136,144 @@ export class ProductComponent {
     }
   }
 
+  private setupFormChangeDetection() {
+    // Watch for form value changes to trigger auto-save
+    this.form.valueChanges.subscribe(() => {
+      this.hasFormChanged = true;
+      this.scheduleAutoSave();
+    });
+  }
+
+  private scheduleAutoSave() {
+    // Clear existing timeout
+    if (this.autoSaveTimeoutId) {
+      clearTimeout(this.autoSaveTimeoutId);
+    }
+
+    // Schedule auto-save after 2 seconds of inactivity
+    this.autoSaveTimeoutId = setTimeout(() => {
+      if (this.hasFormChanged && this.form.valid && Object.keys(this.model).length > 0) {
+        console.log('Auto-save triggered, current order exists:', !!this.currentOrder);
+        this.autoSaveOrder();
+      }
+    }, 2000);
+  }
+
+  private autoSaveOrder() {
+    if (!this.authService.isAuthenticated() || !this.authService.bearerToken) {
+      console.log('Auto-save skipped: Not authenticated or no token available');
+      return; // Don't auto-save if not authenticated or no token
+    }
+
+    if (!this.currentOrder) {
+      // Create new order if none exists
+      this.createDraftOrder();
+    } else if (this.currentOrder.Status === OrderStatus.Created) {
+      // Update existing draft order
+      this.updateDraftOrder();
+    }
+
+    this.hasFormChanged = false;
+  }
+
+  private createDraftOrder() {
+    const currentUser = this.authService.currentUser;
+    if (!currentUser) return;
+
+    const customer = this.customerService.getCurrentUserAsCustomer();
+    if (!customer) return;
+
+    this.currentOrder = this.orderService.createOrderFromForm(
+      this.model,
+      this.selectedForm,
+      this.selectedForm || 'llc-formation',
+      this.formConfig?.title || 'Form Submission',
+      this.formConfig?.cost || 0,
+      customer.CustomerId
+    );
+
+    // Set status to Created for draft
+    this.currentOrder.Status = OrderStatus.Created;
+    this.currentOrder.DisplayName = this.generateFormTitle();
+
+    this.orderService.createOrder(this.currentOrder).subscribe({
+      next: (createdOrder) => {
+        this.currentOrder = createdOrder;
+        console.log('Draft order created:', createdOrder.OrderId);
+      },
+      error: (error) => {
+        console.error('Error creating draft order:', error);
+      }
+    });
+  }
+
+  private updateDraftOrder() {
+    if (!this.currentOrder) return;
+
+    this.currentOrder = this.orderService.updateOrderFormData(
+      this.currentOrder,
+      this.model,
+      this.selectedForm
+    );
+
+    this.orderService.updateOrder(this.currentOrder).subscribe({
+      next: (updatedOrder) => {
+        this.currentOrder = updatedOrder;
+        console.log('Draft order updated:', updatedOrder.OrderId);
+      },
+      error: (error) => {
+        console.error('Error updating draft order:', error);
+      }
+    });
+  }
+
+  private checkForExistingOrder() {
+    console.log('checkForExistingOrder called with selectedForm:', this.selectedForm);
+    
+    if (!this.authService.isAuthenticated() || !this.authService.bearerToken) {
+      console.log('Skipping order check: Not authenticated or no token available');
+      return;
+    }
+
+    const customer = this.customerService.getCurrentUserAsCustomer();
+    if (!customer) {
+      console.log('Skipping order check: No customer available');
+      return;
+    }
+
+    console.log('Fetching orders for customer:', customer.CustomerId);
+
+    // Look for existing in-progress order for this product
+    this.orderService.getOrdersForCustomer(customer).subscribe({
+      next: (orders) => {
+        console.log('Retrieved orders:', orders.length, 'orders');
+        console.log('Looking for orders with Status Created and FormType:', this.selectedForm);
+        
+        const inProgressOrder = orders.find(order => 
+          order.Status === OrderStatus.Created && 
+          order.OrderItems.some(item => item.FormType === this.selectedForm)
+        );
+
+        console.log('Found in-progress order:', inProgressOrder ? inProgressOrder.OrderId : 'none');
+
+        if (inProgressOrder) {
+          this.currentOrder = inProgressOrder;
+          this.loadOrderIntoForm(inProgressOrder);
+          this.snackBar.open('Loaded your in-progress form', 'Dismiss', { duration: 3000 });
+        }
+      },
+      error: (error) => {
+        console.error('Error checking for existing orders:', error);
+        // Don't show error to user for this background check
+      }
+    });
+  }
+
   // Handle form submission - now adds to cart instead of creating order directly
   onSubmit() {
     if (this.form.valid) {
       console.log('Form Submitted', this.model);
+      console.log('Current order exists:', !!this.currentOrder);
       
       if (!this.formConfig) {
         this.snackBar.open('No product configuration available', 'Close', { duration: 3000 });
@@ -134,48 +281,71 @@ export class ProductComponent {
       }
 
       if (this.currentOrder) {
-        // Update existing order item (when editing from order)
+        // Update existing order and mark as submitted
         this.currentOrder = this.orderService.updateOrderFormData(
           this.currentOrder, 
           this.model, 
           this.selectedForm
         );
         
+        // Mark order as submitted
+        this.currentOrder.Status = OrderStatus.Submitted;
+        
         this.orderService.updateOrder(this.currentOrder).subscribe({
           next: (updatedOrder) => {
             this.currentOrder = updatedOrder;
-            this.snackBar.open('Order updated successfully!', 'Close', { duration: 3000 });
-          },
-          error: (error) => {
-            console.error('Error updating order:', error);
-            this.snackBar.open('Error updating order', 'Close', { duration: 3000 });
-          }
-        });
-      } else {
-        // Add form submission to cart
-        const formData = {
-          ProductId: this.selectedForm || 'llc-formation',
-          ProductName: this.formConfig.title,
-          Description: this.formConfig.instructions,
-          Price: this.formConfig.cost,
-          FormData: this.model,
-          FormType: this.selectedForm,
-          FormTitle: this.generateFormTitle()
-        };
-
-        this.cartService.addFormToCart(formData).subscribe({
-          next: (cartItem) => {
-            this.snackBar.open('Form added to cart successfully!', 'View Cart', { 
+            console.log('Order updated successfully:', updatedOrder.OrderId, 'Status:', updatedOrder.Status);
+            this.snackBar.open('Order submitted successfully!', 'View Orders', { 
               duration: 4000,
               horizontalPosition: 'right',
               verticalPosition: 'top'
             }).onAction().subscribe(() => {
-              this.router.navigate(['/cart']);
+              this.router.navigate(['/orders']);
             });
           },
           error: (error) => {
-            console.error('Error adding form to cart:', error);
-            this.snackBar.open('Error adding to cart', 'Close', { duration: 3000 });
+            console.error('Error submitting order:', error);
+            this.snackBar.open('Error submitting order', 'Close', { duration: 3000 });
+          }
+        });
+      } else {
+        // Create and submit new order directly  
+        const currentUser = this.authService.currentUser;
+        const customer = this.customerService.getCurrentUserAsCustomer();
+        
+        if (!currentUser || !customer) {
+          this.snackBar.open('Authentication required', 'Close', { duration: 3000 });
+          return;
+        }
+
+        const newOrder = this.orderService.createOrderFromForm(
+          this.model,
+          this.selectedForm,
+          this.selectedForm || 'llc-formation',
+          this.formConfig?.title || 'Form Submission',
+          this.formConfig?.cost || 0,
+          customer.CustomerId
+        );
+
+        // Mark as submitted
+        newOrder.Status = OrderStatus.Submitted;
+        newOrder.DisplayName = this.generateFormTitle();
+
+        this.orderService.createOrder(newOrder).subscribe({
+          next: (createdOrder) => {
+            this.currentOrder = createdOrder;
+            console.log('Order created successfully:', createdOrder.OrderId, 'Status:', createdOrder.Status);
+            this.snackBar.open('Order submitted successfully!', 'View Orders', { 
+              duration: 4000,
+              horizontalPosition: 'right',
+              verticalPosition: 'top'
+            }).onAction().subscribe(() => {
+              this.router.navigate(['/orders']);
+            });
+          },
+          error: (error) => {
+            console.error('Error creating order:', error);
+            this.snackBar.open('Error submitting order', 'Close', { duration: 3000 });
           }
         });
       }
@@ -251,9 +421,11 @@ export class ProductComponent {
         if (firstItem.FormData) {
           setTimeout(() => {
             this.model = { ...firstItem.FormData };
-            // Trigger form update
-            this.form.patchValue(this.model);
-          }, 100);
+            // Trigger form update if form exists
+            if (this.form && this.formConfig) {
+              this.form.patchValue(this.model);
+            }
+          }, 250);
         }
       }
     }
@@ -264,5 +436,12 @@ export class ProductComponent {
       return `LLC Formation for ${this.model.companyInformation.llcName}`;
     }
     return this.formConfig?.title || 'Form Submission';
+  }
+
+  ngOnDestroy() {
+    // Clean up auto-save timeout
+    if (this.autoSaveTimeoutId) {
+      clearTimeout(this.autoSaveTimeoutId);
+    }
   }
 }

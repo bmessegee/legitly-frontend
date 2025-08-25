@@ -58,6 +58,7 @@ export interface CartItem {
     IsExpandable?: boolean; // Flag to indicate if this item can be expanded
     CartItemId?: string; // Unique identifier for this cart item
     AddedToCart?: Date; // When this item was added to cart
+    OrderId?: string; // Reference to the order this cart item represents
 }
 
 export interface Cart {

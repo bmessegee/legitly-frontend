@@ -19,11 +19,20 @@ export class ApiService {
    */
   private getHeaders(): HttpHeaders {
     const token = this.auth.bearerToken;  
-    return new HttpHeaders({
+    console.log('API Service - Token for headers:', token ? 'Present' : 'Missing');
+    
+    const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
       'Accept': 'application/json'
     });
+    
+    // Only add Authorization header if we have a valid token
+    if (token && typeof token === 'string' && token.trim() !== '') {
+      return headers.set('Authorization', `Bearer ${token}`);
+    } else {
+      console.warn('API Service - No valid token available for Authorization header');
+      return headers;
+    }
   }
 
   /**

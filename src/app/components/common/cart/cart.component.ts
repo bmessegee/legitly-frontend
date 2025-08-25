@@ -93,6 +93,8 @@ export class CartComponent implements OnInit {
   }
 
   getItemTotal(item: CartItem): number {
-    return item.Price * item.Quantity;
+    const price = Number(item.Price) || 0;
+    const quantity = Number(item.Quantity) || 0;
+    return price * quantity;
   }
 }
