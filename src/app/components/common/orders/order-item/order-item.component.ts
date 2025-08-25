@@ -25,6 +25,7 @@ export class OrderItemComponent {
   orderService = inject(OrderService);
   cartService = inject(CartService);
   router = inject(Router);
+  snackBar = inject(MatSnackBar);
   
   @Input() order: Order | null = null;
 
@@ -128,17 +129,39 @@ export class OrderItemComponent {
       const success = this.cartService.addOrderToCart(this.order);
       
       if (success) {
-        // Show success message
-        alert(`Order "${this.order.DisplayName || this.order.OrderId}" has been added to cart!`);
-        
-        // Optionally navigate to cart
-        // this.router.navigate(['/cart']);
+        this.snackBar.open(
+          `Order "${this.order.DisplayName || this.order.OrderId}" has been added to cart!`,
+          'View Cart',
+          {
+            duration: 4000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top'
+          }
+        ).onAction().subscribe(() => {
+          this.router.navigate(['/cart']);
+        });
       } else {
-        alert('This order is already in your cart or cannot be added.');
+        this.snackBar.open(
+          'This order is already in your cart or cannot be added.',
+          'Close',
+          {
+            duration: 3000,
+            horizontalPosition: 'right',
+            verticalPosition: 'top'
+          }
+        );
       }
     } else {
       console.log('Cannot add to cart - order status:', this.order?.Status);
-      alert('Only submitted orders can be added to cart.');
+      this.snackBar.open(
+        'Only submitted orders can be added to cart.',
+        'Close',
+        {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
+        }
+      );
     }
   }
 

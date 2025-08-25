@@ -43,6 +43,7 @@ export class ProductComponent implements OnDestroy {
   currentOrder: Order | null = null;
   autoSaveTimeoutId: any = null;
   hasFormChanged = false;
+  isCreatingOrder = false;
   
   // Make validator available as component property
   businessNameValidator = businessNameValidator();
@@ -183,6 +184,10 @@ export class ProductComponent implements OnDestroy {
     const customer = this.customerService.getCurrentUserAsCustomer();
     if (!customer) return;
 
+    // Prevent multiple simultaneous order creations
+    if (this.isCreatingOrder) return;
+    this.isCreatingOrder = true;
+
     this.currentOrder = this.orderService.createOrderFromForm(
       this.model,
       this.selectedForm,
@@ -199,10 +204,13 @@ export class ProductComponent implements OnDestroy {
     this.orderService.createOrder(this.currentOrder).subscribe({
       next: (createdOrder) => {
         this.currentOrder = createdOrder;
+        this.isCreatingOrder = false;
         console.log('Draft order created:', createdOrder.OrderId);
       },
       error: (error) => {
         console.error('Error creating draft order:', error);
+        this.isCreatingOrder = false;
+        this.currentOrder = null;
       }
     });
   }
@@ -269,19 +277,29 @@ export class ProductComponent implements OnDestroy {
     });
   }
 
-  // Handle form submission - now adds to cart instead of creating order directly
-  onSubmit() {
+  // Handle checkout - submit order and add to cart
+  onCheckout() {
     if (this.form.valid) {
       console.log('Form Submitted', this.model);
       console.log('Current order exists:', !!this.currentOrder);
+      console.log('Is creating order:', this.isCreatingOrder);
       
       if (!this.formConfig) {
         this.snackBar.open('No product configuration available', 'Close', { duration: 3000 });
         return;
       }
 
-      if (this.currentOrder) {
+      // If we're currently creating an order, wait for it to complete
+      if (this.isCreatingOrder) {
+        console.log('Waiting for order creation to complete...');
+        // Wait a bit and try again
+        setTimeout(() => this.onCheckout(), 500);
+        return;
+      }
+
+      if (this.currentOrder && this.currentOrder.OrderId) {
         // Update existing order and mark as submitted
+        console.log('Updating existing order:', this.currentOrder.OrderId);
         this.currentOrder = this.orderService.updateOrderFormData(
           this.currentOrder, 
           this.model, 
@@ -295,13 +313,31 @@ export class ProductComponent implements OnDestroy {
           next: (updatedOrder) => {
             this.currentOrder = updatedOrder;
             console.log('Order updated successfully:', updatedOrder.OrderId, 'Status:', updatedOrder.Status);
-            this.snackBar.open('Order submitted successfully!', 'View Orders', { 
-              duration: 4000,
-              horizontalPosition: 'right',
-              verticalPosition: 'top'
-            }).onAction().subscribe(() => {
-              this.router.navigate(['/orders']);
-            });
+            
+            // Add order to cart
+            const success = this.cartService.addOrderToCart(updatedOrder);
+            
+            if (success) {
+              this.snackBar.open(
+                `Order "${updatedOrder.DisplayName || updatedOrder.OrderId}" added to cart!`,
+                'View Cart',
+                {
+                  duration: 3000,
+                  horizontalPosition: 'right',
+                  verticalPosition: 'top'
+                }
+              );
+              // Redirect to cart
+              this.router.navigate(['/cart']);
+            } else {
+              this.snackBar.open('Order already in cart', 'View Cart', {
+                duration: 3000,
+                horizontalPosition: 'right',
+                verticalPosition: 'top'
+              }).onAction().subscribe(() => {
+                this.router.navigate(['/cart']);
+              });
+            }
           },
           error: (error) => {
             console.error('Error submitting order:', error);
@@ -310,6 +346,7 @@ export class ProductComponent implements OnDestroy {
         });
       } else {
         // Create and submit new order directly  
+        console.log('Creating new order for submission');
         const currentUser = this.authService.currentUser;
         const customer = this.customerService.getCurrentUserAsCustomer();
         
@@ -335,13 +372,31 @@ export class ProductComponent implements OnDestroy {
           next: (createdOrder) => {
             this.currentOrder = createdOrder;
             console.log('Order created successfully:', createdOrder.OrderId, 'Status:', createdOrder.Status);
-            this.snackBar.open('Order submitted successfully!', 'View Orders', { 
-              duration: 4000,
-              horizontalPosition: 'right',
-              verticalPosition: 'top'
-            }).onAction().subscribe(() => {
-              this.router.navigate(['/orders']);
-            });
+            
+            // Add order to cart
+            const success = this.cartService.addOrderToCart(createdOrder);
+            
+            if (success) {
+              this.snackBar.open(
+                `Order "${createdOrder.DisplayName || createdOrder.OrderId}" added to cart!`,
+                'View Cart',
+                {
+                  duration: 3000,
+                  horizontalPosition: 'right',
+                  verticalPosition: 'top'
+                }
+              );
+              // Redirect to cart
+              this.router.navigate(['/cart']);
+            } else {
+              this.snackBar.open('Order already in cart', 'View Cart', {
+                duration: 3000,
+                horizontalPosition: 'right',
+                verticalPosition: 'top'
+              }).onAction().subscribe(() => {
+                this.router.navigate(['/cart']);
+              });
+            }
           },
           error: (error) => {
             console.error('Error creating order:', error);

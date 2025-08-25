@@ -33,7 +33,7 @@
         <h3>{{this.formConfig?.title}}</h3>
         <p class="form-description">{{this.formConfig?.instructions}}</p>
         
-        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <form [formGroup]="form" (ngSubmit)="onCheckout()">
           <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
           <div class="form-actions">
               <button 
@@ -41,9 +41,9 @@
                   color="primary" 
                   type="submit" 
                   [disabled]="!form.valid"
-                  class="submit-button">
-                  <mat-icon>send</mat-icon>
-                  Submit
+                  class="checkout-button">
+                  <mat-icon>shopping_cart</mat-icon>
+                  Checkout
               </button>
           </div>
         </form>
