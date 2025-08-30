@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { DASHBOARD_CARDS, DashboardCard } from '../../models/dashboard-card.model';
 import { CustomerService } from '../../services/customer.service';
+import { UrlPreservationService } from '../../services/url-preservation.service';
 
 @Component({
   selector: 'app-app-navigation',
@@ -34,7 +35,13 @@ export class AppNavigationComponent implements AfterViewInit {
   private breakpointObserver = inject(BreakpointObserver);
   public auth = inject(AuthService);
   public cards: DashboardCard[] = DASHBOARD_CARDS;
-  constructor(private router: Router, public authService: AuthService, private custService: CustomerService) { }
+  
+  constructor(
+    private router: Router, 
+    public authService: AuthService, 
+    private custService: CustomerService,
+    private urlPreservation: UrlPreservationService
+  ) { }
 
   ngAfterViewInit() {
 
@@ -57,21 +64,39 @@ export class AppNavigationComponent implements AfterViewInit {
   }
 
   doStartup(): void {
+    // Determine where to navigate after authentication
+    const targetUrl = this.getTargetUrl();
+    console.log('Navigating to target URL:', targetUrl);
 
     if (this.auth.isCustomerUser()) {
       this.custService.customer$.subscribe({
         next: cust => {
-          this.router.navigate(['/dashboard']);
+          this.router.navigate([targetUrl]);
         },
         error: err => {
           console.error(err);
+          // Even on error, navigate somewhere so user isn't stuck
+          this.router.navigate(['/dashboard']);
         }
       });
       // Load the customer object before proceeding
       this.custService.getCustomerForUser();
     }else{
       // For non-customers, don't load the customer object
-      this.router.navigate(['/dashboard']);
+      this.router.navigate([targetUrl]);
     }
+  }
+
+  private getTargetUrl(): string {
+    // Check for stored intended URL first
+    const intendedUrl = this.urlPreservation.getAndClearIntendedUrl();
+    if (intendedUrl) {
+      console.log('Using stored intended URL:', intendedUrl);
+      return intendedUrl;
+    }
+    
+    // Default to dashboard
+    console.log('No intended URL found, defaulting to dashboard');
+    return '/dashboard';
   }
 }

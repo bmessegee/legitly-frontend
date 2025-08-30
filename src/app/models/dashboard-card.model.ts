@@ -14,29 +14,42 @@ export interface DashboardCard {
 
   export const DASHBOARD_CARDS: DashboardCard[] = [
   {
-    id: 'llc-formation',
-    cols: 2,
+    id: 'llc-essentials',
+    cols: 1,
     rows: 1,
-    title: 'LLC Formation',              // You might change these numbers to strings if necessary.
-    description: 'Quickly provide basic information and we will form your LLC for you!',        // For example: "LLC Formation Product"
-    icon: 'domain',        // Angular Material icon for business-related products.
+    title: 'New Business Essentials Package',
+    description: 'Solid Legal Ground for a Simple Startup. Perfect for solopreneurs and small teams looking for fast, affordable business formation.',
+    icon: 'business_center',
     displayRoles: ['Customer'],
-    actionDisplay: 'Get Started',
+    actionDisplay: 'Starting at $999',
     actionLink: '/customer/product',
-    actionQuery: 'llc-formation',
+    actionQuery: 'llc-essentials',
     isNav: false
   },
   {
-    id: 'legal-services',
-    cols: 2,
+    id: 'llc-complete',
+    cols: 1,
     rows: 1,
-    title: 'Legal Consulting Subscription',
-    description: 'Legal help from real attorneys for all your business needs!',
-    icon: 'gavel',
+    title: 'New Business Complete Package',
+    description: 'Everything in Essentials—With Added Structure, Licensing, and Legal Precision. Get up and running fast with customized documents.',
+    icon: 'verified_user',
     displayRoles: ['Customer'],
-    actionDisplay: 'Learn More',
-    actionLink: '/customer/services',
-    actionQuery: 'service=legal-subscription',
+    actionDisplay: 'Starting at $1,299',
+    actionLink: '/customer/product',
+    actionQuery: 'llc-complete',
+    isNav: false
+  },
+  {
+    id: 'llc-executive',
+    cols: 1,
+    rows: 1,
+    title: 'New Business Executive Package',
+    description: 'Our Most Comprehensive Package—With Built-In Compliance & Legal Strategy. White-glove legal setup and full first-year compliance.',
+    icon: 'star',
+    displayRoles: ['Customer'],
+    actionDisplay: 'Starting at $1,799',
+    actionLink: '/customer/product',
+    actionQuery: 'llc-executive',
     isNav: false
   },
   {

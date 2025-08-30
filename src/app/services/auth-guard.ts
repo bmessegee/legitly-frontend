@@ -9,6 +9,7 @@ import {
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service'; // Adjust the path as necessary
 import { User } from '../models/user.model';
+import { UrlPreservationService } from './url-preservation.service';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,8 @@ export class AuthGuard implements CanActivate {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private urlPreservation: UrlPreservationService
   ) {
     this.auth.user$.subscribe(user => {
       if (user) {
@@ -37,7 +39,12 @@ export class AuthGuard implements CanActivate {
   ): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
     // Check if the user is authenticated.
     if (!this.authService.isAuthenticated()) {
-      // Redirect to the login page; include a return URL for redirection after successful login.
+      // Store the intended URL if it's valid
+      if (this.urlPreservation.isValidIntendedUrl(state.url)) {
+        this.urlPreservation.setIntendedUrl(state.url);
+      }
+      
+      // Redirect to the login page
       this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
       return false;
     }

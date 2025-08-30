@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf, DecimalPipe, CommonModule } from '@angular/common';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { FormlyMaterialModule } from '@ngx-formly/material';
@@ -20,6 +20,9 @@ import { CustomerService } from '../../../services/customer.service';
   selector: 'app-product',
   imports: [
     NgIf,
+    NgFor,
+    DecimalPipe,
+    CommonModule,
     FormlyMaterialModule,
     FormlyModule,
     FormsModule,
@@ -44,6 +47,8 @@ export class ProductComponent implements OnDestroy {
   autoSaveTimeoutId: any = null;
   hasFormChanged = false;
   isCreatingOrder = false;
+  showComparison = false;
+  llcPackages: any[] = [];
   
   // Make validator available as component property
   businessNameValidator = businessNameValidator();
@@ -70,6 +75,8 @@ export class ProductComponent implements OnDestroy {
         } else if (this.selectedForm) { 
           console.log('Loading form for:', this.selectedForm);
           this.loadForm(this.selectedForm);
+          // Initialize LLC packages for comparison
+          this.initializeLLCPackages();
           // Check for existing in-progress order for this product after a short delay
           // to ensure authentication is fully loaded
           setTimeout(() => {
@@ -84,18 +91,33 @@ export class ProductComponent implements OnDestroy {
   loadForm(form: string) {
     try {
       this.formConfig = new ProductForm().getForm(form);
-      //const importedFields = JSON.parse(json);
-      if (Array.isArray(this.formConfig.fields)) {
-        this.fields = this.formConfig.fields;
+      
+      if (!this.formConfig) {
+        this.snackBar.open('Form configuration not found', 'Close', { duration: 3000 });
+        return;
+      }
+
+      // If this is a package that references another form, load that form's fields
+      let fieldsToUse = this.formConfig.fields;
+      if (this.formConfig.formType) {
+        const referencedForm = new ProductForm().getForm(this.formConfig.formType);
+        if (referencedForm && Array.isArray(referencedForm.fields)) {
+          fieldsToUse = referencedForm.fields;
+        }
+      }
+      
+      if (Array.isArray(fieldsToUse)) {
+        this.fields = fieldsToUse;
         // Add async validator to LLC name field
         this.addBusinessNameValidator();
         // Set up form change detection for auto-save
         this.setupFormChangeDetection();
       } else {
-        alert('Invalid form definition JSON. Expected an array of fields.');
+        this.snackBar.open('Invalid form definition. Expected an array of fields.', 'Close', { duration: 3000 });
       }
     } catch (e) {
-      alert('Error parsing JSON: ' + e);
+      console.error('Error loading form:', e);
+      this.snackBar.open('Error loading form: ' + e, 'Close', { duration: 3000 });
     }
   }
 
@@ -491,6 +513,31 @@ export class ProductComponent implements OnDestroy {
       return `LLC Formation for ${this.model.companyInformation.llcName}`;
     }
     return this.formConfig?.title || 'Form Submission';
+  }
+
+  // Initialize LLC packages for comparison
+  initializeLLCPackages() {
+    const productForm = new ProductForm();
+    this.llcPackages = [
+      { id: 'llc-essentials', ...productForm.getForm('llc-essentials') },
+      { id: 'llc-complete', ...productForm.getForm('llc-complete') },
+      { id: 'llc-executive', ...productForm.getForm('llc-executive') }
+    ];
+  }
+
+  // Check if current form is an LLC package
+  isLLCPackage(): boolean {
+    return ['llc-essentials', 'llc-complete', 'llc-executive'].includes(this.selectedForm);
+  }
+
+  // Switch to a different package
+  switchPackage(packageId: string) {
+    if (packageId !== this.selectedForm) {
+      console.log('Switching from', this.selectedForm, 'to', packageId);
+      this.selectedForm = packageId;
+      this.loadForm(packageId);
+      this.showComparison = false; // Hide comparison after selection
+    }
   }
 
   ngOnDestroy() {

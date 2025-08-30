@@ -1,29 +1,71 @@
-<div class="grid-container">
-  <!--<div class="title">Available Services</div>-->
-  <mat-grid-list cols="2" rowHeight="250px">
-    @for (card of cards | async; track card) {
-      <mat-grid-tile [colspan]="card.cols" [rowspan]="card.rows" *ngIf="authService.isInRole(card.displayRoles)">
-        <mat-card class="dashboard-card" >
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon class="card-icon">{{card.icon}}</mat-icon>{{card.title}}
-              <!--
-              <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
-                <mat-icon>more_vert</mat-icon>
-              </button>
-              
-              <mat-menu #menu="matMenu" xPosition="before">
-                <button mat-menu-item>Expand</button>
-                <button mat-menu-item>Remove</button>
-              </mat-menu>-->
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content class="dashboard-card-content">
-            <div class="card-content">{{card.description}}</div>
-            <button mat-button (click)='routeTo(card.actionLink?card.actionLink:"", card.actionQuery?card.actionQuery:"")'>{{card.actionDisplay}}</button>
-          </mat-card-content>
-        </mat-card>
-      </mat-grid-tile>
-    }
-  </mat-grid-list>
+<div class="dashboard-wrapper">
+  <div class="dashboard-header">
+    <h2>Available Services</h2>
+    <p>Choose the perfect package for your business formation needs</p>
+  </div>
+  
+  <!-- LLC Packages Section -->
+  <div class="llc-packages-section" *ngIf="authService.isCustomerUser()">
+    <h3>LLC Formation Packages</h3>
+    <div class="packages-grid">
+      @for (card of cards | async; track card) {
+        <div class="enhanced-dashboard-card" 
+             *ngIf="authService.isInRole(card.displayRoles) && isLLCPackage(card.id)"
+             [class.popular]="card.id === 'llc-complete'"
+             (click)='routeTo(card.actionLink, card.actionQuery)'>
+          <div class="popular-badge" *ngIf="card.id === 'llc-complete'">Most Popular</div>
+          
+          <div class="card-header">
+            <mat-icon class="package-icon">{{card.icon}}</mat-icon>
+            <h4 class="card-title">{{card.title}}</h4>
+            <p class="card-subtitle">{{getPackageSubtitle(card.id)}}</p>
+            <div class="card-price">{{card.actionDisplay}}</div>
+          </div>
+          
+          <div class="card-content">
+            <p class="card-description">{{card.description}}</p>
+            <ul class="feature-preview" *ngIf="getPackageFeatures(card.id)">
+              <li *ngFor="let feature of getPackageFeatures(card.id).slice(0, 3)">
+                <mat-icon class="check-mini">check_circle</mat-icon>
+                <span>{{feature}}</span>
+              </li>
+              <li class="more-features" *ngIf="getPackageFeatures(card.id).length > 3">
+                <span>+ {{getPackageFeatures(card.id).length - 3}} more features</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div class="card-actions">
+            <button mat-raised-button color="primary" class="select-package-btn">
+              Get Started
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+  
+  <!-- Other Services Section -->
+  <div class="other-services-section">
+    <h3 *ngIf="authService.isCustomerUser()">Other Services</h3>
+    <h3 *ngIf="!authService.isCustomerUser()">Management Tools</h3>
+    <div class="services-grid">
+      @for (card of cards | async; track card) {
+        <div class="service-card" 
+             *ngIf="authService.isInRole(card.displayRoles) && !isLLCPackage(card.id)"
+             (click)='routeTo(card.actionLink, card.actionQuery)'>
+          <div class="service-header">
+            <mat-icon class="service-icon">{{card.icon}}</mat-icon>
+            <h4>{{card.title}}</h4>
+          </div>
+          <p class="service-description">{{card.description}}</p>
+          <button mat-stroked-button color="primary" class="service-btn">
+            {{card.actionDisplay}}
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
 </div>

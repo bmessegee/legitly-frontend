@@ -1,16 +1,41 @@
 @use '@angular/material' as mat;
 
+// Import Plus Jakarta Sans font
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
 html {
   color-scheme: light ;
   @include mat.theme((
     color: mat.$azure-palette,
-    typography: "Roboto Serif",
+    typography: "Plus Jakarta Sans",
     density: 0
   ));
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-body {
+
+html, body { 
+  height: 100%; 
+}
+
+body { 
+  margin: 0; 
+  font-family: "Plus Jakarta Sans", sans-serif;
   background: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
+}
+
+// Custom CSS properties for brand colors that cascade throughout the app
+:root {
+  --legitly-brand-primary: rgb(53, 71, 89);
+  --legitly-brand-primary-light: rgb(73, 91, 109);
+  --legitly-brand-primary-dark: rgb(33, 51, 69);
+  --legitly-accent-blue: rgb(32, 133, 208);
+  --legitly-accent-teal: rgb(34, 158, 133);
+  --legitly-success: rgb(79, 187, 157);
+  --legitly-warning: rgb(255, 183, 77);
+  
+  // Override some Material colors with our brand colors
+  --mat-sys-primary: rgb(53, 71, 89);
+  --mat-sys-on-primary: rgb(255, 255, 255);
+  --mat-sys-primary-container: rgb(73, 91, 109);
+  --mat-sys-on-primary-container: rgb(255, 255, 255);
 }

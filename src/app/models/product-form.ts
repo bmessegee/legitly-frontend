@@ -4,10 +4,21 @@ export class ProductForm {
         return this.forms[name as keyof typeof this.forms]
     }
     forms = {
-        'llc-formation': {
-            title: "LLC Formation",
-            instructions: 'Please provide the following information',
-            cost: 325.00,
+        'llc-essentials': {
+            title: "New Business Essentials Package",
+            subtitle: "Solid Legal Ground for a Simple Startup",
+            instructions: 'Perfect for solopreneurs and small teams looking for fast, affordable business formation with attorney-drafted documents and essential compliance support.',
+            cost: 999.00,
+            tier: "essentials",
+            popular: false,
+            features: [
+                "Entity Formation Filing (LLC) with WA Secretary of State",
+                "Federal EIN (Employer Identification Number) Application",
+                "Drafted Articles of Incorporation or Formation",
+                "Attorney-Drafted Operating Agreement or Bylaws",
+                "1 Year of Registered Agent Services"
+            ],
+            formType: "llc-formation2", // Uses the comprehensive LLC form
             fields: [
                 {
                     "key": "companyInformation",
@@ -55,7 +66,132 @@ export class ProductForm {
             ]
         },
 
+        'llc-complete': {
+            title: "New Business Complete Package",
+            subtitle: "Everything in Essentials—With Added Structure, Licensing, and Legal Precision",
+            instructions: 'Ideal for business owners who want customized documents, official state licensing, and greater legal clarity from day one—with all the tools needed to operate professionally and get up and running fast.',
+            cost: 1299.00,
+            tier: "complete",
+            popular: true,
+            features: [
+                "Everything in the Essentials Package, plus:",
+                "Customized Operating Agreement or Bylaws",
+                "WA State Business License Registration",
+                "Bank-Ready Document Bundle",
+                "Initial Compliance Review and Filing Calendar Setup"
+            ],
+            formType: "llc-formation2",
+            fields: [
+                {
+                    "key": "companyInformation",
+                    "wrappers": ["panel"],
+                    "templateOptions": {
+                        "label": "Company Information"
+                    },
+                    "fieldGroup": [
+                        {
+                            "key": "llcName",
+                            "type": "input",
+                            "props": {
+                                "label": "LLC Name",
+                                "placeholder": "Enter your LLC name",
+                                "required": true,
+                                "description": "The LLC name must end with 'Limited Liability Company', 'LLC', or 'L.L.C.'"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
 
+        'llc-executive': {
+            title: "New Business Executive Package",
+            subtitle: "Our Most Comprehensive Package—With Built-In Compliance & Legal Strategy",
+            instructions: 'Comprehensive Formation for Serious Founders and High-Compliance Businesses. Built for entrepreneurs who want white-glove legal setup, accounting infrastructure, and full first-year compliance—handled from start to finish.',
+            cost: 1799.00,
+            tier: "executive",
+            popular: false,
+            features: [
+                "Everything in the Complete Package, plus:",
+                "Custom QuickBooks™ Company Setup",
+                "Ongoing Compliance Services (Year One):",
+                "• Annual Report Filing",
+                "• Business License Renewal Reminders",
+                "• Deadline and Document Tracking",
+                "30-Minute Business Law Strategy Consultation with a Washington Attorney"
+            ],
+            formType: "llc-formation2",
+            fields: [
+                {
+                    "key": "companyInformation",
+                    "wrappers": ["panel"],
+                    "templateOptions": {
+                        "label": "Company Information"
+                    },
+                    "fieldGroup": [
+                        {
+                            "key": "llcName",
+                            "type": "input",
+                            "props": {
+                                "label": "LLC Name",
+                                "placeholder": "Enter your LLC name",
+                                "required": true,
+                                "description": "The LLC name must end with 'Limited Liability Company', 'LLC', or 'L.L.C.'"
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+
+        // Add-on services
+        'attorney-time': {
+            title: "Scheduling Attorney Time",
+            subtitle: "Professional Legal Consultation",
+            instructions: 'Schedule time with our Washington attorneys for personalized legal advice and consultation.',
+            cost: 350.00,
+            tier: "addon",
+            billingType: "hourly",
+            features: [
+                "One-on-one consultation with Washington attorney",
+                "Personalized legal advice for your business",
+                "Professional guidance on complex matters",
+                "Flexible scheduling available"
+            ],
+            fields: []
+        },
+
+        'registered-agent': {
+            title: "Registered Agent Services",
+            subtitle: "Professional Registered Agent Service",
+            instructions: 'Professional registered agent services to ensure compliance and proper handling of legal documents.',
+            cost: 329.00,
+            tier: "addon",
+            billingType: "annual",
+            features: [
+                "Professional registered agent service",
+                "Reliable document handling",
+                "Compliance monitoring",
+                "Annual service commitment"
+            ],
+            fields: []
+        },
+
+        'annual-compliance': {
+            title: "Annual Compliance Services",
+            subtitle: "Complete Annual Compliance Management",
+            instructions: 'Comprehensive annual compliance services to keep your business in good standing.',
+            cost: 450.00,
+            tier: "addon",
+            billingType: "annual",
+            features: [
+                "Annual report filing",
+                "Business license renewal reminders",
+                "Deadline tracking and notifications",
+                "Compliance status monitoring"
+            ],
+            fields: []
+        },
 
         "llc-formation2": {
             "title": "Washington LLC Formation",
