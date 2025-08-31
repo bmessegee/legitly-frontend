@@ -40,6 +40,7 @@ export class AuthGuard implements CanActivate {
     // Check if the user is authenticated.
     if (!this.authService.isAuthenticated()) {
       // Store the intended URL if it's valid
+      console.log('AuthGuard: User not authenticated, URL:', state.url);
       if (this.urlPreservation.isValidIntendedUrl(state.url)) {
         this.urlPreservation.setIntendedUrl(state.url);
       }

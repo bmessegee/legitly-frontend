@@ -7,6 +7,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';   // <-- your existing model
 import { Customer } from '../models/customer.model';
 import { ApiService } from './api.service';
+import { UrlPreservationService } from './url-preservation.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -26,7 +27,8 @@ export class AuthService {
 
   constructor(
     private oidc: OidcSecurityService,
-    private router: Router
+    private router: Router,
+    private urlPreservation: UrlPreservationService
   ) {
 
     // Map raw userData into your User model, pulling out groups
@@ -68,8 +70,35 @@ export class AuthService {
         this.bearerToken = token;
         if(this.bearerToken){
           this._isAuth$.next(true);
+          
+          // Check for preserved URL after successful authentication
+          this.handlePostAuthNavigation();
         }
       });
+  }
+
+  /** Handle navigation after successful authentication */
+  private handlePostAuthNavigation(): void {
+    // Small delay to ensure user context is fully loaded
+    setTimeout(() => {
+      const urlData = (this.urlPreservation as any).getAndClearIntendedUrlData();
+      if (urlData) {
+        console.log('Navigating to preserved URL with data:', urlData);
+        
+        // Navigate using the structured data
+        if (Object.keys(urlData.queryParams).length > 0) {
+          console.log('Navigating with path:', urlData.path, 'and params:', urlData.queryParams);
+          this.router.navigate([urlData.path], { queryParams: urlData.queryParams });
+        } else {
+          console.log('Navigating to path:', urlData.path);
+          this.router.navigate([urlData.path]);
+        }
+      } else {
+        // Default navigation to dashboard
+        console.log('No preserved URL, navigating to dashboard');
+        this.router.navigate(['/dashboard']);
+      }
+    }, 100);
   }
 
   /** Starts the Cognito login flow */

@@ -65,13 +65,13 @@ export class AppNavigationComponent implements AfterViewInit {
 
   doStartup(): void {
     // Determine where to navigate after authentication
-    const targetUrl = this.getTargetUrl();
-    console.log('Navigating to target URL:', targetUrl);
+    const targetNavigation = this.getTargetNavigation();
+    console.log('Navigating to target:', targetNavigation);
 
     if (this.auth.isCustomerUser()) {
       this.custService.customer$.subscribe({
         next: cust => {
-          this.router.navigate([targetUrl]);
+          this.navigateToTarget(targetNavigation);
         },
         error: err => {
           console.error(err);
@@ -83,20 +83,33 @@ export class AppNavigationComponent implements AfterViewInit {
       this.custService.getCustomerForUser();
     }else{
       // For non-customers, don't load the customer object
-      this.router.navigate([targetUrl]);
+      this.navigateToTarget(targetNavigation);
     }
   }
 
-  private getTargetUrl(): string {
-    // Check for stored intended URL first
-    const intendedUrl = this.urlPreservation.getAndClearIntendedUrl();
-    if (intendedUrl) {
-      console.log('Using stored intended URL:', intendedUrl);
-      return intendedUrl;
+  private getTargetNavigation(): {path: string, queryParams?: {[key: string]: string}} {
+    // Check for stored intended URL data first
+    const urlData = (this.urlPreservation as any).getAndClearIntendedUrlData();
+    if (urlData) {
+      console.log('Using stored intended URL data:', urlData);
+      return {
+        path: urlData.path,
+        queryParams: Object.keys(urlData.queryParams).length > 0 ? urlData.queryParams : undefined
+      };
     }
     
     // Default to dashboard
-    console.log('No intended URL found, defaulting to dashboard');
-    return '/dashboard';
+    console.log('No intended URL data found, defaulting to dashboard');
+    return { path: '/dashboard' };
+  }
+
+  private navigateToTarget(target: {path: string, queryParams?: {[key: string]: string}}): void {
+    if (target.queryParams) {
+      console.log('Navigating with query params:', target.path, target.queryParams);
+      this.router.navigate([target.path], { queryParams: target.queryParams });
+    } else {
+      console.log('Navigating to path:', target.path);
+      this.router.navigate([target.path]);
+    }
   }
 }
