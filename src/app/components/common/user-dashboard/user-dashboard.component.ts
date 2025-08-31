@@ -71,6 +71,17 @@ export class UserDashboardComponent {
     return ['llc-essentials', 'llc-complete', 'llc-executive'].includes(cardId);
   }
 
+  // Check if card is an add-on service
+  isAddonService(cardId: string): boolean {
+    return ['attorney-time', 'registered-agent', 'annual-compliance'].includes(cardId);
+  }
+
+  // Check if card is a "My Services" item (messages, orders, documents, tenant tools)
+  isMyService(cardId: string): boolean {
+    const myServices = ['messages', 'orders', 'documents', 'customers', 'tenant-messages-inbox'];
+    return myServices.includes(cardId);
+  }
+
   // Get package subtitle from product form
   getPackageSubtitle(cardId: string): string {
     const productForm = new ProductForm();

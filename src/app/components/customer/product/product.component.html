@@ -4,7 +4,7 @@
         <div class="package-info">
             <div class="package-title">{{formConfig.title}}</div>
             <div class="package-subtitle" *ngIf="formConfig.subtitle">{{formConfig.subtitle}}</div>
-            <div class="package-price">${{formConfig.cost | number:'1.0-0'}}</div>
+            <div class="package-price">${{getServiceCost() | number:'1.0-0'}}</div>
             <div class="package-description">{{formConfig.instructions}}</div>
         </div>
         
@@ -20,7 +20,7 @@
         </div>
 
         <!-- Tier Comparison Button -->
-        <div class="package-actions" *ngIf="isLLCPackage()">
+        <div class="package-actions" *ngIf="isLLCPackage() && !isAddonService()">
             <button 
                 mat-stroked-button 
                 color="primary" 
@@ -79,11 +79,11 @@
                 <div class="checkout-summary">
                     <div class="summary-line">
                         <span>{{formConfig.title}}</span>
-                        <span class="summary-price">${{formConfig.cost | number:'1.0-0'}}</span>
+                        <span class="summary-price">${{getServiceCost() | number:'1.0-0'}}</span>
                     </div>
                     <div class="summary-total">
                         <span>Total</span>
-                        <span class="total-price">${{formConfig.cost | number:'1.0-0'}}</span>
+                        <span class="total-price">${{getServiceCost() | number:'1.0-0'}}</span>
                     </div>
                 </div>
                 <button 
@@ -93,7 +93,7 @@
                     [disabled]="!form.valid"
                     class="checkout-button">
                     <mat-icon>shopping_cart</mat-icon>
-                    Checkout - ${{formConfig.cost | number:'1.0-0'}}
+                    Checkout - ${{getServiceCost() | number:'1.0-0'}}
                 </button>
             </div>
         </form>

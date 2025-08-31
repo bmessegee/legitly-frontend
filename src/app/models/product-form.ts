@@ -146,9 +146,9 @@ export class ProductForm {
 
         // Add-on services
         'attorney-time': {
-            title: "Scheduling Attorney Time",
+            title: "Attorney Consultation",
             subtitle: "Professional Legal Consultation",
-            instructions: 'Schedule time with our Washington attorneys for personalized legal advice and consultation.',
+            instructions: 'Schedule one-on-one consultation with our Washington attorneys for personalized legal advice and guidance.',
             cost: 350.00,
             tier: "addon",
             billingType: "hourly",
@@ -158,7 +158,65 @@ export class ProductForm {
                 "Professional guidance on complex matters",
                 "Flexible scheduling available"
             ],
-            fields: []
+            fields: [
+                {
+                    "key": "consultationDetails",
+                    "wrappers": ["panel"],
+                    "templateOptions": {
+                        "label": "Consultation Request"
+                    },
+                    "fieldGroup": [
+                        {
+                            "key": "consultationType",
+                            "type": "select",
+                            "props": {
+                                "label": "Type of Consultation",
+                                "required": true,
+                                "options": [
+                                    { "value": "business-formation", "label": "Business Formation" },
+                                    { "value": "compliance", "label": "Compliance Issues" },
+                                    { "value": "contracts", "label": "Contracts & Agreements" },
+                                    { "value": "general", "label": "General Legal Advice" },
+                                    { "value": "other", "label": "Other" }
+                                ]
+                            }
+                        },
+                        {
+                            "key": "estimatedHours",
+                            "type": "select",
+                            "props": {
+                                "label": "Estimated Duration",
+                                "required": true,
+                                "options": [
+                                    { "value": "1", "label": "1 hour ($350)" },
+                                    { "value": "2", "label": "2 hours ($700)" },
+                                    { "value": "3", "label": "3 hours ($1,050)" },
+                                    { "value": "custom", "label": "Custom duration" }
+                                ]
+                            }
+                        },
+                        {
+                            "key": "preferredSchedule",
+                            "type": "textarea",
+                            "props": {
+                                "label": "Preferred Schedule & Availability",
+                                "placeholder": "Please describe your preferred meeting times and availability...",
+                                "rows": 3
+                            }
+                        },
+                        {
+                            "key": "consultationDescription",
+                            "type": "textarea",
+                            "props": {
+                                "label": "Description of Legal Matter",
+                                "placeholder": "Please describe the legal matter you'd like to discuss...",
+                                "required": true,
+                                "rows": 4
+                            }
+                        }
+                    ]
+                }
+            ]
         },
 
         'registered-agent': {
@@ -174,7 +232,72 @@ export class ProductForm {
                 "Compliance monitoring",
                 "Annual service commitment"
             ],
-            fields: []
+            fields: [
+                {
+                    "key": "agentServiceDetails",
+                    "wrappers": ["panel"],
+                    "templateOptions": {
+                        "label": "Registered Agent Service Request"
+                    },
+                    "fieldGroup": [
+                        {
+                            "key": "businessName",
+                            "type": "input",
+                            "props": {
+                                "label": "Business Name",
+                                "placeholder": "Enter your business name",
+                                "required": true
+                            }
+                        },
+                        {
+                            "key": "businessType",
+                            "type": "select",
+                            "props": {
+                                "label": "Business Type",
+                                "required": true,
+                                "options": [
+                                    { "value": "llc", "label": "Limited Liability Company (LLC)" },
+                                    { "value": "corporation", "label": "Corporation" },
+                                    { "value": "partnership", "label": "Partnership" },
+                                    { "value": "other", "label": "Other" }
+                                ]
+                            }
+                        },
+                        {
+                            "key": "currentAgent",
+                            "type": "select",
+                            "props": {
+                                "label": "Current Registered Agent Status",
+                                "required": true,
+                                "options": [
+                                    { "value": "none", "label": "No current registered agent" },
+                                    { "value": "self", "label": "Acting as my own registered agent" },
+                                    { "value": "other-service", "label": "Using another service" },
+                                    { "value": "individual", "label": "Individual serving as agent" }
+                                ]
+                            }
+                        },
+                        {
+                            "key": "serviceStartDate",
+                            "type": "input",
+                            "props": {
+                                "label": "Preferred Service Start Date",
+                                "type": "date",
+                                "required": true
+                            }
+                        },
+                        {
+                            "key": "additionalNotes",
+                            "type": "textarea",
+                            "props": {
+                                "label": "Additional Notes or Requirements",
+                                "placeholder": "Any additional information or special requirements...",
+                                "rows": 3
+                            }
+                        }
+                    ]
+                }
+            ]
         },
 
         'annual-compliance': {
@@ -190,7 +313,85 @@ export class ProductForm {
                 "Deadline tracking and notifications",
                 "Compliance status monitoring"
             ],
-            fields: []
+            fields: [
+                {
+                    "key": "complianceServiceDetails",
+                    "wrappers": ["panel"],
+                    "templateOptions": {
+                        "label": "Annual Compliance Service Request"
+                    },
+                    "fieldGroup": [
+                        {
+                            "key": "businessName",
+                            "type": "input",
+                            "props": {
+                                "label": "Business Name",
+                                "placeholder": "Enter your business name",
+                                "required": true
+                            }
+                        },
+                        {
+                            "key": "businessType",
+                            "type": "select",
+                            "props": {
+                                "label": "Business Type",
+                                "required": true,
+                                "options": [
+                                    { "value": "llc", "label": "Limited Liability Company (LLC)" },
+                                    { "value": "s-corp", "label": "S Corporation" },
+                                    { "value": "c-corp", "label": "C Corporation" },
+                                    { "value": "partnership", "label": "Partnership" },
+                                    { "value": "other", "label": "Other" }
+                                ]
+                            }
+                        },
+                        {
+                            "key": "formationDate",
+                            "type": "input",
+                            "props": {
+                                "label": "Business Formation Date",
+                                "type": "date",
+                                "required": true,
+                                "description": "This helps us determine your compliance deadlines"
+                            }
+                        },
+                        {
+                            "key": "businessLicenses",
+                            "type": "textarea",
+                            "props": {
+                                "label": "Current Business Licenses",
+                                "placeholder": "List any current business licenses or permits...",
+                                "rows": 3,
+                                "description": "Include license types, numbers, and expiration dates if known"
+                            }
+                        },
+                        {
+                            "key": "complianceServices",
+                            "type": "multicheckbox",
+                            "props": {
+                                "label": "Compliance Services Needed",
+                                "required": true,
+                                "options": [
+                                    { "value": "annual-report", "label": "Annual Report Filing" },
+                                    { "value": "license-renewals", "label": "Business License Renewal Reminders" },
+                                    { "value": "deadline-tracking", "label": "Deadline Tracking & Notifications" },
+                                    { "value": "compliance-monitoring", "label": "Compliance Status Monitoring" },
+                                    { "value": "tax-deadlines", "label": "Tax Deadline Reminders" }
+                                ]
+                            }
+                        },
+                        {
+                            "key": "additionalRequirements",
+                            "type": "textarea",
+                            "props": {
+                                "label": "Additional Compliance Requirements",
+                                "placeholder": "Any specific compliance needs or industry requirements...",
+                                "rows": 3
+                            }
+                        }
+                    ]
+                }
+            ]
         },
 
         "llc-formation2": {

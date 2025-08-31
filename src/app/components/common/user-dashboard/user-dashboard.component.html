@@ -46,21 +46,43 @@
     </div>
   </div>
   
-  <!-- Other Services Section -->
-  <div class="other-services-section">
-    <h3 *ngIf="authService.isCustomerUser()">Other Services</h3>
-    <h3 *ngIf="!authService.isCustomerUser()">Management Tools</h3>
-    <div class="services-grid">
+  <!-- Add-on Services Section -->
+  <div class="addon-services-section" *ngIf="authService.isCustomerUser()">
+    <h3>Additional Services</h3>
+    <div class="addon-services-grid">
       @for (card of cards | async; track card) {
-        <div class="service-card" 
-             *ngIf="authService.isInRole(card.displayRoles) && !isLLCPackage(card.id)"
+        <div class="addon-service-card" 
+             *ngIf="authService.isInRole(card.displayRoles) && isAddonService(card.id)"
              (click)='routeTo(card.actionLink, card.actionQuery)'>
-          <div class="service-header">
-            <mat-icon class="service-icon">{{card.icon}}</mat-icon>
+          <div class="addon-service-header">
+            <mat-icon class="addon-service-icon">{{card.icon}}</mat-icon>
             <h4>{{card.title}}</h4>
           </div>
-          <p class="service-description">{{card.description}}</p>
-          <button mat-stroked-button color="primary" class="service-btn">
+          <p class="addon-service-description">{{card.description}}</p>
+          <button mat-stroked-button color="primary" class="addon-service-btn">
+            {{card.actionDisplay}}
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- My Services Section -->
+  <div class="my-services-section">
+    <h3 *ngIf="authService.isCustomerUser()">My Services</h3>
+    <h3 *ngIf="!authService.isCustomerUser()">Management Tools</h3>
+    <div class="my-services-grid">
+      @for (card of cards | async; track card) {
+        <div class="my-service-card" 
+             *ngIf="authService.isInRole(card.displayRoles) && isMyService(card.id)"
+             (click)='routeTo(card.actionLink, card.actionQuery)'>
+          <div class="my-service-header">
+            <mat-icon class="my-service-icon">{{card.icon}}</mat-icon>
+            <h4>{{card.title}}</h4>
+          </div>
+          <p class="my-service-description">{{card.description}}</p>
+          <button mat-stroked-button color="primary" class="my-service-btn">
             {{card.actionDisplay}}
             <mat-icon>arrow_forward</mat-icon>
           </button>

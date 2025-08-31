@@ -515,6 +515,22 @@ export class ProductComponent implements OnDestroy {
     return this.formConfig?.title || 'Form Submission';
   }
 
+  // Calculate dynamic pricing for hourly services
+  getServiceCost(): number {
+    if (this.selectedForm === 'attorney-time' && this.model?.consultationDetails?.estimatedHours) {
+      const hours = parseInt(this.model.consultationDetails.estimatedHours);
+      if (!isNaN(hours)) {
+        return hours * 350; // $350 per hour
+      }
+    }
+    return this.formConfig?.cost || 0;
+  }
+
+  // Check if current service is an add-on service
+  isAddonService(): boolean {
+    return ['attorney-time', 'registered-agent', 'annual-compliance'].includes(this.selectedForm);
+  }
+
   // Initialize LLC packages for comparison
   initializeLLCPackages() {
     const productForm = new ProductForm();

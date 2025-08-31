@@ -117,4 +117,44 @@ export interface DashboardCard {
     actionQuery: 'ref=dashboard',
     isNav: true
   },
+  // Add-on Services
+  {
+    id: 'attorney-time',
+    cols: 1,
+    rows: 1,
+    title: 'Attorney Consultation',
+    description: 'Schedule one-on-one consultation with our Washington attorneys for personalized legal advice.',
+    icon: 'gavel',
+    displayRoles: ['Customer'],
+    actionDisplay: '$350/hour',
+    actionLink: '/customer/product',
+    actionQuery: 'attorney-time',
+    isNav: false
+  },
+  {
+    id: 'registered-agent',
+    cols: 1,
+    rows: 1,
+    title: 'Registered Agent Services',
+    description: 'Professional registered agent services to ensure compliance and proper handling of legal documents.',
+    icon: 'business',
+    displayRoles: ['Customer'],
+    actionDisplay: '$329/year',
+    actionLink: '/customer/product',
+    actionQuery: 'registered-agent',
+    isNav: false
+  },
+  {
+    id: 'annual-compliance',
+    cols: 1,
+    rows: 1,
+    title: 'Annual Compliance Services',
+    description: 'Complete annual compliance management including report filing and renewal reminders.',
+    icon: 'event_repeat',
+    displayRoles: ['Customer'],
+    actionDisplay: '$450/year',
+    actionLink: '/customer/product',
+    actionQuery: 'annual-compliance',
+    isNav: false
+  },
 ];
