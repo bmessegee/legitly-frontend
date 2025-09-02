@@ -12,32 +12,49 @@
   margin-left: 10px;
 }
 
+// Cart-specific mat-list-item override (scoped to this component only)
+.cart-card ::ng-deep mat-list-item {
+  height: auto !important;
+  min-height: 120px !important;
+  
+  .mdc-list-item__content {
+    height: auto !important;
+    padding: 16px 0 !important;
+  }
+}
+
 .cart-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
   padding: 16px 0;
   
   .item-details {
     flex: 1;
+    min-width: 0; // Prevent flex item from growing beyond container
+    margin-right: 16px;
     
     .item-name {
       margin: 0 0 8px 0;
       font-size: 18px;
       font-weight: 500;
-      color: #333;
+      color: var(--mat-sys-on-surface);
+      line-height: 1.2;
+      word-wrap: break-word;
     }
     
     .item-description {
       margin: 0 0 8px 0;
-      color: #666;
+      color: var(--mat-sys-on-surface-variant);
       font-size: 14px;
+      line-height: 1.3;
+      word-wrap: break-word;
     }
     
     .item-price {
       margin: 0;
-      color: #2196f3;
+      color: var(--mat-sys-primary);
       font-weight: 500;
       font-size: 16px;
     }
@@ -45,19 +62,26 @@
   
   .item-controls {
     display: flex;
-    align-items: center;
-    gap: 16px;
+    align-items: flex-start;
+    gap: 12px;
+    flex-shrink: 0; // Prevent controls from shrinking
+    margin-top: 4px; // Add small top margin for better alignment
     
     .quantity-controls {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 4px;
+      border: 1px solid var(--mat-sys-outline-variant);
+      border-radius: 20px;
+      padding: 4px;
       
       .quantity {
         min-width: 30px;
         text-align: center;
         font-weight: 500;
         font-size: 16px;
+        color: var(--mat-sys-on-surface);
+        padding: 0 8px;
       }
     }
     
@@ -65,7 +89,8 @@
       min-width: 80px;
       text-align: right;
       font-size: 18px;
-      color: #4caf50;
+      color: var(--mat-sys-secondary);
+      font-weight: 600;
     }
   }
 }
@@ -165,6 +190,11 @@
     padding: 10px;
   }
   
+  // Cart-specific mat-list-item override for mobile
+  .cart-card ::ng-deep mat-list-item {
+    min-height: 160px !important;
+  }
+  
   .cart-item {
     flex-direction: column;
     align-items: flex-start;
@@ -173,6 +203,7 @@
     .item-controls {
       width: 100%;
       justify-content: space-between;
+      margin-top: 12px;
     }
   }
   

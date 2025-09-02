@@ -123,18 +123,11 @@
         </mat-step>
 
         <!-- Step 3: Payment -->
-        <mat-step [stepControl]="paymentForm" label="Payment">
+        <mat-step label="Payment">
           <div class="step-content">
             <h3>Payment Information</h3>
             
-            <form [formGroup]="paymentForm" class="payment-form">
-              <mat-form-field appearance="outline" class="form-field full-width">
-                <mat-label>Name on Card</mat-label>
-                <input matInput formControlName="nameOnCard" required>
-                <mat-error *ngIf="paymentForm.get('nameOnCard')?.hasError('required')">
-                  Name on card is required
-                </mat-error>
-              </mat-form-field>
+            <div class="payment-form">
 
               <div class="card-element-container">
                 <label class="card-label">Card Information</label>
@@ -155,15 +148,12 @@
               </div>
 
               <div class="terms-section">
-                <mat-checkbox formControlName="agreeToTerms" required>
+                <mat-checkbox>
                   I agree to the <a href="#" target="_blank">Terms of Service</a> and 
                   <a href="#" target="_blank">Privacy Policy</a>
                 </mat-checkbox>
-                <mat-error *ngIf="paymentForm.get('agreeToTerms')?.hasError('required') && paymentForm.get('agreeToTerms')?.touched">
-                  You must agree to the terms to continue
-                </mat-error>
               </div>
-            </form>
+            </div>
 
             <div class="step-actions">
               <button mat-button matStepperPrevious [disabled]="isProcessing">
@@ -174,7 +164,7 @@
                 mat-raised-button 
                 color="accent" 
                 (click)="processPayment()"
-                [disabled]="!isFormValid() || isProcessing"
+                [disabled]="!isCustomerFormValid() || isProcessing"
                 class="pay-button">
                 <mat-spinner diameter="20" *ngIf="isProcessing"></mat-spinner>
                 <mat-icon *ngIf="!isProcessing">payment</mat-icon>

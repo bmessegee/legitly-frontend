@@ -1,6 +1,6 @@
-<div class="upload-container">
-  <mat-card class="upload-card">
-    <mat-card-header>
+<div class="upload-container" [class.compact]="compact">
+  <mat-card class="upload-card" [class.compact]="compact">
+    <mat-card-header *ngIf="!compact">
       <mat-card-title>
         <mat-icon>cloud_upload</mat-icon>
         Document Upload
@@ -10,6 +10,14 @@
         <span *ngIf="customerId">Upload documents for customer</span>
       </mat-card-subtitle>
     </mat-card-header>
+    
+    <!-- Compact header -->
+    <div *ngIf="compact" class="compact-header">
+      <h3>
+        <mat-icon>cloud_upload</mat-icon>
+        Upload Document
+      </h3>
+    </div>
 
     <mat-card-content>
       
@@ -49,8 +57,10 @@
         
         <div class="drop-zone-content">
           <mat-icon class="upload-icon">cloud_upload</mat-icon>
-          <h3>Drop files here or click to browse</h3>
-          <p>Supported formats: PDF, Images, Word, Excel, Text files</p>
+          <h3 *ngIf="!compact">Drop files here or click to browse</h3>
+          <h4 *ngIf="compact">Click to select files</h4>
+          <p *ngIf="!compact">Supported formats: PDF, Images, Word, Excel, Text files</p>
+          <p *ngIf="compact" class="compact-formats">PDF, Images, Word, Excel, Text</p>
           <p class="size-limit">Maximum file size: 10MB</p>
         </div>
 
@@ -158,8 +168,8 @@
         </div>
       </div>
 
-      <!-- Help Text -->
-      <div class="help-section">
+      <!-- Help Text - hidden in compact mode -->
+      <div class="help-section" *ngIf="!compact">
         <mat-divider></mat-divider>
         <div class="help-content">
           <h4>File Upload Guidelines</h4>

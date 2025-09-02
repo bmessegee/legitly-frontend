@@ -44,18 +44,11 @@ export class OrderItemComponent {
       this.expandedItems.delete(itemIndex);
       this.expandedFormData.delete(itemIndex);
     } else {
-      // Expand item - fetch form data
-      if (this.order?.OrderId) {
-        this.cartService.getOrderItemFormData(this.order.OrderId, itemIndex).subscribe({
-          next: (formData) => {
-            this.expandedItems.add(itemIndex);
-            this.expandedFormData.set(itemIndex, formData);
-          },
-          error: (error) => {
-            console.error('Error loading form data:', error);
-            this.error = 'Failed to load form data';
-          }
-        });
+      // Expand item - use form data from order item
+      this.expandedItems.add(itemIndex);
+      const orderItem = this.order?.OrderItems?.[itemIndex];
+      if (orderItem?.FormData) {
+        this.expandedFormData.set(itemIndex, orderItem.FormData);
       }
     }
   }
@@ -126,31 +119,19 @@ export class OrderItemComponent {
     if (this.order && this.isSubmitted()) {
       console.log('Adding order to cart:', this.order.OrderId);
       
-      const success = this.cartService.addOrderToCart(this.order);
+      this.cartService.loadOrderIntoCart(this.order);
       
-      if (success) {
-        this.snackBar.open(
-          `Order "${this.order.DisplayName || this.order.OrderId}" has been added to cart!`,
-          'View Cart',
-          {
-            duration: 4000,
-            horizontalPosition: 'right',
-            verticalPosition: 'top'
-          }
-        ).onAction().subscribe(() => {
-          this.router.navigate(['/cart']);
-        });
-      } else {
-        this.snackBar.open(
-          'This order is already in your cart or cannot be added.',
-          'Close',
-          {
-            duration: 3000,
-            horizontalPosition: 'right',
-            verticalPosition: 'top'
-          }
-        );
-      }
+      this.snackBar.open(
+        `Order "${this.order.DisplayName || this.order.OrderId}" has been added to cart!`,
+        'View Cart',
+        {
+          duration: 4000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
+        }
+      ).onAction().subscribe(() => {
+        this.router.navigate(['/cart']);
+      });
     } else {
       console.log('Cannot add to cart - order status:', this.order?.Status);
       this.snackBar.open(

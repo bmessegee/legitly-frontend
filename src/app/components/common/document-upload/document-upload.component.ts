@@ -43,6 +43,7 @@ import { Document, DocumentStatus } from '../../../models/document.model';
 export class DocumentUploadComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @Input() customerId?: string; // For tenant uploads to specific customers
+  @Input() compact: boolean = false; // Compact mode for sidebar display
 
   uploadForm: FormGroup;
   selectedFiles: File[] = [];

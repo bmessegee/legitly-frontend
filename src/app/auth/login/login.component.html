@@ -1,9 +1,17 @@
-<!-- src/app/auth/login.component.html -->
+<!-- Modern Professional Login Component -->
 
 <div class="wrapper" *ngIf="!auth.currentUser">
-  <div style="flex:.5"></div>
   <div class="login-panel">
-    <div>Please login to access your account</div>
-    <button mat-button="outlined" (click)="login()" style="margin-top:50px;">Login</button>
+    <div class="login-message">Welcome to Baldwin Legal Group</div>
+    <div class="login-subtitle">Please login to access your account and manage your business services</div>
+    
+    <button class="login-button" (click)="login()">
+      <span>Login with Secure Access</span>
+    </button>
+    
+    <div class="security-notice">
+      <mat-icon class="security-icon">security</mat-icon>
+      <span>Your data is protected with enterprise-grade security</span>
+    </div>
   </div>
 </div>

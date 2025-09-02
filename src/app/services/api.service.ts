@@ -3,13 +3,14 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError, retry, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   // Base URL for your RESTful API
-  private baseUrl: string = 'https://58360gsu5l.execute-api.us-east-1.amazonaws.com/prod/';
+  private baseUrl: string = environment.api.baseUrl;
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 

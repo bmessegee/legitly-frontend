@@ -66,11 +66,11 @@
         </div>
     </div>
 
-    <!-- Form Section -->
-    <div class="form-section" *ngIf="formConfig">
+    <!-- Form Section for Packages (with form fields) -->
+    <div class="form-section" *ngIf="formConfig && isPackage()">
         <div class="form-header">
             <h3>Complete Your {{formConfig.title}}</h3>
-            <p class="form-description">Please provide the following information for your LLC formation</p>
+            <p class="form-description">Please provide the following information for your service</p>
         </div>
         
         <form [formGroup]="form" (ngSubmit)="onCheckout()">
@@ -97,6 +97,27 @@
                 </button>
             </div>
         </form>
+    </div>
+
+    <!-- Simple Add to Cart for Ala Carte Services (no form fields) -->
+    <div class="ala-carte-section" *ngIf="formConfig && !isPackage()">
+        <div class="ala-carte-actions">
+            <div class="service-summary">
+                <div class="summary-line">
+                    <span>{{formConfig.title}}</span>
+                    <span class="summary-price">${{formConfig.cost | number:'1.0-0'}}</span>
+                </div>
+                <div class="summary-description">{{formConfig.instructions}}</div>
+            </div>
+            <button 
+                mat-raised-button 
+                color="primary" 
+                (click)="addToCart()"
+                class="add-to-cart-button">
+                <mat-icon>add_shopping_cart</mat-icon>
+                Add to Cart - ${{formConfig.cost | number:'1.0-0'}}
+            </button>
+        </div>
     </div>
     
     <div *ngIf="!formConfig" class="loading-form">

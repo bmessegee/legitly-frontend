@@ -11,6 +11,8 @@ import { CustomersComponent } from './components/tenant/customers/customers.comp
 import { MessagesInboxComponent } from './components/tenant/messages-inbox/messages-inbox.component';
 import { CartComponent } from './components/common/cart/cart.component';
 import { CheckoutComponent } from './components/customer/checkout/checkout.component';
+import { StripeSuccessComponent } from './components/stripe/stripe-success/stripe-success.component';
+import { StripeCancelComponent } from './components/stripe/stripe-cancel/stripe-cancel.component';
 
 
 export const routes: Routes = [
@@ -55,6 +57,16 @@ export const routes: Routes = [
     {
         path: 'tenant/form-builder', component: FormBuilderComponent, canActivate: [AuthGuard],
         data: { roles: ['Admin'] }
+    },
+    
+    // Stripe payment result pages
+    {
+        path: 'success', component: StripeSuccessComponent, canActivate: [AuthGuard],
+        data: { roles: ['Customer'] }
+    },
+    {
+        path: 'cancel', component: StripeCancelComponent, canActivate: [AuthGuard],
+        data: { roles: ['Customer'] }
     },
 
     // fallback

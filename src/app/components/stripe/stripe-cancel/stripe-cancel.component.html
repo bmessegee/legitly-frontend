@@ -1,0 +1,48 @@
+<!-- Stripe Cancel Page -->
+<div class="cancel-wrapper">
+  <div class="cancel-container">
+    <!-- Cancel Icon -->
+    <div class="cancel-icon-container">
+      <mat-icon class="cancel-icon">cancel</mat-icon>
+    </div>
+    
+    <!-- Cancel Message -->
+    <div class="cancel-content">
+      <h1 class="cancel-title">Payment Cancelled</h1>
+      <p class="cancel-subtitle">Your payment was cancelled. No charges were made to your account.</p>
+      
+      <div class="cancel-details">
+        <div class="detail-item">
+          <mat-icon class="detail-icon">shopping_cart</mat-icon>
+          <span>Your items are still in your cart and ready for checkout</span>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">help_outline</mat-icon>
+          <span>Need assistance? Our support team is here to help</span>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">payment</mat-icon>
+          <span>Try a different payment method or contact your bank</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="cancel-actions">
+      <button mat-raised-button color="primary" class="primary-button" (click)="goToCart()">
+        <mat-icon>shopping_cart</mat-icon>
+        Return to Cart
+      </button>
+      <button mat-stroked-button color="primary" class="secondary-button" (click)="goToDashboard()">
+        <mat-icon>dashboard</mat-icon>
+        Go to Dashboard
+      </button>
+    </div>
+    
+    <!-- Support Notice -->
+    <div class="support-notice">
+      <mat-icon class="support-icon">support_agent</mat-icon>
+      <span>Need help completing your order? Contact our support team</span>
+    </div>
+  </div>
+</div>

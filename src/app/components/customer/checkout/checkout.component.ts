@@ -43,18 +43,20 @@ import { CartItem, Order, OrderItem, OrderStatus, CustomerDetails } from '../../
 export class CheckoutComponent implements OnInit {
   @ViewChild('cardElement') cardElement!: ElementRef;
 
-  cartItems$: Observable<CartItem[]>;
+  currentOrder$: Observable<Order | null>;
+  cartItems$: Observable<OrderItem[]>;
   cartTotal$: Observable<number>;
   
   customerForm: FormGroup;
-  paymentForm: FormGroup;
   
   isProcessing = false;
-  stripe: any;
-  card: any;
-  
-  cartItems: CartItem[] = [];
+  currentOrder: Order | null = null;
+  cartItems: OrderItem[] = [];
   cartTotal = 0;
+
+  // Stripe properties
+  private stripe: any;
+  private card: any;
 
   constructor(
     private cartService: CartService,
@@ -65,6 +67,7 @@ export class CheckoutComponent implements OnInit {
     private router: Router,
     private snackBar: MatSnackBar
   ) {
+    this.currentOrder$ = this.cartService.currentOrder$;
     this.cartItems$ = this.cartService.cartItems$;
     this.cartTotal$ = this.cartService.cartTotal$;
 
@@ -73,11 +76,6 @@ export class CheckoutComponent implements OnInit {
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^\+?[\d\s\-\(\)]+$/)]]
-    });
-
-    this.paymentForm = this.fb.group({
-      nameOnCard: ['', [Validators.required]],
-      agreeToTerms: [false, [Validators.requiredTrue]]
     });
   }
 
@@ -158,8 +156,8 @@ export class CheckoutComponent implements OnInit {
   }
 
   async processPayment(): Promise<void> {
-    if (!this.isFormValid()) {
-      this.snackBar.open('Please fill in all required fields', 'Close', {
+    if (!this.isCustomerFormValid()) {
+      this.snackBar.open('Please fill in all required customer information', 'Close', {
         duration: 3000
       });
       return;
@@ -168,57 +166,37 @@ export class CheckoutComponent implements OnInit {
     this.isProcessing = true;
 
     try {
-      // Create payment intent on your backend
-      const paymentIntent = await this.createPaymentIntent();
+      // Create order first
+      const order = await this.createPendingOrder();
       
-      // Confirm payment with Stripe
-      const { error, paymentIntent: confirmedPayment } = await this.stripeService.confirmCardPayment(
-        paymentIntent.client_secret,
-        {
-          payment_method: {
-            card: this.card,
-            billing_details: {
-              name: this.paymentForm.get('nameOnCard')?.value,
-              email: this.customerForm.get('email')?.value,
-            },
-          },
-        }
-      );
-
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      if (confirmedPayment.status === 'succeeded') {
-        await this.createOrder(confirmedPayment.id);
-        this.showSuccessAndRedirect();
-      }
+      // Create Stripe Checkout session
+      const checkoutResponse = await this.createStripeCheckoutSession(order);
+      
+      // Redirect to Stripe Checkout
+      window.location.href = checkoutResponse.sessionUrl;
+      
     } catch (error: any) {
+      console.error('Error processing payment:', error);
       this.snackBar.open(
-        error.message || 'Payment failed. Please try again.',
+        error.message || 'Unable to process payment. Please try again.',
         'Close',
         { duration: 5000 }
       );
-    } finally {
       this.isProcessing = false;
     }
   }
 
-  private async createPaymentIntent(): Promise<any> {
+  private async createStripeCheckoutSession(order: any): Promise<any> {
     const request = {
-      amount: Math.round(this.cartTotal * 100), // Amount in cents
-      currency: 'usd',
-      customer_email: this.customerForm.get('email')?.value,
-      metadata: {
-        customer_id: this.authService.currentUser?.sub || '',
-        item_count: this.cartItems.length.toString()
-      }
+      orderId: order.OrderId,
+      successUrl: `${window.location.origin}/success`,
+      cancelUrl: `${window.location.origin}/cancel`
     };
 
-    return firstValueFrom(this.stripeService.createPaymentIntent(request));
+    return firstValueFrom(this.stripeService.createCheckoutSession(request));
   }
 
-  private async createOrder(paymentId: string): Promise<void> {
+  private async createPendingOrder(): Promise<any> {
     const customerDetails: CustomerDetails = {
       FirstName: this.customerForm.get('firstName')?.value,
       LastName: this.customerForm.get('lastName')?.value,
@@ -237,16 +215,16 @@ export class CheckoutComponent implements OnInit {
 
     const order: Partial<Order> = {
       CustomerId: this.authService.currentUser?.sub || '',
-      PaymentId: paymentId,
-      Status: OrderStatus.Submitted,
+      Status: OrderStatus.Created, // Start as Created, will be updated after payment
       TotalAmount: this.cartTotal,
       OrderItems: orderItems,
       CustomerDetails: customerDetails
     };
 
     try {
-      await firstValueFrom(this.orderService.createOrder(order as Order));
+      const createdOrder = await firstValueFrom(this.orderService.createOrder(order as Order));
       this.cartService.clearCart();
+      return createdOrder;
     } catch (error) {
       console.error('Error creating order:', error);
       throw new Error('Failed to create order');
@@ -254,26 +232,18 @@ export class CheckoutComponent implements OnInit {
   }
 
   public isFormValid(): boolean {
-    return this.customerForm.valid && this.paymentForm.valid && this.cartItems.length > 0;
+    return this.customerForm.valid && this.cartItems.length > 0;
   }
 
-  private showSuccessAndRedirect(): void {
-    this.snackBar.open('Payment successful! Order created.', 'View Orders', {
-      duration: 5000
-    }).onAction().subscribe(() => {
-      this.router.navigate(['/orders']);
-    });
-
-    setTimeout(() => {
-      this.router.navigate(['/orders']);
-    }, 3000);
+  public isCustomerFormValid(): boolean {
+    return this.customerForm.valid && this.cartItems.length > 0;
   }
 
   goBack(): void {
     this.router.navigate(['/cart']);
   }
 
-  getItemTotal(item: CartItem): number {
+  getItemTotal(item: OrderItem): number {
     return item.Price * item.Quantity;
   }
 }

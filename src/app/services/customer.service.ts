@@ -17,22 +17,36 @@ export class CustomerService {
     customer$: Observable<Customer | null> = this._cust$.asObservable();
 
     constructor(private apiService: ApiService, private authService: AuthService) {
+        // Initialize customer data when service is created and user is authenticated
+        this.authService.isAuthenticated$.subscribe(isAuth => {
+            if (isAuth && this.authService.isCustomerUser()) {
+                // Small delay to ensure auth context is fully loaded
+                setTimeout(() => this.getCustomerForUser(), 300);
+            }
+        });
     }
 
     getCurrentUserAsCustomer(): Customer | null {
-   
         if (!this.authService.isCustomerUser()) {
             return null;
         }
+        
         var user = this.authService.currentUser;
         if (!user) {
             return null;
         }
-        if(this.customer){
+        
+        // Return cached customer if available
+        if (this.customer) {
             return this.customer;
         }
         
-        // If customer isn't loaded from API yet, create one from user data
+        // Try to fetch customer from API if we have user data but no customer
+        if (!this.customer && user.sub) {
+            this.getCustomerForUser();
+        }
+        
+        // If customer isn't loaded from API yet and we have customerId, create one from user data
         if (user.customerId && user.tenantId) {
             const customer: Customer = {
                 CustomerId: user.customerId, 
@@ -52,15 +66,33 @@ export class CustomerService {
 
     // Called to initialize the customer if exists
     getCustomerForUser(): void {
-        this.apiService.get<Customer>(this.endpoint + "/id").subscribe({
+    
+        if (!this.authService.isCustomerUser()) {
+            return;
+        }
+        const user = this.authService.currentUser;
+        if (!user) {
+            return;
+        }
+
+        // Fetch current user's customer data using GET /customer
+        this.apiService.get<Customer[]>(this.endpoint).subscribe({
             next: cust => {
-                this.customer = cust;
+                
+                this.customer = cust[0];
                 this._cust$.next(this.customer);
+                
+                // Update user with customer information if needed
+                if (this.authService.currentUser && this.customer.CustomerId) {
+                    this.authService.currentUser.customerId = this.customer.CustomerId;
+                    this.authService.currentUser.tenantId = this.customer.TenantId;
+                }
             },
             error: err => {
-                console.error(err);
+                console.error('Failed to fetch customer data:', err);
+                console.log('Customer may need to be created in backend for user:', user?.sub);
             }
-        });;
+        });
     }
     /**
      * Retrieve all messages.

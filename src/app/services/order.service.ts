@@ -40,7 +40,7 @@ export class OrderService {
         const orderItem: OrderItem = {
             ProductId: productId,
             ProductName: productName,
-            Description: `${productName} form submission`,
+            Description: productName,
             Price: price,
             Quantity: 1,
             LineTotal: price,

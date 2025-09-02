@@ -6,7 +6,6 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';   // <-- your existing model
 import { Customer } from '../models/customer.model';
-import { ApiService } from './api.service';
 import { UrlPreservationService } from './url-preservation.service';
 
 @Injectable({ providedIn: 'root' })

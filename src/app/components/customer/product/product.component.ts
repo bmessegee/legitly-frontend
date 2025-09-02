@@ -82,7 +82,7 @@ export class ProductComponent implements OnDestroy {
           setTimeout(() => {
             console.log('Checking for existing order for form:', this.selectedForm);
             this.checkForExistingOrder();
-          }, 1000);
+          }, 100);
         }
       }
       );
@@ -271,20 +271,38 @@ export class ProductComponent implements OnDestroy {
       return;
     }
 
+    // First check if there's a current cart order
+    const cartOrder = this.cartService.getCurrentOrder();
+    if (cartOrder) {
+      console.log('Found existing cart order:', cartOrder.OrderId);
+      
+      // Check if cart order has an item for this form type
+      const existingItem = cartOrder.OrderItems?.find(item => item.FormType === this.selectedForm);
+      if (existingItem) {
+        console.log('Found existing form in cart order:', existingItem.FormType);
+        this.currentOrder = cartOrder;
+        this.loadOrderIntoForm(cartOrder);
+        this.snackBar.open('Loaded your in-progress form from cart', 'Dismiss', { duration: 3000 });
+        return;
+      }
+    }
+
     console.log('Fetching orders for customer:', customer.CustomerId);
 
-    // Look for existing in-progress order for this product
+    // Look for existing draft order for this specific product (not in cart)
     this.orderService.getOrdersForCustomer(customer).subscribe({
       next: (orders) => {
         console.log('Retrieved orders:', orders.length, 'orders');
-        console.log('Looking for orders with Status Created and FormType:', this.selectedForm);
+        console.log('Looking for draft orders with Status Created and FormType:', this.selectedForm);
         
+        // Find draft order that's not the current cart order
         const inProgressOrder = orders.find(order => 
           order.Status === OrderStatus.Created && 
-          order.OrderItems.some(item => item.FormType === this.selectedForm)
+          order.OrderItems.some(item => item.FormType === this.selectedForm) &&
+          (!cartOrder || order.OrderId !== cartOrder.OrderId)
         );
 
-        console.log('Found in-progress order:', inProgressOrder ? inProgressOrder.OrderId : 'none');
+        console.log('Found in-progress draft order:', inProgressOrder ? inProgressOrder.OrderId : 'none');
 
         if (inProgressOrder) {
           this.currentOrder = inProgressOrder;
@@ -336,30 +354,20 @@ export class ProductComponent implements OnDestroy {
             this.currentOrder = updatedOrder;
             console.log('Order updated successfully:', updatedOrder.OrderId, 'Status:', updatedOrder.Status);
             
-            // Add order to cart
-            const success = this.cartService.addOrderToCart(updatedOrder);
+            // Add submitted package to cart
+            this.addPackageToCart(updatedOrder);
             
-            if (success) {
-              this.snackBar.open(
-                `Order "${updatedOrder.DisplayName || updatedOrder.OrderId}" added to cart!`,
+            this.snackBar.open(
+              `Order "${updatedOrder.DisplayName || updatedOrder.OrderId}" added to cart!`,
                 'View Cart',
                 {
                   duration: 3000,
                   horizontalPosition: 'right',
                   verticalPosition: 'top'
                 }
-              );
-              // Redirect to cart
-              this.router.navigate(['/cart']);
-            } else {
-              this.snackBar.open('Order already in cart', 'View Cart', {
-                duration: 3000,
-                horizontalPosition: 'right',
-                verticalPosition: 'top'
-              }).onAction().subscribe(() => {
+              ).onAction().subscribe(() => {
                 this.router.navigate(['/cart']);
               });
-            }
           },
           error: (error) => {
             console.error('Error submitting order:', error);
@@ -395,30 +403,20 @@ export class ProductComponent implements OnDestroy {
             this.currentOrder = createdOrder;
             console.log('Order created successfully:', createdOrder.OrderId, 'Status:', createdOrder.Status);
             
-            // Add order to cart
-            const success = this.cartService.addOrderToCart(createdOrder);
+            // Add submitted package to cart
+            this.addPackageToCart(createdOrder);
             
-            if (success) {
-              this.snackBar.open(
-                `Order "${createdOrder.DisplayName || createdOrder.OrderId}" added to cart!`,
-                'View Cart',
-                {
-                  duration: 3000,
-                  horizontalPosition: 'right',
-                  verticalPosition: 'top'
-                }
-              );
-              // Redirect to cart
-              this.router.navigate(['/cart']);
-            } else {
-              this.snackBar.open('Order already in cart', 'View Cart', {
+            this.snackBar.open(
+              `Order "${createdOrder.DisplayName || createdOrder.OrderId}" added to cart!`,
+              'View Cart',
+              {
                 duration: 3000,
                 horizontalPosition: 'right',
                 verticalPosition: 'top'
-              }).onAction().subscribe(() => {
-                this.router.navigate(['/cart']);
-              });
-            }
+              }
+            ).onAction().subscribe(() => {
+              this.router.navigate(['/cart']);
+            });
           },
           error: (error) => {
             console.error('Error creating order:', error);
@@ -429,7 +427,7 @@ export class ProductComponent implements OnDestroy {
     }
   }
 
-  // Add to cart functionality
+  // Add to cart functionality - for ala carte services only
   addToCart() {
     if (!this.formConfig) {
       this.snackBar.open('No product selected', 'Close', {
@@ -440,21 +438,77 @@ export class ProductComponent implements OnDestroy {
       return;
     }
 
+    // Extract quantity from form data if available (for services like attorney consultation)
+    let quantity = 1;
+    if (this.model && this.model.consultationDetails && this.model.consultationDetails.estimatedHours) {
+      const hours = this.model.consultationDetails.estimatedHours;
+      if (hours !== 'custom' && !isNaN(Number(hours))) {
+        quantity = Number(hours);
+      }
+    }
+
     const product = {
       ProductId: this.selectedForm || 'llc-formation',
       ProductName: this.formConfig.title,
       Description: this.formConfig.instructions,
-      Price: this.formConfig.cost
+      Price: this.formConfig.cost,
+      Quantity: quantity
     };
 
-    this.cartService.addToCart(product);
+    this.cartService.addToCart(product).subscribe({
+      next: () => {
+        this.snackBar.open(`${product.ProductName} added to cart!`, 'View Cart', {
+          duration: 4000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top'
+        }).onAction().subscribe(() => {
+          this.router.navigate(['/cart']);
+        });
+      },
+      error: (error) => {
+        console.error('Error adding to cart:', error);
+        this.snackBar.open('Error adding to cart', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  // Helper to determine if current form is a package (has form fields) or ala carte service
+  public isPackage(): boolean {
+    // Check if this is a package (requires complex form completion and checkout flow)
+    // vs ala carte service (can be added directly to cart)
+    if (!this.formConfig) return false;
     
-    this.snackBar.open(`${product.ProductName} added to cart!`, 'View Cart', {
-      duration: 4000,
-      horizontalPosition: 'right',
-      verticalPosition: 'top'
-    }).onAction().subscribe(() => {
-      this.router.navigate(['/cart']);
+    // Ala carte services are those with tier: "addon" - they can be added directly to cart
+    return this.formConfig.tier !== "addon";
+  }
+
+  // Add a submitted package order to cart
+  private addPackageToCart(order: Order): void {
+    if (!order.OrderItems || order.OrderItems.length === 0) {
+      console.error('Cannot add order to cart: no order items');
+      return;
+    }
+
+    // Get the first order item (packages should have one item with form data)
+    const orderItem = order.OrderItems[0];
+    
+    const product = {
+      ProductId: orderItem.ProductId,
+      ProductName: orderItem.ProductName,
+      Description: orderItem.Description,
+      Price: orderItem.Price,
+      FormData: orderItem.FormData,
+      FormType: orderItem.FormType,
+      FormTitle: orderItem.FormTitle || order.DisplayName
+    };
+
+    this.cartService.addToCart(product).subscribe({
+      next: (cartOrder) => {
+        console.log('Package added to cart successfully:', cartOrder.OrderId);
+      },
+      error: (error) => {
+        console.error('Error adding package to cart:', error);
+      }
     });
   }
 
@@ -464,11 +518,11 @@ export class ProductComponent implements OnDestroy {
   }
 
   loadOrderData(orderId: string) {
-    // First try to get from cart service (local storage)
-    const localOrder = this.cartService.getOrder(orderId);
-    if (localOrder) {
-      this.currentOrder = localOrder;
-      this.loadOrderIntoForm(localOrder);
+    // Check if it's the current cart order
+    const currentOrder = this.cartService.getCurrentOrder();
+    if (currentOrder && currentOrder.OrderId === orderId) {
+      this.currentOrder = currentOrder;
+      this.loadOrderIntoForm(currentOrder);
       return;
     }
 

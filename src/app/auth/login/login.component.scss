@@ -1,16 +1,192 @@
 
-  .wrapper{
-    text-align: center;
-    display: flex
-;
+// Modern Professional Login Page
+.wrapper {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  position: relative;
+  padding: 40px 20px;
+  
+  // Subtle background pattern
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(74, 144, 226, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(34, 158, 133, 0.1) 0%, transparent 50%);
+    pointer-events: none;
   }
-  .login-panel{
-    width: 200px;
-    padding: 50px;
-    font-size: 20px;
-    color: var(--mat-sys-primary);
-    margin-top: 100px;
-    border-radius: var(--mat-sys-corner-medium);
-    background: var(--mat-sys-secondary-container);
-    font-family: roboto;
+}
+
+.login-panel {
+  background: white;
+  border-radius: 24px;
+  padding: 48px 40px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.1),
+    0 8px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  text-align: center;
+  max-width: 420px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  
+  // Subtle gradient border
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: linear-gradient(135deg, #4A90E2 0%, #229E85 50%, #4A90E2 100%);
+    border-radius: 24px;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    -webkit-mask-composite: xor;
+    opacity: 0.6;
   }
+  
+  // Welcome message
+  .login-message {
+    color: #354759;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  
+  .login-subtitle {
+    color: #6b7280;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 36px;
+    line-height: 1.5;
+  }
+  
+  // Login button
+  .login-button {
+    width: 100%;
+    height: 56px;
+    background: linear-gradient(135deg, #354759 0%, #2b3d4f 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(53, 71, 89, 0.3);
+    position: relative;
+    overflow: hidden;
+    
+    // Hover gradient overlay
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(53, 71, 89, 0.4);
+      
+      &::before {
+        left: 100%;
+      }
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 15px rgba(53, 71, 89, 0.3);
+    }
+    
+    // Loading state (if needed)
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+  }
+  
+  // Security notice
+  .security-notice {
+    margin-top: 24px;
+    padding: 16px;
+    background: rgba(74, 144, 226, 0.1);
+    border: 1px solid rgba(74, 144, 226, 0.2);
+    border-radius: 12px;
+    color: #4A90E2;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    .security-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 20px;
+    min-height: calc(100vh - 80px);
+  }
+  
+  .login-panel {
+    padding: 32px 24px;
+    max-width: 100%;
+    
+    .login-message {
+      font-size: 1.25rem;
+    }
+    
+    .login-subtitle {
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+    
+    .login-button {
+      height: 52px;
+      font-size: 1rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .wrapper {
+    padding: 16px;
+  }
+  
+  .login-panel {
+    padding: 24px 20px;
+    border-radius: 20px;
+    
+    .login-message {
+      font-size: 1.125rem;
+    }
+    
+    .login-button {
+      height: 48px;
+      font-size: 0.95rem;
+    }
+  }
+}

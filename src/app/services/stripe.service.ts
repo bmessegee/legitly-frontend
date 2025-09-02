@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { ApiService } from './api.service';
+import { environment } from '../../environments/environment';
 
 declare var Stripe: any;
 
@@ -18,16 +20,25 @@ export interface CreatePaymentIntentRequest {
   metadata?: { [key: string]: string };
 }
 
+export interface CreateCheckoutSessionRequest {
+  orderId: string;
+  successUrl: string;
+  cancelUrl: string;
+}
+
+export interface CheckoutSessionResponse {
+  sessionId: string;
+  sessionUrl: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class StripeService {
   private stripe: any;
+  private publishableKey = environment.stripe.publishableKey;
   
-  // TODO: Replace with your actual Stripe publishable key
-  private publishableKey = 'pk_test_51234567890abcdef'; // This should come from environment config
-  
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private apiService: ApiService) {
     this.initializeStripe();
   }
 
@@ -84,6 +95,13 @@ export class StripeService {
 
     const elements = this.stripe.elements();
     return elements.create(type, options);
+  }
+
+  /**
+   * Create Stripe Checkout session via backend API
+   */
+  createCheckoutSession(request: CreateCheckoutSessionRequest): Observable<CheckoutSessionResponse> {
+    return this.apiService.post<CheckoutSessionResponse>('cart/stripe-checkout', request);
   }
 
   /**

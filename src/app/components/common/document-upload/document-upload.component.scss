@@ -2,18 +2,57 @@
   padding: 20px;
   max-width: 800px;
   margin: 0 auto;
+  
+  &.compact {
+    padding: 10px;
+    max-width: none;
+    margin: 0;
+  }
 }
 
 .upload-card {
   margin-bottom: 20px;
+  
+  &.compact {
+    margin-bottom: 0;
+  }
+}
+
+// Compact header styling
+.compact-header {
+  padding: 16px 16px 0 16px;
+  
+  h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--mat-sys-primary);
+    
+    mat-icon {
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+    }
+  }
 }
 
 .upload-form {
   margin-bottom: 20px;
   
+  .upload-container.compact & {
+    margin-bottom: 16px;
+  }
+  
   .form-field {
     width: 100%;
     margin-bottom: 16px;
+    
+    .upload-container.compact & {
+      margin-bottom: 12px;
+    }
   }
 }
 
@@ -33,6 +72,15 @@
     transform: scale(1.02);
   }
   
+  .upload-container.compact & {
+    padding: 24px 16px;
+    margin-bottom: 16px;
+    
+    &:hover {
+      transform: scale(1.01);
+    }
+  }
+  
   .drop-zone-content {
     .upload-icon {
       font-size: 48px;
@@ -40,6 +88,13 @@
       width: 48px;
       color: var(--mat-sys-primary);
       margin-bottom: 16px;
+      
+      .upload-container.compact & {
+        font-size: 32px;
+        height: 32px;
+        width: 32px;
+        margin-bottom: 8px;
+      }
     }
     
     h3 {
@@ -49,14 +104,31 @@
       font-weight: 500;
     }
     
+    h4 {
+      margin: 0 0 6px 0;
+      color: var(--mat-sys-on-surface);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
     p {
       margin: 4px 0;
       color: var(--mat-sys-on-surface-variant);
       font-size: 14px;
       
+      &.compact-formats {
+        font-size: 12px;
+        margin: 2px 0;
+      }
+      
       &.size-limit {
         font-size: 12px;
         font-style: italic;
+        
+        .upload-container.compact & {
+          font-size: 11px;
+          margin: 2px 0 0 0;
+        }
       }
     }
   }

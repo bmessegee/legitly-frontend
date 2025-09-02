@@ -1,0 +1,42 @@
+<!-- Stripe Success Page -->
+<div class="success-wrapper">
+  <div class="success-container">
+    <!-- Success Icon -->
+    <div class="success-icon-container">
+      <mat-icon class="success-icon">check_circle</mat-icon>
+    </div>
+    
+    <!-- Success Message -->
+    <div class="success-content">
+      <h1 class="success-title">Payment Successful!</h1>
+      <p class="success-subtitle">Thank you for your order. Your payment has been processed successfully.</p>
+      
+      <div class="success-details">
+        <div class="detail-item">
+          <mat-icon class="detail-icon">receipt</mat-icon>
+          <span>A confirmation email will be sent to your registered email address</span>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">schedule</mat-icon>
+          <span>Our team will begin processing your order within 1-2 business days</span>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">support</mat-icon>
+          <span>Questions? Contact our support team for assistance</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Action Buttons -->
+    <div class="success-actions">
+      <button mat-raised-button color="primary" class="primary-button" (click)="goToDashboard()">
+        <mat-icon>dashboard</mat-icon>
+        Return to Dashboard
+      </button>
+      <button mat-stroked-button color="primary" class="secondary-button" (click)="goToOrders()">
+        <mat-icon>shopping_cart</mat-icon>
+        View Orders
+      </button>
+    </div>
+  </div>
+</div>
