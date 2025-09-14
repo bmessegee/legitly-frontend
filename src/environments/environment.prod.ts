@@ -6,5 +6,15 @@ export const environment = {
   },
   api: {
     baseUrl: 'https://sehplat8x2.execute-api.us-east-1.amazonaws.com/prod/'
+  },
+  auth: {
+    authority: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_sHoq3Mg11',
+    clientId: '7f4mcdmoa5okt72lcjpk8s77tk',
+    scope: 'aws.cognito.signin.user.admin email openid phone profile',
+    responseType: 'code',
+    silentRenew: true,
+    useRefreshToken: true,
+    renewTimeBeforeTokenExpiresInSeconds: 30,
+    autoUserInfo: false
   }
 };

@@ -109,10 +109,11 @@ export class AuthService {
   logout(): void {
     this._isAuth$.next(false);
     this._user$.next(null);
-    this.oidc.logoff().subscribe();
+    //this.oidc.logoff().subscribe();
     if (window.sessionStorage) {
       window.sessionStorage.clear();
     }
+    window.location.href = "https://legitly-dev.auth.us-east-1.amazoncognito.com/logout?client_id=5au1hi0fruvur8vpmpttiqlb15&logout_uri=http://localhost:4200/logout";
   }
   isAuthenticated(): boolean {
     return this.currentUser != null;

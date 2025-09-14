@@ -6,5 +6,16 @@ export const environment = {
   },
   api: {
     baseUrl: 'https://api.legitly-dev.com/'
+  },
+  auth: {
+    authority: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_6jSauNDLm',
+    clientId: '5au1hi0fruvur8vpmpttiqlb15',
+    scope: 'aws.cognito.signin.user.admin email openid phone profile',
+    responseType: 'code',
+    silentRenew: true,
+    useRefreshToken: true,
+    renewTimeBeforeTokenExpiresInSeconds: 30,
+    autoUserInfo: false,
+    logoutUrl: "https://legitly-dev.auth.us-east-1.amazoncognito.com/logout?client_id=5au1hi0fruvur8vpmpttiqlb15&logout_uri=http://localhost:4200/login"
   }
 };
