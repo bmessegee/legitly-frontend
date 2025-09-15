@@ -1,0 +1,112 @@
+<div class="success-container">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-section">
+    <mat-card class="confirmation-card">
+      <mat-card-content>
+        <div class="loading-content">
+          <mat-spinner diameter="60"></mat-spinner>
+          <h2>Confirming your payment...</h2>
+          <p>Please wait while we process your order confirmation.</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Success State -->
+  <div *ngIf="!isLoading && paymentConfirmed" class="success-section">
+    <mat-card class="confirmation-card success-card">
+      <mat-card-content>
+        <div class="success-header">
+          <mat-icon class="success-icon">check_circle</mat-icon>
+          <h1>Thank You for Your Order!</h1>
+        </div>
+        
+        <div class="success-content">
+          <p class="lead">Your payment has been successfully processed and your order has been submitted.</p>
+          
+          <div class="order-details">
+            <h3>What happens next?</h3>
+            <ul class="next-steps">
+              <li>
+                <mat-icon>schedule</mat-icon>
+                <span>Please allow <strong>1-2 business days</strong> for our team to review and begin processing your order</span>
+              </li>
+              <li>
+                <mat-icon>email</mat-icon>
+                <span>You'll receive updates and communications through our messaging portal</span>
+              </li>
+              <li>
+                <mat-icon>description</mat-icon>
+                <span>Once completed, all documents will be available in your documents portal</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="portal-links">
+            <h3>Stay Connected</h3>
+            <p>You can communicate with your processing attorney at any time through our secure portals:</p>
+            
+            <div class="portal-buttons">
+              <button mat-raised-button color="primary" class="portal-btn" (click)="goToMessages()">
+                <mat-icon>message</mat-icon>
+                Messages Portal
+              </button>
+              
+              <button mat-raised-button color="accent" class="portal-btn" (click)="goToDocuments()">
+                <mat-icon>folder</mat-icon>
+                Documents Portal
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <mat-card-actions class="action-buttons">
+          <button mat-button color="primary" (click)="goToOrders()">
+            <mat-icon>list_alt</mat-icon>
+            View Orders
+          </button>
+          <button mat-raised-button color="primary" (click)="goToDashboard()">
+            <mat-icon>dashboard</mat-icon>
+            Return to Dashboard
+          </button>
+        </mat-card-actions>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && !paymentConfirmed && errorMessage" class="error-section">
+    <mat-card class="confirmation-card error-card">
+      <mat-card-content>
+        <div class="error-header">
+          <mat-icon class="error-icon">error</mat-icon>
+          <h1>Payment Confirmation Issue</h1>
+        </div>
+        
+        <div class="error-content">
+          <p>{{ errorMessage }}</p>
+          
+          <div class="error-actions">
+            <p><strong>If you believe this is an error, please:</strong></p>
+            <ul>
+              <li>Contact our support team</li>
+              <li>Reference your session ID: <code>{{ sessionId }}</code></li>
+              <li>Check your email for payment confirmation from Stripe</li>
+            </ul>
+          </div>
+        </div>
+
+        <mat-card-actions class="action-buttons">
+          <button mat-button color="warn" (click)="goToMessages()">
+            <mat-icon>support</mat-icon>
+            Contact Support
+          </button>
+          <button mat-raised-button color="primary" (click)="goToDashboard()">
+            <mat-icon>dashboard</mat-icon>
+            Return to Dashboard
+          </button>
+        </mat-card-actions>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

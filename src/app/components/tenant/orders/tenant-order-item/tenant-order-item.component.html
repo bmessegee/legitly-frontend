@@ -1,0 +1,196 @@
+<mat-card class="order-card" [class.expanded]="isExpanded">
+  <mat-card-header>
+    <div class="order-header">
+      <div class="order-info">
+        <div class="order-title">
+          <h3>Order #{{ order?.OrderId?.substring(0, 8) || 'Unknown' }}</h3>
+          <mat-chip [color]="getStatusColor(order?.Status!)" selected>
+            <mat-icon>{{ getStatusIcon(order?.Status!) }}</mat-icon>
+            {{ getStatusLabel(order?.Status!) }}
+          </mat-chip>
+        </div>
+        
+        <div class="order-meta">
+          <span class="customer-info">
+            <mat-icon>person</mat-icon>
+            Customer: {{ order?.CustomerId || 'Unknown' }}
+          </span>
+          <span class="order-date">
+            <mat-icon>schedule</mat-icon>
+            {{ formatDate(order?.Created!) }}
+          </span>
+          <span class="order-total">
+            <mat-icon>attach_money</mat-icon>
+            {{ formatCurrency(order?.TotalAmount || 0) }}
+          </span>
+        </div>
+      </div>
+      
+      <div class="order-actions">
+        <button mat-icon-button 
+                (click)="onViewCustomer()" 
+                matTooltip="View Customer Details">
+          <mat-icon>person_search</mat-icon>
+        </button>
+        
+        <button mat-icon-button 
+                (click)="toggleExpansion()" 
+                matTooltip="View Order Details">
+          <mat-icon>{{ isExpanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Order Items Summary -->
+    <div class="order-summary">
+      <div class="items-summary">
+        <mat-icon>shopping_bag</mat-icon>
+        <span>{{ order?.OrderItems?.length || 0 }} item(s)</span>
+        <span class="separator">•</span>
+        <span>{{ getItemNames() }}</span>
+      </div>
+    </div>
+
+    <!-- Status Controls -->
+    <div *ngIf="showStatusControls && getAvailableStatuses().length > 0" class="status-controls">
+      <mat-form-field appearance="outline" class="status-select">
+        <mat-label>Update Status</mat-label>
+        <mat-select [value]="order?.Status" (selectionChange)="updateStatus($event.value)">
+          <mat-option [value]="order?.Status" disabled>
+            Current: {{ getStatusLabel(order?.Status!) }}
+          </mat-option>
+          <mat-option *ngFor="let status of getAvailableStatuses()" 
+                      [value]="status.value">
+            {{ status.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Expanded Details -->
+    <div *ngIf="isExpanded" class="order-details">
+      <mat-divider></mat-divider>
+      
+      <div class="details-section">
+        <h4>
+          <mat-icon>info</mat-icon>
+          Order Details
+        </h4>
+        
+        <div class="detail-grid">
+          <div class="detail-item">
+            <strong>Order ID:</strong>
+            <span>{{ order?.OrderId }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Customer ID:</strong>
+            <span>{{ order?.CustomerId }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Payment ID:</strong>
+            <span>{{ order?.PaymentId || 'Not set' }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Created:</strong>
+            <span>{{ formatDate(order?.Created!) }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Last Updated:</strong>
+            <span>{{ formatDate(order?.Updated!) }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Total Amount:</strong>
+            <span>{{ formatCurrency(order?.TotalAmount || 0) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Items -->
+      <div class="details-section">
+        <h4>
+          <mat-icon>list</mat-icon>
+          Order Items ({{ order?.OrderItems?.length || 0 }})
+        </h4>
+        
+        <div class="order-items">
+          <div *ngFor="let item of order?.OrderItems; let i = index; trackBy: trackByItemIndex" 
+               class="order-item">
+            
+            <div class="item-header" (click)="toggleOrderItem(i)">
+              <div class="item-info">
+                <h5>{{ item.ProductName }}</h5>
+                <p class="item-description">{{ item.Description }}</p>
+                <div class="item-details">
+                  <span>Qty: {{ item.Quantity }}</span>
+                  <span>•</span>
+                  <span>{{ formatCurrency(item.Price) }} each</span>
+                  <span>•</span>
+                  <span><strong>{{ formatCurrency(item.LineTotal) }}</strong></span>
+                </div>
+              </div>
+              
+              <div class="item-actions">
+                <mat-chip *ngIf="hasFormData(item)" 
+                         color="accent" 
+                         selected
+                         class="form-chip">
+                  <mat-icon>description</mat-icon>
+                  Form Data
+                </mat-chip>
+                
+                <button mat-icon-button 
+                        *ngIf="hasFormData(item)"
+                        matTooltip="View Form Data">
+                  <mat-icon>{{ expandedItems.has(i) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+              </div>
+            </div>
+
+            <!-- Form Data Expansion -->
+            <div *ngIf="expandedItems.has(i) && hasFormData(item)" class="form-data-section">
+              <mat-divider></mat-divider>
+              
+              <div class="form-header">
+                <mat-icon>description</mat-icon>
+                <h6>{{ item.FormTitle || item.FormType || 'Form Data' }}</h6>
+              </div>
+              
+              <div class="form-summary">
+                <strong>Summary:</strong> {{ getFormSummary(item) }}
+              </div>
+              
+              <div class="form-data">
+                <pre>{{ item.FormData | json }}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Details -->
+      <div *ngIf="order?.CustomerDetails" class="details-section">
+        <h4>
+          <mat-icon>contact_mail</mat-icon>
+          Customer Contact Information
+        </h4>
+        
+        <div class="customer-details">
+          <div class="detail-item">
+            <strong>Name:</strong>
+            <span>{{ order?.CustomerDetails?.FirstName }} {{ order?.CustomerDetails?.LastName }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Email:</strong>
+            <span>{{ order?.CustomerDetails?.Email }}</span>
+          </div>
+          <div class="detail-item">
+            <strong>Phone:</strong>
+            <span>{{ order?.CustomerDetails?.PhoneNumber || 'Not provided' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>

@@ -16,8 +16,30 @@
           <mat-list-item *ngFor="let item of items; let last = last">
             <div class="cart-item">
               <div class="item-details">
-                <h3 class="item-name">{{ item.ProductName }}</h3>
+                <div class="item-header">
+                  <h3 class="item-name">{{ item.ProductName }}</h3>
+                  <!-- Show status indicator for package forms -->
+                  <div class="item-status" *ngIf="item.FormType && item.IsExpandable">
+                    <mat-icon 
+                      *ngIf="isItemValid(item)"
+                      class="status-icon valid"
+                      matTooltip="Form completed">
+                      check_circle
+                    </mat-icon>
+                    <mat-icon 
+                      *ngIf="!isItemValid(item)"
+                      class="status-icon incomplete"
+                      matTooltip="Form needs completion">
+                      warning
+                    </mat-icon>
+                  </div>
+                </div>
                 <div class="item-description">{{ item.Description }}</div>
+                <!-- Show completion message for incomplete forms -->
+                <div class="completion-message" *ngIf="item.FormType && item.IsExpandable && !isItemValid(item)">
+                  <mat-icon class="warning-icon">info</mat-icon>
+                  <span>Form needs completion before checkout</span>
+                </div>
                 <p class="item-price">${{ item.Price | number:'1.2-2' }}</p>
               </div>
 

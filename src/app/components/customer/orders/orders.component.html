@@ -4,20 +4,24 @@
   <div class="orders-list" *ngIf="orders$ | async as orders; else noOrders">
     <mat-card *ngFor="let order of orders" class="order-card">
       <mat-card-header>
-        <mat-card-title>Order #{{ order.OrderId }}</mat-card-title>
-        <mat-card-subtitle>
-          <mat-chip [color]="getStatusColor(order.Status)" selected>
-            <mat-icon>{{ getStatusIcon(order.Status) }}</mat-icon>
-            {{ order.Status }}
-          </mat-chip>
-        </mat-card-subtitle>
+        <div class="order-header">
+          <div class="order-title-section">
+            <mat-card-title>Order #{{ order.OrderId }}</mat-card-title>
+            <mat-card-subtitle>{{ order.Created | date:'medium' }}</mat-card-subtitle>
+          </div>
+          <div class="status-section">
+            <mat-chip [color]="getStatusColor(order.Status)" selected class="status-chip">
+              <mat-icon>{{ getStatusIcon(order.Status) }}</mat-icon>
+              {{ getStatusLabel(order.Status) }}
+            </mat-chip>
+          </div>
+        </div>
       </mat-card-header>
       
       <mat-card-content>
         <div class="order-info">
           <p><strong>Total:</strong> ${{ order.TotalAmount | number:'1.2-2' }}</p>
-          <p><strong>Created:</strong> {{ order.Created | date:'medium' }}</p>
-          <p><strong>Updated:</strong> {{ order.Updated | date:'medium' }}</p>
+          <p><strong>Last Updated:</strong> {{ order.Updated | date:'medium' }}</p>
         </div>
         
         <mat-divider></mat-divider>
@@ -38,26 +42,34 @@
       </mat-card-content>
       
       <mat-card-actions>
+        <!-- Only show Continue button for Created status orders -->
         <button mat-raised-button color="primary" (click)="editOrder(order)" 
                 *ngIf="order.Status === OrderStatus.Created">
-          <mat-icon>edit</mat-icon>
-          Edit Order
+          <mat-icon>play_arrow</mat-icon>
+          Continue
         </button>
-        <button mat-button color="accent" disabled 
-                *ngIf="order.Status === OrderStatus.Submitted">
-          <mat-icon>schedule</mat-icon>
-          Awaiting Processing
-        </button>
-        <button mat-button color="primary" disabled 
-                *ngIf="order.Status === OrderStatus.Processing">
+        
+        <!-- Show status-specific messages for other statuses -->
+        <div class="status-message" *ngIf="order.Status === OrderStatus.InCart">
+          <mat-icon>shopping_cart</mat-icon>
+          <span>In Cart - Ready for checkout</span>
+        </div>
+        <div class="status-message" *ngIf="order.Status === OrderStatus.Submitted">
+          <mat-icon>send</mat-icon>
+          <span>Submitted - Awaiting processing</span>
+        </div>
+        <div class="status-message" *ngIf="order.Status === OrderStatus.Processing">
           <mat-icon>hourglass_empty</mat-icon>
-          In Progress
-        </button>
-        <button mat-button color="primary" disabled 
-                *ngIf="order.Status === OrderStatus.Completed">
+          <span>Processing - Work in progress</span>
+        </div>
+        <div class="status-message" *ngIf="order.Status === OrderStatus.Completed">
           <mat-icon>check_circle</mat-icon>
-          Completed
-        </button>
+          <span>Completed</span>
+        </div>
+        <div class="status-message rejected" *ngIf="order.Status === OrderStatus.Rejected">
+          <mat-icon>error</mat-icon>
+          <span>Rejected - Please contact support</span>
+        </div>
       </mat-card-actions>
     </mat-card>
   </div>

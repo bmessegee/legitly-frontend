@@ -28,6 +28,7 @@ export interface OrderItem {
     FormTitle?: string; // Friendly display title for the form
     FormSummary?: string; // Summary of key form data for display
     IsExpandable?: boolean; // Flag to indicate if this item can be expanded
+    IsValid?: boolean; // Flag to indicate if the form is complete and valid for checkout
 }
 
 export interface CustomerDetails {
@@ -39,6 +40,7 @@ export interface CustomerDetails {
 
 export enum OrderStatus {
     Created = 'Created',
+    InCart = 'InCart',
     Submitted = 'Submitted',
     Processing = 'Processing',
     Completed = 'Completed',

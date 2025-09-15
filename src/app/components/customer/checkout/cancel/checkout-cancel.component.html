@@ -1,0 +1,78 @@
+<div class="cancel-container">
+  <mat-card class="cancel-card">
+    <mat-card-content>
+      <div class="cancel-header">
+        <mat-icon class="cancel-icon">cancel</mat-icon>
+        <h1>Payment Canceled</h1>
+      </div>
+      
+      <div class="cancel-content">
+        <p class="lead">Your payment process has been canceled and you have not been charged.</p>
+        
+        <div class="cancel-details">
+          <div class="info-box">
+            <mat-icon>info</mat-icon>
+            <div class="info-content">
+              <h3>What happened?</h3>
+              <p>You chose to cancel the payment process or closed the payment window. No charges have been made to your payment method.</p>
+            </div>
+          </div>
+          
+          <div class="next-steps">
+            <h3>What would you like to do next?</h3>
+            <p>Your items are still in your cart and ready for checkout when you're ready to proceed.</p>
+            
+            <div class="action-options">
+              <div class="option">
+                <mat-icon>shopping_cart</mat-icon>
+                <div>
+                  <h4>Review Your Cart</h4>
+                  <p>Check your items and continue with the checkout process</p>
+                  <button mat-raised-button color="primary" (click)="goToCart()">
+                    <mat-icon>shopping_cart</mat-icon>
+                    Go to Cart
+                  </button>
+                </div>
+              </div>
+              
+              <div class="option">
+                <mat-icon>list_alt</mat-icon>
+                <div>
+                  <h4>View Your Orders</h4>
+                  <p>See your previous orders and continue working on saved drafts</p>
+                  <button mat-button color="primary" (click)="goToOrders()">
+                    <mat-icon>list_alt</mat-icon>
+                    View Orders
+                  </button>
+                </div>
+              </div>
+              
+              <div class="option">
+                <mat-icon>store</mat-icon>
+                <div>
+                  <h4>Continue Shopping</h4>
+                  <p>Browse our services and add more items to your order</p>
+                  <button mat-button color="accent" (click)="continueShopping()">
+                    <mat-icon>store</mat-icon>
+                    Continue Shopping
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <mat-card-actions class="action-buttons">
+        <button mat-raised-button color="primary" (click)="goToCart()">
+          <mat-icon>shopping_cart</mat-icon>
+          Return to Cart
+        </button>
+        <button mat-button color="primary" (click)="goToDashboard()">
+          <mat-icon>dashboard</mat-icon>
+          Dashboard
+        </button>
+      </mat-card-actions>
+    </mat-card-content>
+  </mat-card>
+</div>

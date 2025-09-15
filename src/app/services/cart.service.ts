@@ -128,7 +128,8 @@ export class CartService {
           FormType: product.FormType,
           FormTitle: product.FormTitle,
           FormSummary: this.generateFormSummary(product.FormData, product.FormType),
-          IsExpandable: !!product.FormData
+          IsExpandable: !!product.FormData,
+          IsValid: !product.FormType || !product.FormData // Ala carte services (no form) are valid by default
         };
 
         // Check if item already exists
@@ -141,6 +142,10 @@ export class CartService {
           order.OrderItems[existingItemIndex].Quantity += quantity;
           order.OrderItems[existingItemIndex].LineTotal = 
             order.OrderItems[existingItemIndex].Price * order.OrderItems[existingItemIndex].Quantity;
+          // Preserve IsValid state for existing items (don't override if already set)
+          if (order.OrderItems[existingItemIndex].IsValid === undefined) {
+            order.OrderItems[existingItemIndex].IsValid = !product.FormType || !product.FormData;
+          }
         } else {
           // Add new item
           order.OrderItems = order.OrderItems || [];
@@ -257,6 +262,27 @@ export class CartService {
     return !order || !order.OrderItems || order.OrderItems.length === 0;
   }
 
+  // Public method to refresh cart data from backend
+  refreshCart(): Observable<Order | null> {
+    this.isLoadingSubject.next(true);
+    
+    return this.loadCartFromBackend().pipe(
+      tap(order => {
+        this.currentOrderSubject.next(order);
+        if (order) {
+          this.saveOrderToStorage(order);
+        }
+        this.isLoadingSubject.next(false);
+      }),
+      catchError(() => {
+        // Fallback to localStorage
+        this.loadOrderFromStorage();
+        this.isLoadingSubject.next(false);
+        return of(this.currentOrderSubject.value);
+      })
+    );
+  }
+
   // Stripe checkout integration
   createStripeCheckoutSession(): Observable<{sessionId: string, sessionUrl: string}> {
     const currentOrder = this.currentOrderSubject.value;
@@ -265,13 +291,8 @@ export class CartService {
       throw new Error('No cart order available for checkout');
     }
     
-    const request = {
-      orderId: currentOrder.OrderId,
-      successUrl: `${window.location.origin}/success`,
-      cancelUrl: `${window.location.origin}/cancel`
-    };
-    
-    return this.apiService.post<{sessionId: string, sessionUrl: string}>('cart/stripe-checkout', request);
+    // No parameters needed - backend will pull cart from database
+    return this.apiService.post<{sessionId: string, sessionUrl: string}>('cart/stripe-checkout', {});
   }
 
   // Backend integration methods

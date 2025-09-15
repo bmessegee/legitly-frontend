@@ -67,7 +67,13 @@
     </div>
 
     <!-- Form Section for Packages (with form fields) -->
-    <div class="form-section" *ngIf="formConfig && isPackage()">
+    <!-- Loading indicator -->
+    <div class="loading-form" *ngIf="isLoadingOrder">
+        <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+        <p>Loading your order...</p>
+    </div>
+
+    <div class="form-section" *ngIf="formConfig && isPackage() && !isLoadingOrder">
         <div class="form-header">
             <h3>Complete Your {{formConfig.title}}</h3>
             <p class="form-description">Please provide the following information for your service</p>

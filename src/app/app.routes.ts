@@ -9,8 +9,11 @@ import { ProductComponent } from './components/customer/product/product.componen
 import { OrdersComponent } from './components/common/orders/orders.component';
 import { CustomersComponent } from './components/tenant/customers/customers.component';
 import { MessagesInboxComponent } from './components/tenant/messages-inbox/messages-inbox.component';
+import { TenantOrdersComponent } from './components/tenant/orders/tenant-orders.component';
 import { CartComponent } from './components/common/cart/cart.component';
 import { CheckoutComponent } from './components/customer/checkout/checkout.component';
+import { CheckoutSuccessComponent } from './components/customer/checkout/success/checkout-success.component';
+import { CheckoutCancelComponent } from './components/customer/checkout/cancel/checkout-cancel.component';
 import { StripeSuccessComponent } from './components/stripe/stripe-success/stripe-success.component';
 import { StripeCancelComponent } from './components/stripe/stripe-cancel/stripe-cancel.component';
 
@@ -43,6 +46,14 @@ export const routes: Routes = [
         data: { roles: ['Customer'] }
     },
     {
+        path: 'checkout/success', component: CheckoutSuccessComponent, canActivate: [AuthGuard],
+        data: { roles: ['Customer'] }
+    },
+    {
+        path: 'checkout/cancel', component: CheckoutCancelComponent, canActivate: [AuthGuard],
+        data: { roles: ['Customer'] }
+    },
+    {
         path: 'customer/product', component: ProductComponent, canActivate: [AuthGuard],
         data: { roles: ['Customer'] }
     },
@@ -52,6 +63,10 @@ export const routes: Routes = [
     },
     {
         path: 'tenant/messages-inbox', component: MessagesInboxComponent, canActivate: [AuthGuard],
+        data: { roles: ['Tenant', 'Admin'] }
+    },
+    {
+        path: 'tenant/orders', component: TenantOrdersComponent, canActivate: [AuthGuard],
         data: { roles: ['Tenant', 'Admin'] }
     },
     {

@@ -105,6 +105,19 @@ export interface DashboardCard {
     isNav: true
   },
   {
+    id: 'tenant-orders',
+    cols: 2,
+    rows: 1,
+    title: 'Order Queue',
+    description: 'View and process submitted customer orders',
+    icon: 'assignment',
+    displayRoles: ['Tenant', 'Admin'],
+    actionDisplay: 'View Orders',
+    actionLink: '/tenant/orders',
+    actionQuery: '',
+    isNav: true
+  },
+  {
     id: 'documents',
     cols: 1,
     rows: 1,

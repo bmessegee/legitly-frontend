@@ -21,17 +21,38 @@
   mat-card-header {
     padding-bottom: 16px;
     
-    mat-card-title {
-      font-size: 1.25rem;
-      font-weight: 500;
-    }
-    
-    mat-card-subtitle {
-      margin-top: 8px;
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: 100%;
       
-      mat-chip {
-        mat-icon {
-          margin-right: 4px;
+      .order-title-section {
+        flex: 1;
+        
+        mat-card-title {
+          font-size: 1.25rem;
+          font-weight: 500;
+          margin-bottom: 4px;
+        }
+        
+        mat-card-subtitle {
+          color: var(--mat-sys-on-surface-variant);
+          font-size: 0.9rem;
+        }
+      }
+      
+      .status-section {
+        flex-shrink: 0;
+        
+        .status-chip {
+          font-size: 0.9rem;
+          font-weight: 600;
+          
+          mat-icon {
+            margin-right: 6px;
+            font-size: 18px;
+          }
         }
       }
     }
@@ -132,7 +153,30 @@ mat-card-actions {
     margin-right: 8px;
     
     mat-icon {
-      margin-right: 4px;
+      margin-right: 8px;
+    }
+  }
+  
+  .status-message {
+    display: flex;
+    align-items: center;
+    color: var(--mat-sys-on-surface-variant);
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 8px 0;
+    
+    mat-icon {
+      margin-right: 8px;
+      font-size: 20px;
+      color: var(--mat-sys-primary);
+    }
+    
+    &.rejected {
+      color: var(--mat-sys-error);
+      
+      mat-icon {
+        color: var(--mat-sys-error);
+      }
     }
   }
 }
@@ -144,8 +188,24 @@ mat-card-actions {
   
   .order-card {
     mat-card-header {
-      mat-card-title {
-        font-size: 1.1rem;
+      .order-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        
+        .order-title-section {
+          mat-card-title {
+            font-size: 1.1rem;
+          }
+        }
+        
+        .status-section {
+          align-self: flex-start;
+          
+          .status-chip {
+            font-size: 0.8rem;
+          }
+        }
       }
     }
   }

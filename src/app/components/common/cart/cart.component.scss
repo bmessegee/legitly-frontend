@@ -35,13 +35,38 @@
     min-width: 0; // Prevent flex item from growing beyond container
     margin-right: 16px;
     
-    .item-name {
-      margin: 0 0 8px 0;
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--mat-sys-on-surface);
-      line-height: 1.2;
-      word-wrap: break-word;
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      
+      .item-name {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--mat-sys-on-surface);
+        line-height: 1.2;
+        word-wrap: break-word;
+        flex: 1;
+      }
+      
+      .item-status {
+        flex-shrink: 0;
+        margin-left: 8px;
+        
+        .status-icon {
+          font-size: 20px;
+          
+          &.valid {
+            color: var(--mat-sys-primary);
+          }
+          
+          &.incomplete {
+            color: var(--mat-sys-error);
+          }
+        }
+      }
     }
     
     .item-description {
@@ -50,6 +75,28 @@
       font-size: 14px;
       line-height: 1.3;
       word-wrap: break-word;
+      margin-top: 40px;
+    }
+    
+    .completion-message {
+      display: flex;
+      align-items: center;
+      margin: 8px 0;
+      padding: 8px 12px;
+      background-color: var(--mat-sys-error-container);
+      color: var(--mat-sys-on-error-container);
+      border-radius: 8px;
+      font-size: 14px;
+      
+      .warning-icon {
+        margin-right: 8px;
+        font-size: 18px;
+        color: var(--mat-sys-error);
+      }
+      
+      span {
+        font-weight: 500;
+      }
     }
     
     .item-price {

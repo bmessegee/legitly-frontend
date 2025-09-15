@@ -33,21 +33,21 @@ export class OrdersComponent implements OnInit {
     private orderService: OrderService,
     private router: Router
   ) {
-    this.orders$ = this.cartService.orders$;
+    this.orders$ = this.orderService.getOrders();
   }
 
   ngOnInit() {
     // Load orders from server if needed
-    this.loadOrders();
+   // this.loadOrders();
   }
 
   loadOrders() {
     // TODO: Replace with actual customer ID from auth service
-    const customerId = 'temp-customer-id';
+    //const customerId = ;
     
     // For now, we'll use the cart service which loads from localStorage
     // In production, you might want to sync with server data
-    console.log('Loading orders for customer:', customerId);
+   // console.log('Loading orders for customer:', customerId);
   }
 
   editOrder(order: Order) {
@@ -64,6 +64,8 @@ export class OrdersComponent implements OnInit {
 
   getStatusColor(status: OrderStatus): string {
     switch (status) {
+      case OrderStatus.InCart:
+        return 'accent';
       case OrderStatus.Created:
         return 'primary';
       case OrderStatus.Submitted:
@@ -79,8 +81,29 @@ export class OrdersComponent implements OnInit {
     }
   }
 
+  getStatusLabel(status: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.InCart:
+        return 'In Cart';
+      case OrderStatus.Created:
+        return 'Draft';
+      case OrderStatus.Submitted:
+        return 'Submitted';
+      case OrderStatus.Processing:
+        return 'Processing';
+      case OrderStatus.Completed:
+        return 'Completed';
+      case OrderStatus.Rejected:
+        return 'Rejected';
+      default:
+        return 'Unknown';
+    }
+  }
+
   getStatusIcon(status: OrderStatus): string {
     switch (status) {
+      case OrderStatus.InCart:
+        return 'shopping_cart';
       case OrderStatus.Created:
         return 'edit';
       case OrderStatus.Submitted:
