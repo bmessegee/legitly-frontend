@@ -10,7 +10,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { OrderService } from '../../../services/order.service';
 import { AuthService } from '../../../services/auth.service';
@@ -42,18 +42,21 @@ export class TenantOrdersComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
 
+  // Add back BehaviorSubject and filtered observables
   private ordersSubject = new BehaviorSubject<Order[]>([]);
   orders$ = this.ordersSubject.asObservable();
   
-  loading = true;
-  error: string | null = null;
-  selectedTab = 0;
-
-  // Filtered orders by status
+  // Filtered observables (but not used in template yet)
   newOrders$: Observable<Order[]>;
   processingOrders$: Observable<Order[]>;
   completedOrders$: Observable<Order[]>;
   allOrders$: Observable<Order[]>;
+  
+  // Keep simple array for template (for now)
+  orders: Order[] = [];
+  loading = true;
+  error: string | null = null;
+  selectedTab = 0;
 
   constructor() {
     // Initialize filtered order streams
@@ -92,7 +95,9 @@ export class TenantOrdersComponent implements OnInit {
           order.Status !== OrderStatus.Created && order.Status !== OrderStatus.InCart
         );
         
+        // Update both the BehaviorSubject and the simple array
         this.ordersSubject.next(relevantOrders);
+        this.orders = relevantOrders;
         this.loading = false;
         
         console.log('Loaded tenant orders:', relevantOrders.length, 'orders');
@@ -111,6 +116,24 @@ export class TenantOrdersComponent implements OnInit {
     });
   }
 
+  refreshOrders(): void {
+    this.loadOrders();
+  }
+
+  // Simple getter methods for now
+  get newOrders(): Order[] {
+    return this.orders.filter(order => order.Status === OrderStatus.Submitted);
+  }
+
+  get processingOrders(): Order[] {
+    return this.orders.filter(order => order.Status === OrderStatus.Processing);
+  }
+
+  get completedOrders(): Order[] {
+    return this.orders.filter(order => 
+      order.Status === OrderStatus.Completed || order.Status === OrderStatus.Rejected);
+  }
+
   updateOrderStatus(order: Order, newStatus: OrderStatus): void {
     const updatedOrder = { ...order, Status: newStatus, Updated: new Date() };
     
@@ -122,6 +145,12 @@ export class TenantOrdersComponent implements OnInit {
         if (index > -1) {
           currentOrders[index] = updated;
           this.ordersSubject.next([...currentOrders]);
+        }
+        
+        // Also update simple array
+        const arrayIndex = this.orders.findIndex(o => o.OrderId === updated.OrderId);
+        if (arrayIndex > -1) {
+          this.orders[arrayIndex] = updated;
         }
         
         this.snackBar.open(`Order status updated to ${this.getStatusLabel(newStatus)}`, 'Close', {
@@ -163,12 +192,13 @@ export class TenantOrdersComponent implements OnInit {
     });
   }
 
-  refreshOrders(): void {
-    this.loadOrders();
-  }
-
   onTabChange(index: number): void {
     this.selectedTab = index;
+  }
+
+  // SAFE: Method that returns stable values based on input (no timestamps or random values)
+  getOrderItemNames(order: Order): string {
+    return order.OrderItems?.map(item => item.ProductName).join(', ') || 'No items';
   }
 
   trackByOrderId(index: number, order: Order): string {

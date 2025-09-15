@@ -40,140 +40,57 @@
     </mat-card>
   </div>
 
-  <!-- Orders Content -->
+  <!-- Orders Content WITHOUT tabs - testing if tabs cause the issue -->
   <div *ngIf="!loading && !error" class="orders-content">
-    <mat-tab-group [selectedIndex]="selectedTab" (selectedTabChange)="onTabChange($event.index)">
+    <h2>New Orders</h2>
+    <div *ngIf="newOrders$ | async as newOrders">
+      <div *ngIf="newOrders.length === 0" class="empty-state">
+        <mat-icon>inbox</mat-icon>
+        <h3>No New Orders</h3>
+        <p>All orders have been processed. Great work!</p>
+      </div>
       
-      <!-- New Orders Tab -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <span [matBadge]="(newOrders$ | async)?.length || 0" 
-                matBadgeColor="warn" 
-                [matBadgeHidden]="((newOrders$ | async)?.length || 0) === 0">
-            <mat-icon>priority_high</mat-icon>
-            New Orders
-          </span>
-        </ng-template>
-        
-        <div class="tab-content">
-          <div *ngIf="(newOrders$ | async)?.length === 0" class="empty-state">
-            <mat-icon>inbox</mat-icon>
-            <h3>No New Orders</h3>
-            <p>All orders have been processed. Great work!</p>
-          </div>
-          
-          <div *ngIf="(newOrders$ | async)?.length! > 0" class="orders-grid">
-            <div class="orders-summary">
-              <mat-icon>info</mat-icon>
-              <span>{{ (newOrders$ | async)?.length }} new order(s) waiting for processing</span>
-            </div>
-            
-            <app-tenant-order-item 
-              *ngFor="let order of newOrders$ | async; trackBy: trackByOrderId"
-              [order]="order"
-              [showStatusControls]="true"
-              (statusUpdate)="updateOrderStatus($event.order, $event.status)"
-              (viewCustomer)="viewCustomer($event)">
-            </app-tenant-order-item>
-          </div>
+      <div *ngIf="newOrders.length > 0" class="orders-grid">
+        <div class="orders-summary">
+          <mat-icon>info</mat-icon>
+          <span>{{ newOrders.length }} new order(s) waiting for processing</span>
         </div>
-      </mat-tab>
-
-      <!-- Processing Orders Tab -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <span [matBadge]="(processingOrders$ | async)?.length || 0" 
-                matBadgeColor="accent" 
-                [matBadgeHidden]="((processingOrders$ | async)?.length || 0) === 0">
-            <mat-icon>work</mat-icon>
-            In Progress
-          </span>
-        </ng-template>
         
-        <div class="tab-content">
-          <div *ngIf="(processingOrders$ | async)?.length === 0" class="empty-state">
-            <mat-icon>work_off</mat-icon>
-            <h3>No Orders In Progress</h3>
-            <p>No orders are currently being processed.</p>
-          </div>
-          
-          <div *ngIf="(processingOrders$ | async)?.length! > 0" class="orders-grid">
-            <div class="orders-summary">
-              <mat-icon>work</mat-icon>
-              <span>{{ (processingOrders$ | async)?.length }} order(s) currently in progress</span>
-            </div>
+        <!-- Back to working simple cards with status update functionality -->
+        <mat-card *ngFor="let order of newOrders; trackBy: trackByOrderId" class="simple-order-card">
+          <mat-card-content>
+            <h3>Order #{{ order.OrderId?.substring(0, 8) }}</h3>
+            <p><strong>Status:</strong> {{ order.Status }}</p>
+            <p><strong>Customer:</strong> {{ order.CustomerId }}</p>
+            <p><strong>Total:</strong> ${{ order.TotalAmount }}</p>
+            <p><strong>Items:</strong> {{ order.OrderItems?.length || 0 }}</p>
+            <p><strong>Item Names:</strong> {{ getOrderItemNames(order) }}</p>
             
-            <app-tenant-order-item 
-              *ngFor="let order of processingOrders$ | async; trackBy: trackByOrderId"
-              [order]="order"
-              [showStatusControls]="true"
-              (statusUpdate)="updateOrderStatus($event.order, $event.status)"
-              (viewCustomer)="viewCustomer($event)">
-            </app-tenant-order-item>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- Completed Orders Tab -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon>check_circle</mat-icon>
-          Completed
-        </ng-template>
-        
-        <div class="tab-content">
-          <div *ngIf="(completedOrders$ | async)?.length === 0" class="empty-state">
-            <mat-icon>history</mat-icon>
-            <h3>No Completed Orders</h3>
-            <p>Completed orders will appear here.</p>
-          </div>
-          
-          <div *ngIf="(completedOrders$ | async)?.length! > 0" class="orders-grid">
-            <div class="orders-summary">
-              <mat-icon>check_circle</mat-icon>
-              <span>{{ (completedOrders$ | async)?.length }} completed order(s)</span>
+            <!-- Add status update functionality -->
+            <div class="status-actions" *ngIf="order.Status === 'Submitted' || order.Status === 'Processing'">
+              <button mat-button color="primary" 
+                      *ngIf="order.Status === 'Submitted'"
+                      (click)="updateOrderStatus(order, 'Processing')">
+                Start Processing
+              </button>
+              <button mat-button color="accent" 
+                      *ngIf="order.Status === 'Processing'"
+                      (click)="updateOrderStatus(order, 'Completed')">
+                Mark Completed
+              </button>
+              <button mat-button color="warn" 
+                      *ngIf="order.Status === 'Submitted'"
+                      (click)="updateOrderStatus(order, 'Rejected')">
+                Reject
+              </button>
+              <button mat-button 
+                      (click)="viewCustomer(order.CustomerId)">
+                View Customer
+              </button>
             </div>
-            
-            <app-tenant-order-item 
-              *ngFor="let order of completedOrders$ | async; trackBy: trackByOrderId"
-              [order]="order"
-              [showStatusControls]="false"
-              (viewCustomer)="viewCustomer($event)">
-            </app-tenant-order-item>
-          </div>
-        </div>
-      </mat-tab>
-
-      <!-- All Orders Tab -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon>list</mat-icon>
-          All Orders
-        </ng-template>
-        
-        <div class="tab-content">
-          <div *ngIf="(allOrders$ | async)?.length === 0" class="empty-state">
-            <mat-icon>inbox</mat-icon>
-            <h3>No Orders Found</h3>
-            <p>No orders have been submitted yet.</p>
-          </div>
-          
-          <div *ngIf="(allOrders$ | async)?.length! > 0" class="orders-grid">
-            <div class="orders-summary">
-              <mat-icon>list</mat-icon>
-              <span>{{ (allOrders$ | async)?.length }} total order(s)</span>
-            </div>
-            
-            <app-tenant-order-item 
-              *ngFor="let order of allOrders$ | async; trackBy: trackByOrderId"
-              [order]="order"
-              [showStatusControls]="order.Status === 'Submitted' || order.Status === 'Processing'"
-              (statusUpdate)="updateOrderStatus($event.order, $event.status)"
-              (viewCustomer)="viewCustomer($event)">
-            </app-tenant-order-item>
-          </div>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
   </div>
 </div>

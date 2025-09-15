@@ -48,7 +48,7 @@
         </ng-container>
         
         <!-- Submitted orders (but not yet paid) -->
-        <ng-container *ngIf="isSubmitted()">
+        <ng-container *ngIf !="isSubmitted()">
             <button mat-button color="primary" (click)="editOrder()">
                 <mat-icon>edit</mat-icon>
                 Edit

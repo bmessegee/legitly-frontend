@@ -78,14 +78,12 @@ export class OrderItemComponent {
 
   canEdit(): boolean {
     // Users can edit orders until they're paid (currently no Paid status, so allow edit for all except Processing/Completed)
-    return this.order?.Status === OrderStatus.Created || 
-           this.order?.Status === OrderStatus.Submitted;
+    return this.order?.Status === OrderStatus.Created;
   }
 
   canDelete(): boolean {
     // Users can delete orders until they're paid (same logic as edit for now)
-    return this.order?.Status === OrderStatus.Created || 
-           this.order?.Status === OrderStatus.Submitted;
+    return this.order?.Status === OrderStatus.Created;
   }
 
   isInProgress(): boolean {
@@ -98,9 +96,7 @@ export class OrderItemComponent {
 
   isReadOnly(): boolean {
     // Only truly read-only when processing is complete or failed
-    return this.order?.Status === OrderStatus.Processing || 
-           this.order?.Status === OrderStatus.Completed || 
-           this.order?.Status === OrderStatus.Rejected;
+    return this.order?.Status != OrderStatus.Created;
   }
 
   continueOrder() {

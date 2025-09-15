@@ -70,8 +70,8 @@ export class TenantOrderItemComponent {
     }
   }
 
-  getItemNames() {
-    return this.order?.OrderItems?.map(item => item.ProductName).join(', ')
+  getItemNames(): string {
+    return this.order?.OrderItems?.map(item => item.ProductName).join(', ') || 'No items';
   }
   getAvailableStatuses(): {value: OrderStatus, label: string}[] {
     if (!this.order) return [];

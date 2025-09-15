@@ -4,6 +4,25 @@
   margin: 0 auto;
 }
 
+.simple-order-card {
+  margin-bottom: 1rem;
+}
+
+.status-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
