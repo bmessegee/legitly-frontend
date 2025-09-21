@@ -40,51 +40,74 @@
     </mat-card>
   </div>
 
-  <!-- Orders Content WITHOUT tabs - testing if tabs cause the issue -->
+  <!-- Orders Queue - Submitted and Processing Orders -->
   <div *ngIf="!loading && !error" class="orders-content">
-    <h2>New Orders</h2>
-    <div *ngIf="newOrders$ | async as newOrders">
-      <div *ngIf="newOrders.length === 0" class="empty-state">
+    <h2>
+      <mat-icon>assignment</mat-icon>
+      Order Queue
+    </h2>
+    
+    <div *ngIf="activeOrders$ | async as activeOrders">
+      <div *ngIf="activeOrders.length === 0" class="empty-state">
         <mat-icon>inbox</mat-icon>
-        <h3>No New Orders</h3>
+        <h3>No Active Orders</h3>
         <p>All orders have been processed. Great work!</p>
       </div>
       
-      <div *ngIf="newOrders.length > 0" class="orders-grid">
+      <div *ngIf="activeOrders.length > 0" class="orders-grid">
         <div class="orders-summary">
           <mat-icon>info</mat-icon>
-          <span>{{ newOrders.length }} new order(s) waiting for processing</span>
+          <span>{{ activeOrders.length }} active order(s) in the queue</span>
         </div>
         
-        <!-- Back to working simple cards with status update functionality -->
-        <mat-card *ngFor="let order of newOrders; trackBy: trackByOrderId" class="simple-order-card">
+        <!-- Order cards with status icons -->
+        <mat-card *ngFor="let order of activeOrders; trackBy: trackByOrderId" class="order-queue-card">
           <mat-card-content>
-            <h3>Order #{{ order.OrderId?.substring(0, 8) }}</h3>
-            <p><strong>Status:</strong> {{ order.Status }}</p>
-            <p><strong>Customer:</strong> {{ order.CustomerId }}</p>
-            <p><strong>Total:</strong> ${{ order.TotalAmount }}</p>
-            <p><strong>Items:</strong> {{ order.OrderItems?.length || 0 }}</p>
-            <p><strong>Item Names:</strong> {{ getOrderItemNames(order) }}</p>
+            <div class="order-header">
+              <div class="order-info">
+                <div class="order-title">
+                  <h3>Order #{{ order.OrderId?.substring(0, 8) }}</h3>
+                  <div class="status-indicator" [ngClass]="getStatusClass(order.Status)">
+                    <mat-icon>{{ getStatusIcon(order.Status) }}</mat-icon>
+                    <span>{{ getStatusLabel(order.Status) }}</span>
+                  </div>
+                </div>
+                
+                <div class="order-details">
+                  <p><strong>Customer:</strong> {{ order?.CustomerDetails?.FirstName + ' ' + order?.CustomerDetails?.LastName }}</p>
+                  <p><strong>Total:</strong> ${{ order.TotalAmount }}</p>
+                  <p><strong>Items:</strong> {{ order.OrderItems?.length || 0 }} - {{ getOrderItemNames(order) }}</p>
+                  <p><strong>Created:</strong> {{ order.Created | date:'short' }}</p>
+                </div>
+              </div>
+            </div>
             
-            <!-- Add status update functionality -->
-            <div class="status-actions" *ngIf="order.Status === 'Submitted' || order.Status === 'Processing'">
-              <button mat-button color="primary" 
-                      *ngIf="order.Status === 'Submitted'"
-                      (click)="updateOrderStatus(order, 'Processing')">
+            <!-- Status update actions -->
+            <div class="status-actions">
+              <button mat-raised-button color="primary" 
+                      *ngIf="order.Status === OrderStatus.Submitted"
+                      (click)="updateOrderStatus(order, OrderStatus.Processing)">
+                <mat-icon>play_arrow</mat-icon>
                 Start Processing
               </button>
-              <button mat-button color="accent" 
-                      *ngIf="order.Status === 'Processing'"
-                      (click)="updateOrderStatus(order, 'Completed')">
+              
+              <button mat-raised-button color="accent" 
+                      *ngIf="order.Status === OrderStatus.Processing"
+                      (click)="updateOrderStatus(order, OrderStatus.Completed)">
+                <mat-icon>check_circle</mat-icon>
                 Mark Completed
               </button>
+              
               <button mat-button color="warn" 
-                      *ngIf="order.Status === 'Submitted'"
-                      (click)="updateOrderStatus(order, 'Rejected')">
+                      *ngIf="order.Status === OrderStatus.Submitted"
+                      (click)="updateOrderStatus(order, OrderStatus.Rejected)">
+                <mat-icon>cancel</mat-icon>
                 Reject
               </button>
+              
               <button mat-button 
                       (click)="viewCustomer(order.CustomerId)">
+                <mat-icon>person</mat-icon>
                 View Customer
               </button>
             </div>

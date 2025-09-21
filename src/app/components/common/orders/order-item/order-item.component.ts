@@ -2,8 +2,9 @@ import { Component, inject, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrderService } from '../../../../services/order.service';
 import { CartService } from '../../../../services/cart.service';
+import { AuthService } from '../../../../services/auth.service';
 import { Order, OrderStatus } from '../../../../models/order.model';
-import { DatePipe, JsonPipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe, JsonPipe, NgFor, NgIf, NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -15,6 +16,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
     JsonPipe,
     NgFor,
     NgIf,
+    NgClass,
     MatIconModule,
     MatButtonModule
   ],
@@ -24,6 +26,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class OrderItemComponent {
   orderService = inject(OrderService);
   cartService = inject(CartService);
+  authService = inject(AuthService);
   router = inject(Router);
   snackBar = inject(MatSnackBar);
   
@@ -77,13 +80,39 @@ export class OrderItemComponent {
   }
 
   canEdit(): boolean {
-    // Users can edit orders until they're paid (currently no Paid status, so allow edit for all except Processing/Completed)
+    // Only customers can edit, and only Created status orders
+    if (this.authService.isTenantUser()) {
+      return false; // Tenants cannot edit customer orders
+    }
     return this.order?.Status === OrderStatus.Created;
   }
 
   canDelete(): boolean {
-    // Users can delete orders until they're paid (same logic as edit for now)
+    // Only customers can delete, and only Created status orders
+    if (this.authService.isTenantUser()) {
+      return false; // Tenants cannot delete customer orders
+    }
     return this.order?.Status === OrderStatus.Created;
+  }
+
+  // Tenant-specific methods
+  isTenantUser(): boolean {
+    return this.authService.isTenantUser();
+  }
+
+  canTenantProcess(): boolean {
+    // Tenants can process submitted orders
+    return this.isTenantUser() && this.order?.Status === OrderStatus.Submitted;
+  }
+
+  canTenantComplete(): boolean {
+    // Tenants can complete processing orders
+    return this.isTenantUser() && this.order?.Status === OrderStatus.Processing;
+  }
+
+  canTenantReject(): boolean {
+    // Tenants can reject submitted orders
+    return this.isTenantUser() && this.order?.Status === OrderStatus.Submitted;
   }
 
   isInProgress(): boolean {
@@ -159,6 +188,82 @@ export class OrderItemComponent {
       }
     }
   }
+
+  // Tenant action methods
+  startProcessing(): void {
+    if (this.order && this.canTenantProcess()) {
+      this.updateOrderStatus(OrderStatus.Processing);
+    }
+  }
+
+  markCompleted(): void {
+    if (this.order && this.canTenantComplete()) {
+      this.updateOrderStatus(OrderStatus.Completed);
+    }
+  }
+
+  rejectOrder(): void {
+    if (this.order && this.canTenantReject()) {
+      this.updateOrderStatus(OrderStatus.Rejected);
+    }
+  }
+
+  private updateOrderStatus(newStatus: OrderStatus): void {
+    if (!this.order) return;
+
+    const updatedOrder = { ...this.order, Status: newStatus, Updated: new Date() };
+    
+    this.orderService.updateOrder(updatedOrder).subscribe({
+      next: (updated) => {
+        this.order = updated;
+        this.snackBar.open(`Order status updated to ${this.getStatusLabel(newStatus)}`, 'Close', {
+          duration: 3000
+        });
+      },
+      error: (error) => {
+        console.error('Error updating order status:', error);
+        this.snackBar.open('Failed to update order status', 'Close', {
+          duration: 3000
+        });
+      }
+    });
+  }
+
+  getStatusLabel(status: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.Created: return 'Draft';
+      case OrderStatus.Submitted: return 'Submitted';
+      case OrderStatus.Processing: return 'In Progress';
+      case OrderStatus.Completed: return 'Completed';
+      case OrderStatus.Rejected: return 'Rejected';
+      default: return status;
+    }
+  }
+
+  getStatusIcon(status: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.Created: return 'edit';
+      case OrderStatus.Submitted: return 'assignment_turned_in';
+      case OrderStatus.Processing: return 'work_history';
+      case OrderStatus.Completed: return 'check_circle';
+      case OrderStatus.Rejected: return 'cancel';
+      default: return 'help_outline';
+    }
+  }
+
+  getStatusClass(status: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.Created: return 'status-created';
+      case OrderStatus.Submitted: return 'status-submitted';
+      case OrderStatus.Processing: return 'status-processing';
+      case OrderStatus.Completed: return 'status-completed';
+      case OrderStatus.Rejected: return 'status-rejected';
+      default: return 'status-unknown';
+    }
+  }
+
+  // Make OrderStatus available in template
+  OrderStatus = OrderStatus;
 
   // Legacy method for backward compatibility
   expandOrder() {

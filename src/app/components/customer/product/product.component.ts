@@ -15,8 +15,8 @@ import { Order, OrderStatus } from '../../../models/order.model';
 import { businessNameValidator } from '../../../validators/business-name.validator';
 import { AuthService } from '../../../services/auth.service';
 import { CustomerService } from '../../../services/customer.service';
-import { filter, take, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import { filter, take, debounceTime, distinctUntilChanged, timeout, catchError } from 'rxjs/operators';
+import { Subject, of } from 'rxjs';
 
 @Component({
   selector: 'app-product',
@@ -47,6 +47,7 @@ export class ProductComponent implements OnDestroy {
   selectedForm = "";
   currentOrder: Order | null = null;
   currentOrderItem: any = null; // Track the specific order item for this product
+  currentOrderItemIndex: number = -1; // Track the index of the current order item in the order
   autoSaveTimeoutId: any = null;
   hasFormChanged = false;
   isCreatingOrder = false;
@@ -87,11 +88,10 @@ export class ProductComponent implements OnDestroy {
           this.loadForm(this.selectedForm);
           // Initialize LLC packages for comparison
           this.initializeLLCPackages();
-          // Check for existing in-progress order for this product after a short delay
-          // to ensure authentication is fully loaded
+          // Start the proper loading sequence: customer → orders → form processing
           setTimeout(() => {
-            console.log('Checking for existing order for form:', this.selectedForm);
-            this.checkForExistingOrder();
+            console.log('Starting sequential loading process for form:', this.selectedForm);
+            this.initializeWithProperSequence();
           }, 100);
         }
       }
@@ -201,7 +201,8 @@ export class ProductComponent implements OnDestroy {
     // Watch for form value changes and emit to the subject
     this.form.valueChanges.subscribe((formValue) => {
       this.hasFormChanged = true;
-      console.log('Form changed, emitting to debounce subject');
+      this.model = { ...formValue }; // Update model with current form values
+      console.log('Form changed, updating model and emitting to debounce subject', formValue);
       this.formChangeSubject.next(formValue);
     });
   }
@@ -260,13 +261,18 @@ export class ProductComponent implements OnDestroy {
     }
 
     // Create or update the order item
-    if (this.currentOrderItem) {
-      // Update existing item
+    if (this.currentOrderItem && this.currentOrderItemIndex >= 0) {
+      // Update existing item and ensure it's updated in the order's items array
       this.currentOrderItem.FormData = { ...this.model };
       this.currentOrderItem.FormSummary = this.generateFormSummary();
       // For auto-save, keep current validation state - don't override if already valid
       if (this.currentOrderItem.IsValid === undefined) {
         this.currentOrderItem.IsValid = false; // Not valid until explicitly validated
+      }
+      
+      // Ensure the order's items array is updated with the reference
+      if (this.currentOrder && this.currentOrder.OrderItems) {
+        this.currentOrder.OrderItems[this.currentOrderItemIndex] = this.currentOrderItem;
       }
       console.log('Updating existing order item:', this.currentOrderItem.ProductId);
     } else {
@@ -291,6 +297,7 @@ export class ProductComponent implements OnDestroy {
         this.currentOrder.OrderItems = [];
       }
       this.currentOrder.OrderItems.push(newItem);
+      this.currentOrderItemIndex = this.currentOrder.OrderItems.length - 1; // Track the index of the new item
       this.currentOrderItem = newItem;
       console.log('Created new order item:', newItem.ProductId);
     }
@@ -331,66 +338,154 @@ export class ProductComponent implements OnDestroy {
   }
 
 
-  private checkForExistingOrder() {
-    console.log('checkForExistingOrder called with selectedForm:', this.selectedForm);
+  private initializeWithProperSequence() {
+    console.log('Starting proper initialization sequence...');
     
     if (!this.authService.isAuthenticated() || !this.authService.bearerToken) {
-      console.log('Skipping order check: Not authenticated or no token available');
-      return;
-    }
-
-    const customer = this.customerService.getCurrentUserAsCustomer();
-    if (!customer) {
-      console.log('Skipping order check: No customer available');
+      console.log('Skipping initialization: Not authenticated or no token available');
+      this.setupFormChangeDetection(); // Still set up form change detection
       return;
     }
 
     this.isLoadingOrder = true;
 
-    // Check if cart service is still loading
-    this.cartService.isLoading$.pipe(
-      filter(isLoading => !isLoading), // Only proceed when loading is complete
-      take(1) // Only take the first emission when loading is false
-    ).subscribe({
-      next: () => {
-        // Cart service has finished loading, now check for active order
-        const activeOrder = this.cartService.getCurrentOrder();
-        
-        if (activeOrder) {
-          console.log('Found existing active order:', activeOrder.OrderId);
-          this.currentOrder = activeOrder;
+    // Step 1: Ensure customer is loaded
+    this.ensureCustomerLoaded()
+      .then(() => {
+        console.log('Customer loading complete, proceeding to orders...');
+        // Step 2: Ensure orders are loaded for this customer
+        return this.ensureOrdersLoaded();
+      })
+      .then(() => {
+        console.log('Orders loading complete, processing existing order...');
+        // Step 3: Process any existing order for this product
+        this.processExistingOrder();
+      })
+      .catch((error) => {
+        console.error('Error in initialization sequence:', error);
+        // Still try to proceed even if there are errors
+        this.processExistingOrder();
+      });
+  }
 
-          // Check if this order already has an item for the current product
-          const existingItem = activeOrder.OrderItems?.find(item => 
-            item.ProductId === this.selectedForm || item.FormType === this.selectedForm
-          );
-
-          if (existingItem) {
-            console.log('Found existing order item for product:', existingItem.ProductId);
-            this.currentOrderItem = existingItem;
-            this.loadOrderItemIntoForm(existingItem);
-            this.snackBar.open('Loaded your in-progress form', 'Dismiss', { duration: 3000 });
-          } else {
-            console.log('No existing item found, will create new item when user starts filling form');
-            this.currentOrderItem = null;
-          }
-        } else {
-          console.log('No active order found, will create one when user starts filling form');
-          this.currentOrder = null;
-          this.currentOrderItem = null;
-        }
-
-        this.isLoadingOrder = false;
-        // Set up auto-save after order check is complete
-        this.setupFormChangeDetection();
-      },
-      error: (error) => {
-        console.error('Error waiting for cart service to load:', error);
-        this.isLoadingOrder = false;
-        // Set up form change detection even if cart loading fails
-        this.setupFormChangeDetection();
+  private ensureCustomerLoaded(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      console.log('Ensuring customer is loaded...');
+      
+      const customer = this.customerService.getCurrentUserAsCustomer();
+      if (customer) {
+        console.log('Customer already loaded:', customer.Name);
+        resolve();
+        return;
       }
+
+      // Customer not loaded, explicitly load it
+      console.log('Customer not loaded, loading explicitly...');
+      
+      // Subscribe to customer observable and trigger loading
+      const subscription = this.customerService.customer$.subscribe({
+        next: (loadedCustomer) => {
+          if (loadedCustomer) {
+            console.log('Customer loaded successfully:', loadedCustomer.Name);
+            subscription.unsubscribe(); // Clean up subscription
+            resolve();
+          }
+        },
+        error: (error) => {
+          console.error('Error in customer observable:', error);
+          subscription.unsubscribe();
+          reject(error);
+        }
+      });
+
+      // Trigger the loading
+      this.customerService.getCustomerForUser();
+      
+      // Add timeout fallback
+      setTimeout(() => {
+        const currentCustomer = this.customerService.getCurrentUserAsCustomer();
+        if (currentCustomer) {
+          console.log('Customer eventually loaded via timeout check');
+          subscription.unsubscribe();
+          resolve();
+        } else {
+          console.warn('Customer loading timed out, proceeding anyway');
+          subscription.unsubscribe();
+          resolve(); // Don't reject, just proceed
+        }
+      }, 5000);
     });
+  }
+
+  private ensureOrdersLoaded(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      console.log('Ensuring orders are loaded...');
+      
+      // Check if cart service has orders loaded
+      const currentOrder = this.cartService.getCurrentOrder();
+      if (currentOrder) {
+        console.log('Orders already loaded via cart service');
+        resolve();
+        return;
+      }
+
+      // Orders not loaded, explicitly load them
+      console.log('Orders not loaded, loading explicitly via cart service...');
+      this.cartService.refreshCart().subscribe({
+        next: () => {
+          console.log('Cart/orders refreshed successfully');
+          resolve();
+        },
+        error: (error) => {
+          console.error('Error refreshing cart/orders:', error);
+          // Don't reject here - we can still proceed without existing orders
+          resolve();
+        }
+      });
+    });
+  }
+
+  private processExistingOrder() {
+    console.log('Processing existing order after ensuring all dependencies are loaded...');
+    
+    // At this point, we know customer and orders are properly loaded
+    const activeOrder = this.cartService.getCurrentOrder();
+        
+    if (activeOrder) {
+      console.log('Found existing active order:', activeOrder.OrderId);
+      this.currentOrder = activeOrder;
+
+      // Check if this order already has an item for the current product
+      const existingItemIndex = activeOrder.OrderItems?.findIndex(item => 
+        item.ProductId === this.selectedForm || item.FormType === this.selectedForm
+      );
+
+      if (existingItemIndex !== undefined && existingItemIndex >= 0) {
+        const existingItem = activeOrder.OrderItems![existingItemIndex];
+        console.log('Found existing order item for product:', existingItem.ProductId);
+        console.log('Order item data:', existingItem.FormData);
+        
+        this.currentOrderItemIndex = existingItemIndex;
+        this.currentOrderItem = existingItem;
+        this.loadOrderItemIntoForm(existingItem);
+        this.snackBar.open('Loaded your in-progress form', 'Dismiss', { duration: 3000 });
+      } else {
+        console.log('No existing item found for this product, will create new item when user starts filling form');
+        this.currentOrderItemIndex = -1;
+        this.currentOrderItem = null;
+      }
+    } else {
+      console.log('No active order found, will create one when user starts filling form');
+      this.currentOrder = null;
+      this.currentOrderItem = null;
+      this.currentOrderItemIndex = -1;
+    }
+
+    this.isLoadingOrder = false;
+    
+    // Set up auto-save after order processing is complete
+    console.log('Setting up form change detection after order processing...');
+    this.setupFormChangeDetection();
   }
 
   // Handle checkout - submit order and add to cart
@@ -429,10 +524,16 @@ export class ProductComponent implements OnDestroy {
         }
 
         // Mark the current order item as valid since form passed validation
-        if (this.currentOrderItem) {
+        if (this.currentOrderItem && this.currentOrderItemIndex >= 0) {
           this.currentOrderItem.IsValid = true;
           this.currentOrderItem.FormData = { ...this.model }; // Ensure latest data is saved
           this.currentOrderItem.FormSummary = this.generateFormSummary();
+          
+          // Ensure the order's items array is updated with the reference
+          if (this.currentOrder && this.currentOrder.OrderItems) {
+            this.currentOrder.OrderItems[this.currentOrderItemIndex] = this.currentOrderItem;
+          }
+          
           console.log('Marked order item as valid:', this.currentOrderItem.ProductId);
         }
 
@@ -587,13 +688,17 @@ export class ProductComponent implements OnDestroy {
 
   // Legacy method for backward compatibility - redirects to single item loading
   private loadOrderIntoForm(order: Order) {
-    const relevantItem = order.OrderItems?.find(item => 
+    const relevantItemIndex = order.OrderItems?.findIndex(item => 
       item.ProductId === this.selectedForm || item.FormType === this.selectedForm
     );
     
-    if (relevantItem) {
-      this.currentOrderItem = relevantItem;
-      this.loadOrderItemIntoForm(relevantItem);
+    if (relevantItemIndex !== undefined && relevantItemIndex >= 0) {
+      this.currentOrderItemIndex = relevantItemIndex;
+      this.currentOrderItem = order.OrderItems![relevantItemIndex];
+      this.loadOrderItemIntoForm(this.currentOrderItem);
+    } else {
+      this.currentOrderItemIndex = -1;
+      this.currentOrderItem = null;
     }
   }
 

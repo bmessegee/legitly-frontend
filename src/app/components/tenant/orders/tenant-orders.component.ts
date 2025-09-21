@@ -46,17 +46,21 @@ export class TenantOrdersComponent implements OnInit {
   private ordersSubject = new BehaviorSubject<Order[]>([]);
   orders$ = this.ordersSubject.asObservable();
   
-  // Filtered observables (but not used in template yet)
+  // Filtered observables
   newOrders$: Observable<Order[]>;
   processingOrders$: Observable<Order[]>;
   completedOrders$: Observable<Order[]>;
   allOrders$: Observable<Order[]>;
+  activeOrders$: Observable<Order[]>;
   
   // Keep simple array for template (for now)
   orders: Order[] = [];
   loading = true;
   error: string | null = null;
   selectedTab = 0;
+  
+  // Make OrderStatus enum available in template
+  OrderStatus = OrderStatus;
 
   constructor() {
     // Initialize filtered order streams
@@ -76,6 +80,11 @@ export class TenantOrdersComponent implements OnInit {
     this.allOrders$ = this.orders$.pipe(
       map(orders => orders.filter(order => 
         order.Status !== OrderStatus.Created && order.Status !== OrderStatus.InCart))
+    );
+    
+    this.activeOrders$ = this.orders$.pipe(
+      map(orders => orders.filter(order => 
+        order.Status === OrderStatus.Submitted || order.Status === OrderStatus.Processing))
     );
   }
 
@@ -183,6 +192,26 @@ export class TenantOrdersComponent implements OnInit {
       case OrderStatus.Completed: return 'primary';
       case OrderStatus.Rejected: return 'warn';
       default: return '';
+    }
+  }
+
+  getStatusIcon(status: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.Submitted: return 'assignment_turned_in';
+      case OrderStatus.Processing: return 'work_history';
+      case OrderStatus.Completed: return 'check_circle';
+      case OrderStatus.Rejected: return 'cancel';
+      default: return 'help_outline';
+    }
+  }
+
+  getStatusClass(status: OrderStatus): string {
+    switch (status) {
+      case OrderStatus.Submitted: return 'status-submitted';
+      case OrderStatus.Processing: return 'status-processing';
+      case OrderStatus.Completed: return 'status-completed';
+      case OrderStatus.Rejected: return 'status-rejected';
+      default: return 'status-unknown';
     }
   }
 

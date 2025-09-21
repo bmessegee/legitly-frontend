@@ -225,3 +225,128 @@
   50% { opacity: 0.5; }
   100% { opacity: 1; }
 }
+
+// Order queue card styling
+.order-queue-card {
+  border-left: 4px solid #ddd;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+  }
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.order-info {
+  flex: 1;
+}
+
+.order-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  
+  h3 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+  }
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  
+  mat-icon {
+    font-size: 1.2rem;
+    height: 1.2rem;
+    width: 1.2rem;
+  }
+  
+  &.status-submitted {
+    background: #e3f2fd;
+    color: #1976d2;
+    border-left-color: #1976d2;
+    
+    mat-icon {
+      color: #1976d2;
+    }
+  }
+  
+  &.status-processing {
+    background: #fff3e0;
+    color: #f57c00;
+    border-left-color: #f57c00;
+    
+    mat-icon {
+      color: #f57c00;
+    }
+  }
+  
+  &.status-completed {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border-left-color: #2e7d32;
+    
+    mat-icon {
+      color: #2e7d32;
+    }
+  }
+  
+  &.status-rejected {
+    background: #ffebee;
+    color: #d32f2f;
+    border-left-color: #d32f2f;
+    
+    mat-icon {
+      color: #d32f2f;
+    }
+  }
+}
+
+.order-details {
+  margin-top: 1rem;
+  
+  p {
+    margin: 0.5rem 0;
+    color: #666;
+    
+    strong {
+      color: #333;
+      font-weight: 600;
+    }
+  }
+}
+
+// Update order queue card border color based on status
+.order-queue-card {
+  &.status-submitted {
+    border-left-color: #1976d2;
+  }
+  
+  &.status-processing {
+    border-left-color: #f57c00;
+  }
+  
+  &.status-completed {
+    border-left-color: #2e7d32;
+  }
+  
+  &.status-rejected {
+    border-left-color: #d32f2f;
+  }
+}
