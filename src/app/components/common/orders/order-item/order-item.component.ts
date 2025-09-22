@@ -8,6 +8,8 @@ import { DatePipe, JsonPipe, NgFor, NgIf, NgClass } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { ReadonlyFormViewerComponent } from '../../readonly-form-viewer/readonly-form-viewer.component';
 
 @Component({
   selector: 'app-order-item',
@@ -29,6 +31,7 @@ export class OrderItemComponent {
   authService = inject(AuthService);
   router = inject(Router);
   snackBar = inject(MatSnackBar);
+  dialog = inject(MatDialog);
   
   @Input() order: Order | null = null;
 
@@ -264,6 +267,35 @@ export class OrderItemComponent {
 
   // Make OrderStatus available in template
   OrderStatus = OrderStatus;
+
+  // View form details in readonly mode (for tenants)
+  viewFormDetails(orderItemIndex: number) {
+    if (!this.order || !this.order.OrderItems || !this.order.OrderItems[orderItemIndex]) {
+      return;
+    }
+
+    const orderItem = this.order.OrderItems[orderItemIndex];
+    
+    // Only show if the order item has form data
+    if (!orderItem.FormData || Object.keys(orderItem.FormData).length === 0) {
+      this.snackBar.open('No form data available for this item', 'Close', { duration: 3000 });
+      return;
+    }
+
+    this.dialog.open(ReadonlyFormViewerComponent, {
+      data: {
+        orderItem: orderItem
+      },
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      panelClass: 'readonly-form-dialog'
+    });
+  }
+
+  // Check if order item has viewable form data
+  hasFormData(orderItem: any): boolean {
+    return orderItem?.FormData && Object.keys(orderItem.FormData).length > 0;
+  }
 
   // Legacy method for backward compatibility
   expandOrder() {

@@ -7,6 +7,7 @@ import { map, switchMap } from 'rxjs/operators';
 import { User } from '../models/user.model';   // <-- your existing model
 import { Customer } from '../models/customer.model';
 import { UrlPreservationService } from './url-preservation.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -113,7 +114,7 @@ export class AuthService {
     if (window.sessionStorage) {
       window.sessionStorage.clear();
     }
-    window.location.href = "https://legitly-dev.auth.us-east-1.amazoncognito.com/logout?client_id=5au1hi0fruvur8vpmpttiqlb15&logout_uri=http://localhost:4200/logout";
+    window.location.href = environment.auth.logoutUrl;
   }
   isAuthenticated(): boolean {
     return this.currentUser != null;

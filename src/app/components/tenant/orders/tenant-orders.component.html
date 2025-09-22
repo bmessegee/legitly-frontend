@@ -98,17 +98,19 @@
                 Mark Completed
               </button>
               
-              <button mat-button color="warn" 
-                      *ngIf="order.Status === OrderStatus.Submitted"
-                      (click)="updateOrderStatus(order, OrderStatus.Rejected)">
-                <mat-icon>cancel</mat-icon>
-                Reject
-              </button>
               
               <button mat-button 
                       (click)="viewCustomer(order.CustomerId)">
                 <mat-icon>person</mat-icon>
                 View Customer
+              </button>
+              
+              <button mat-button 
+                      color="primary"
+                      *ngIf="getViewableOrderItem(order)"
+                      (click)="viewOrderDetails(order)">
+                <mat-icon>visibility</mat-icon>
+                View Form Details
               </button>
             </div>
           </mat-card-content>

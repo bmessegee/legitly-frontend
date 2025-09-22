@@ -13,36 +13,38 @@
         Total: ${{ order?.TotalAmount }}
     </p>
     
-    <!-- Order Items Section -->
-    <div class="order-items" *ngIf="isExpanded">
+    <!-- Order Items Section - Always expanded -->
+    <div class="order-items">
         <h4>Items:</h4>
         <div *ngFor="let item of order?.OrderItems; let i = index" class="order-item-detail">
             <div class="item-header">
                 <span class="item-title">{{ item.FormTitle || item.ProductName }}</span>
                 <span class="item-price">${{ item.Price }}</span>
-                <button mat-icon-button (click)="expandOrderItem(i)" 
-                        *ngIf="item.IsExpandable" 
-                        [attr.aria-label]="'Expand ' + item.ProductName">
-                    <mat-icon>{{ expandedItems.has(i) ? 'expand_less' : 'expand_more' }}</mat-icon>
-                </button>
             </div>
             <p class="item-summary" *ngIf="item.FormSummary">{{ item.FormSummary }}</p>
             
-            <!-- Expanded form data -->
-            <div class="expanded-form-data" *ngIf="expandedItems.has(i) && expandedFormData.has(i)">
-                <pre>{{ expandedFormData.get(i) | json }}</pre>
-                <button mat-button color="primary" (click)="editOrderItem(i)">
-                    <mat-icon>edit</mat-icon>
-                    Edit Form
-                </button>
+            <!-- Item actions directly visible -->
+            <div class="item-actions">
+                <!-- Customer actions -->
+                <div *ngIf="!isTenantUser() && item.FormData">
+                    <button mat-button color="primary" (click)="editOrderItem(i)">
+                        <mat-icon>edit</mat-icon>
+                        Edit Form
+                    </button>
+                </div>
+                
+                <!-- Tenant actions -->
+                <div *ngIf="isTenantUser() && hasFormData(item)">
+                    <button mat-button color="primary" (click)="viewFormDetails(i)">
+                        <mat-icon>visibility</mat-icon>
+                        View Form Details
+                    </button>
+                </div>
             </div>
         </div>
     </div>
     
     <div class="order-actions">
-        <button mat-button (click)="toggleExpand()">
-            {{ isExpanded ? 'Collapse' : 'View Details' }}
-        </button>
         
         <!-- TENANT ACTIONS -->
         <ng-container *ngIf="isTenantUser()">
@@ -58,11 +60,6 @@
                 Mark Completed
             </button>
             
-            <!-- Tenant can reject submitted orders -->
-            <button mat-button color="warn" (click)="rejectOrder()" *ngIf="canTenantReject()">
-                <mat-icon>cancel</mat-icon>
-                Reject
-            </button>
             
             <!-- Read-only for tenants when order is completed/rejected -->
             <span *ngIf="order?.Status === OrderStatus.Completed || order?.Status === OrderStatus.Rejected" class="readonly-indicator">

@@ -1,0 +1,60 @@
+<div class="readonly-form-viewer">
+  <div class="viewer-header">
+    <h2>
+      <mat-icon>visibility</mat-icon>
+      Form Details: {{ orderItem?.FormTitle || orderItem?.ProductName }}
+    </h2>
+    <button mat-icon-button (click)="close()" class="close-button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="form-content">
+    <!-- Order Item Summary -->
+    <mat-card class="summary-card">
+      <mat-card-header>
+        <mat-card-title>Order Summary</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="summary-info">
+          <p><strong>Product:</strong> {{ orderItem?.ProductName }}</p>
+          <p><strong>Price:</strong> ${{ orderItem?.Price }}</p>
+          <p><strong>Status:</strong> {{ orderItem?.IsValid ? 'Complete' : 'Incomplete' }}</p>
+          <p *ngIf="orderItem?.FormSummary"><strong>Summary:</strong> {{ orderItem?.FormSummary }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Formly Form in Readonly Mode -->
+    <mat-card class="form-data-card">
+      <mat-card-header>
+        <mat-card-title>Form Data</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="fields.length > 0; else noFormData" class="readonly-form">
+          <form [formGroup]="form">
+            <formly-form 
+              [form]="form" 
+              [fields]="fields" 
+              [model]="model">
+            </formly-form>
+          </form>
+        </div>
+
+        <ng-template #noFormData>
+          <div class="no-data">
+            <mat-icon>info</mat-icon>
+            <p>No form data available for this order item.</p>
+          </div>
+        </ng-template>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="viewer-actions">
+    <button mat-raised-button color="primary" (click)="close()">
+      <mat-icon>close</mat-icon>
+      Close
+    </button>
+  </div>
+</div>

@@ -9,6 +9,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -16,6 +17,7 @@ import { OrderService } from '../../../services/order.service';
 import { AuthService } from '../../../services/auth.service';
 import { Order, OrderStatus } from '../../../models/order.model';
 import { TenantOrderItemComponent } from './tenant-order-item/tenant-order-item.component';
+import { ReadonlyFormViewerComponent } from '../../common/readonly-form-viewer/readonly-form-viewer.component';
 
 @Component({
   selector: 'app-tenant-orders',
@@ -31,6 +33,7 @@ import { TenantOrderItemComponent } from './tenant-order-item/tenant-order-item.
     MatBadgeModule,
     MatTabsModule,
     MatSnackBarModule,
+    MatDialogModule,
     TenantOrderItemComponent
   ],
   templateUrl: './tenant-orders.component.html',
@@ -41,6 +44,7 @@ export class TenantOrdersComponent implements OnInit {
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
 
   // Add back BehaviorSubject and filtered observables
   private ordersSubject = new BehaviorSubject<Order[]>([]);
@@ -232,5 +236,51 @@ export class TenantOrdersComponent implements OnInit {
 
   trackByOrderId(index: number, order: Order): string {
     return order.OrderId;
+  }
+
+  // View form details for an order item
+  viewOrderItemDetails(order: Order, orderItemIndex: number) {
+    if (!order.OrderItems || !order.OrderItems[orderItemIndex]) {
+      return;
+    }
+
+    const orderItem = order.OrderItems[orderItemIndex];
+    
+    // Only show if the order item has form data
+    if (!orderItem.FormData || Object.keys(orderItem.FormData).length === 0) {
+      this.snackBar.open('No form data available for this item', 'Close', { duration: 3000 });
+      return;
+    }
+
+    this.dialog.open(ReadonlyFormViewerComponent, {
+      data: {
+        orderItem: orderItem
+      },
+      maxWidth: '90vw',
+      maxHeight: '90vh',
+      panelClass: 'readonly-form-dialog'
+    });
+  }
+
+  // Check if order item has viewable form data
+  hasFormData(orderItem: any): boolean {
+    return orderItem?.FormData && Object.keys(orderItem.FormData).length > 0;
+  }
+
+  // Get the first order item with form data for quick viewing
+  getViewableOrderItem(order: Order): any | null {
+    if (!order.OrderItems) return null;
+    return order.OrderItems.find(item => this.hasFormData(item)) || null;
+  }
+
+  // View the first available form data for an order
+  viewOrderDetails(order: Order) {
+    const viewableItem = this.getViewableOrderItem(order);
+    if (viewableItem) {
+      const itemIndex = order.OrderItems!.indexOf(viewableItem);
+      this.viewOrderItemDetails(order, itemIndex);
+    } else {
+      this.snackBar.open('No form data available for this order', 'Close', { duration: 3000 });
+    }
   }
 }
