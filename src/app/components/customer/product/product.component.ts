@@ -7,6 +7,8 @@ import { FormlyMaterialModule } from '@ngx-formly/material';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ProductForm } from '../../../models/product-form';
 import { FormlyMatDatepickerModule }from '@ngx-formly/material/datepicker';
 import { CartService } from '../../../services/cart.service';
@@ -15,6 +17,7 @@ import { Order, OrderStatus } from '../../../models/order.model';
 import { businessNameValidator } from '../../../validators/business-name.validator';
 import { AuthService } from '../../../services/auth.service';
 import { CustomerService } from '../../../services/customer.service';
+import { ApiService } from '../../../services/api.service';
 import { filter, take, debounceTime, distinctUntilChanged, timeout, catchError } from 'rxjs/operators';
 import { Subject, of } from 'rxjs';
 
@@ -32,7 +35,9 @@ import { Subject, of } from 'rxjs';
     FormlyMatDatepickerModule,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   templateUrl: './product.component.html',
   styleUrl: './product.component.scss'
@@ -55,6 +60,12 @@ export class ProductComponent implements OnDestroy {
   showComparison = false;
   llcPackages: any[] = [];
   
+  // Business name lookup properties
+  businessNameLookup = '';
+  isCheckingName = false;
+  nameCheckResult: {isAvailable: boolean, businessName: string, existingBusinesses: number, totalResults: number} | null = null;
+  nameCheckError: string | null = null;
+  
   // Proper debounce implementation
   private formChangeSubject = new Subject<any>();
   
@@ -68,7 +79,8 @@ export class ProductComponent implements OnDestroy {
     private orderService: OrderService,
     private snackBar: MatSnackBar,
     private authService: AuthService,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private apiService: ApiService
   ) {
     this.route.queryParamMap
       .subscribe((p: any) => {
@@ -749,6 +761,41 @@ export class ProductComponent implements OnDestroy {
       this.showComparison = false; // Hide comparison after selection
     }
   }
+
+  // Business name lookup methods
+  onBusinessNameLookupChange() {
+    // Clear previous results when user types
+    this.nameCheckResult = null;
+    this.nameCheckError = null;
+  }
+
+  checkBusinessName() {
+    if (!this.businessNameLookup || this.businessNameLookup.trim().length === 0) {
+      return;
+    }
+
+    const businessName = this.businessNameLookup.trim();
+
+    this.isCheckingName = true;
+    this.nameCheckError = null;
+    this.nameCheckResult = null;
+
+    this.apiService.get<{isAvailable: boolean, businessName: string, existingBusinesses: number, totalResults: number}>(`business-name/check?name=${encodeURIComponent(businessName)}`)
+      .subscribe({
+        next: (response) => {
+          this.isCheckingName = false;
+          this.nameCheckResult = response;
+          this.nameCheckError = null;
+        },
+        error: (error) => {
+          this.isCheckingName = false;
+          this.nameCheckResult = null;
+          this.nameCheckError = 'Unable to verify name availability. Please check your connection and try again.';
+          console.error('Business name check error:', error);
+        }
+      });
+  }
+
 
   ngOnDestroy() {
     // Clean up auto-save timeout

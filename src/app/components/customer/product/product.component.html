@@ -1,4 +1,70 @@
 <div class="wrapper">
+    <!-- Business Name Lookup Section -->
+    <div class="business-name-lookup" *ngIf="isLLCPackage()">
+        <div class="lookup-header">
+           
+            <h3>Check Business Name Availability</h3>
+            <p>Search to see if your desired business name is available in Washington State before completing your order.</p>
+        </div>
+        
+        <div class="lookup-form">
+            <mat-form-field appearance="outline" class="name-input">
+                <mat-label>Enter your desired business name</mat-label>
+                <input 
+                    matInput 
+                    [(ngModel)]="businessNameLookup" 
+                    (input)="onBusinessNameLookupChange()"
+                    placeholder="e.g., My Company LLC"
+                    autocomplete="off">
+                <mat-icon matSuffix *ngIf="isCheckingName">hourglass_empty</mat-icon>
+                <mat-icon matSuffix *ngIf="!isCheckingName && businessNameLookup" color="primary">search</mat-icon>
+            </mat-form-field>
+            
+            <button 
+                mat-raised-button 
+                color="primary" 
+                (click)="checkBusinessName()"
+                [disabled]="!businessNameLookup || businessNameLookup.trim().length === 0 || isCheckingName"
+                class="check-button">
+                <mat-icon>{{isCheckingName ? 'hourglass_empty' : 'search'}}</mat-icon>
+                {{isCheckingName ? 'Checking...' : 'Check Availability'}}
+            </button>
+        </div>
+        
+        <!-- Results Section -->
+        <div class="lookup-results" *ngIf="nameCheckResult">
+            <div class="result-card" [ngClass]="nameCheckResult.isAvailable ? 'available' : 'unavailable'">
+                <div class="result-icon">
+                    <mat-icon>{{nameCheckResult.isAvailable ? 'check_circle' : 'cancel'}}</mat-icon>
+                </div>
+                <div class="result-content">
+                    <h4>{{nameCheckResult.isAvailable ? 'Name Available!' : 'Name Unavailable'}}</h4>
+                    <p *ngIf="nameCheckResult.isAvailable">
+                        "{{nameCheckResult.businessName}}" is available for registration.
+                    </p>
+                    <p *ngIf="!nameCheckResult.isAvailable">
+                        "{{nameCheckResult.businessName}}" is already registered. Please try a different name.
+                    </p>
+                    <div class="result-details" *ngIf="nameCheckResult.totalResults">
+                        <small>Found {{nameCheckResult.existingBusinesses}} existing business(es) with similar names</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Name Check Error -->
+        <div class="lookup-error" *ngIf="nameCheckError">
+            <div class="error-card">
+                <mat-icon color="warn">error</mat-icon>
+                <div class="error-content">
+                    <h4>Unable to Check Name</h4>
+                    <p>{{nameCheckError}}</p>
+                    <button mat-button color="primary" (click)="checkBusinessName()">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Package Header Section -->
     <div class="package-header" *ngIf="formConfig">
         <div class="package-info">

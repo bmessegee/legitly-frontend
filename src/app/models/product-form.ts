@@ -1160,7 +1160,7 @@ export class ProductForm {
                                 "description": "500 character limit"
                             },
                             "expressions": {
-                                "hide": "!field.model?.natureOfBusiness || field.model.natureOfBusiness.indexOf('OTHER') === -1"
+                                "hide": "!field.model?.natureOfBusiness"
                             }
                         }
                     ]

@@ -14,6 +14,7 @@ export interface Order {
     UpdatedBy: string;
     DisplayName?: string; // Friendly display name for UI
     Description?: string; // Optional description
+    StripeSessionId?: string; // Stripe checkout session ID for payment tracking
 }
 
 export interface OrderItem {

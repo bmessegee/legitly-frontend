@@ -34,6 +34,7 @@ export class CartComponent implements OnInit {
   cartItems$: Observable<OrderItem[]>;
   cartTotal$: Observable<number>;
   cartCount$: Observable<number>;
+  isProcessingCheckout = false;
 
   constructor(
     private cartService: CartService,
@@ -138,6 +139,9 @@ export class CartComponent implements OnInit {
       return;
     }
     
+    // Set loading state
+    this.isProcessingCheckout = true;
+    
     // Create Stripe checkout session and redirect
     this.cartService.createStripeCheckoutSession().subscribe({
       next: (response) => {
@@ -145,10 +149,12 @@ export class CartComponent implements OnInit {
           // Redirect to Stripe payment platform
           window.location.href = response.sessionUrl;
         } else {
+          this.isProcessingCheckout = false; // Reset loading state on error
           this.snackBar.open('Failed to initialize checkout session', 'Close', { duration: 3000 });
         }
       },
       error: (error) => {
+        this.isProcessingCheckout = false; // Reset loading state on error
         console.error('Error creating checkout session:', error);
         this.snackBar.open('Checkout failed. Please try again.', 'Close', { duration: 3000 });
       }

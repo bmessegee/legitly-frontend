@@ -5,6 +5,7 @@ import { CartItem, Order, Cart, OrderStatus, OrderItem } from '../models/order.m
 import { OrderService } from './order.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,8 @@ export class CartService {
   constructor(
     private orderService: OrderService,
     private apiService: ApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {
     this.initializeCart();
   }
@@ -78,14 +80,19 @@ export class CartService {
     this.loadCartFromBackend().subscribe({
       next: (order) => {
         this.currentOrderSubject.next(order);
-        if (order) {
-          this.saveOrderToStorage(order);
-        }
+       
+        // Check for incomplete payments after cart is loaded
+        this.checkForIncompletePayments();
+        
         this.isLoadingSubject.next(false);
       },
       error: () => {
         // Fallback to localStorage
-        this.loadOrderFromStorage();
+        //this.loadOrderFromStorage();
+        
+        // Check for incomplete payments even with localStorage fallback
+        this.checkForIncompletePayments();
+        
         this.isLoadingSubject.next(false);
       }
     });
@@ -222,7 +229,6 @@ export class CartService {
     const currentOrder = this.currentOrderSubject.value;
     
     this.currentOrderSubject.next(null);
-    this.clearOrderFromStorage();
     
     // Delete order from backend if it exists
     if (currentOrder?.OrderId) {
@@ -269,14 +275,11 @@ export class CartService {
     return this.loadCartFromBackend().pipe(
       tap(order => {
         this.currentOrderSubject.next(order);
-        if (order) {
-          this.saveOrderToStorage(order);
-        }
         this.isLoadingSubject.next(false);
       }),
       catchError(() => {
         // Fallback to localStorage
-        this.loadOrderFromStorage();
+        //this.loadOrderFromStorage();
         this.isLoadingSubject.next(false);
         return of(this.currentOrderSubject.value);
       })
@@ -307,7 +310,6 @@ export class CartService {
     return this.orderService.createOrder(newOrder as Order).pipe(
       tap(order => {
         this.currentOrderSubject.next(order);
-        this.saveOrderToStorage(order);
       })
     );
   }
@@ -316,7 +318,6 @@ export class CartService {
     return this.orderService.updateOrder(order).pipe(
       tap(updatedOrder => {
         this.currentOrderSubject.next(updatedOrder);
-        this.saveOrderToStorage(updatedOrder);
       })
     );
   }
@@ -338,40 +339,11 @@ export class CartService {
     );
   }
 
-  // LocalStorage integration methods
-  private saveOrderToStorage(order: Order): void {
-    try {
-      localStorage.setItem(this.CART_STORAGE_KEY, JSON.stringify(order));
-    } catch (error) {
-      console.error('Error saving cart order to localStorage:', error);
-    }
-  }
-
-  private loadOrderFromStorage(): void {
-    try {
-      const storedOrder = localStorage.getItem(this.CART_STORAGE_KEY);
-      if (storedOrder) {
-        const order: Order = JSON.parse(storedOrder);
-        this.currentOrderSubject.next(order);
-      }
-    } catch (error) {
-      console.error('Error loading cart order from localStorage:', error);
-    }
-  }
-
-  private clearOrderFromStorage(): void {
-    try {
-      localStorage.removeItem(this.CART_STORAGE_KEY);
-    } catch (error) {
-      console.error('Error clearing cart order from localStorage:', error);
-    }
-  }
 
   // Load existing order into cart (for resuming)
   loadOrderIntoCart(order: Order): void {
     if (order.Status === OrderStatus.Created) {
       this.currentOrderSubject.next(order);
-      this.saveOrderToStorage(order);
     }
   }
 
@@ -400,5 +372,45 @@ export class CartService {
     }
     
     return 'Form data available';
+  }
+
+  /** Check for orders with StripeSessionId but still in Created status */
+  private checkForIncompletePayments(): void {
+    // Only check for Customer users since Tenants don't make payments
+    if (!this.authService.isAuthenticated() || !this.authService.isCustomerUser()) {
+      return;
+    }
+
+    // Add a small delay to ensure auth is fully initialized
+    setTimeout(() => {
+      this.orderService.getOrders().subscribe({
+        next: (orders) => {
+          if (!orders || orders.length === 0) {
+            return;
+          }
+
+          // Find orders that are still in Created status but have a StripeSessionId
+          // This indicates the user started payment but was interrupted before redirect
+          const incompletePaymentOrder = orders.find(order => 
+            order.Status === OrderStatus.Created && 
+            order.StripeSessionId && 
+            order.StripeSessionId.trim().length > 0
+          );
+
+          if (incompletePaymentOrder) {
+            console.log('Found incomplete payment order:', incompletePaymentOrder.OrderId, 'with session:', incompletePaymentOrder.StripeSessionId);
+            
+            // Redirect to checkout success to complete the order
+            this.router.navigate(['/checkout/success'], { 
+              queryParams: { session_id: incompletePaymentOrder.StripeSessionId } 
+            });
+          }
+        },
+        error: (error) => {
+          console.error('Error checking for incomplete payments:', error);
+          // Don't block normal operation if check fails
+        }
+      });
+    }, 500); // Small delay to ensure everything is initialized
   }
 }

@@ -48,7 +48,7 @@
                   <button 
                     mat-icon-button 
                     (click)="decreaseQuantity(item)"
-                    [disabled]="item.Quantity <= 1"
+                    [disabled]="item.Quantity <= 1 || isProcessingCheckout"
                     aria-label="Decrease quantity">
                     <mat-icon>remove</mat-icon>
                   </button>
@@ -58,6 +58,7 @@
                   <button 
                     mat-icon-button 
                     (click)="increaseQuantity(item)"
+                    [disabled]="isProcessingCheckout"
                     aria-label="Increase quantity">
                     <mat-icon>add</mat-icon>
                   </button>
@@ -71,6 +72,7 @@
                   mat-icon-button 
                   color="warn" 
                   (click)="removeItem(item)"
+                  [disabled]="isProcessingCheckout"
                   aria-label="Remove item">
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -93,11 +95,21 @@
           </div>
         </div>
 
+        <!-- Loading Message -->
+        <div class="checkout-loading" *ngIf="isProcessingCheckout">
+          <div class="loading-content">
+            <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+            <h3>Sending you to secure payment page...</h3>
+            <p>Please wait while we prepare your checkout session</p>
+          </div>
+        </div>
+
         <div class="cart-actions" *ngIf="items.length > 0">
           <button 
             mat-button 
             color="primary" 
             (click)="continueShopping()"
+            [disabled]="isProcessingCheckout"
             class="action-button">
             <mat-icon>arrow_back</mat-icon>
             Continue Shopping
@@ -107,6 +119,7 @@
             mat-button 
             color="warn" 
             (click)="clearCart()"
+            [disabled]="isProcessingCheckout"
             class="action-button">
             <mat-icon>clear</mat-icon>
             Clear Cart
@@ -116,9 +129,10 @@
             mat-raised-button 
             color="accent" 
             (click)="proceedToCheckout()"
+            [disabled]="isProcessingCheckout"
             class="action-button checkout-button">
-            <mat-icon>payment</mat-icon>
-            Proceed to Checkout
+            <mat-icon>{{isProcessingCheckout ? 'hourglass_empty' : 'payment'}}</mat-icon>
+            {{isProcessingCheckout ? 'Processing...' : 'Proceed to Checkout'}}
           </button>
         </div>
       </div>
