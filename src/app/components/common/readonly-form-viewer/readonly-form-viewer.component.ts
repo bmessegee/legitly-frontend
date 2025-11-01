@@ -1,12 +1,14 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormlyModule, FormlyFieldConfig } from '@ngx-formly/core';
 import { FormlyMaterialModule } from '@ngx-formly/material';
+import { FormlyMatDatepickerModule } from '@ngx-formly/material/datepicker';
 import { inject } from '@angular/core';
 import { ProductForm } from '../../../models/product-form';
 
@@ -19,12 +21,15 @@ import { ProductForm } from '../../../models/product-form';
     MatCardModule,
     MatIconModule,
     MatButtonModule,
+    MatInputModule,
     MatDialogModule,
     FormlyModule,
-    FormlyMaterialModule
+    FormlyMaterialModule,
+    FormlyMatDatepickerModule
   ],
   templateUrl: './readonly-form-viewer.component.html',
-  styleUrl: './readonly-form-viewer.component.scss'
+  styleUrl: './readonly-form-viewer.component.scss',
+  encapsulation: ViewEncapsulation.None
 })
 export class ReadonlyFormViewerComponent implements OnInit {
   dialogRef = inject(MatDialogRef<ReadonlyFormViewerComponent>);
@@ -37,16 +42,25 @@ export class ReadonlyFormViewerComponent implements OnInit {
 
   ngOnInit() {
     this.orderItem = this.data.orderItem;
-    this.model = this.orderItem?.FormData ? { ...this.orderItem.FormData } : {};
+   
     
     // Load the form configuration and make it readonly
     this.loadFormConfiguration();
+    this.model = this.orderItem?.FormData ? { ...this.orderItem.FormData } : {};
+
+    // Add delay and patch form values (similar to product component)
+    setTimeout(() => {
+      if (this.model && Object.keys(this.model).length > 0) {
+        this.form.patchValue(this.model);
+      }
+    }, 1000);
   }
 
   private loadFormConfiguration() {
     try {
       const formConfig = new ProductForm().getForm(this.orderItem.FormType);
       if (formConfig) {
+        
         // If this is a package that references another form, load that form's fields
         let fieldsToUse = formConfig.fields;
         if ((formConfig as any).formType) {
@@ -82,10 +96,20 @@ export class ReadonlyFormViewerComponent implements OnInit {
     readonlyField.props.readonly = true;
     readonlyField.props.disabled = true;
     
-    // Handle different field types that might need special treatment
-    if (field.type === 'checkbox') {
-      readonlyField.props.disabled = true;
+    // Remove hints and descriptions
+    readonlyField.props.description = undefined;
+    readonlyField.props['hint'] = undefined;
+    
+    // Remove validation and hide validation messages
+    readonlyField.validation = undefined;
+    readonlyField.validators = undefined;
+    readonlyField.asyncValidators = undefined;
+    
+    // Add CSS class for styling
+    if (!readonlyField.className) {
+      readonlyField.className = '';
     }
+    readonlyField.className += ' readonly-field';
     
     // Recursively handle field groups
     if (field.fieldGroup) {

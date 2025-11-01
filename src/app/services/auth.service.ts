@@ -96,7 +96,7 @@ export class AuthService {
       } else {
         // Default navigation to dashboard
         console.log('No preserved URL, navigating to dashboard');
-        this.router.navigate(['/dashboard']);
+        //this.router.navigate(['/dashboard']);
       }
     }, 100);
   }

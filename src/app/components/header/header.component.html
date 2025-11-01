@@ -1,7 +1,7 @@
-<div class="wrapper">
+<div class="wrapper" [class.scrolled]="isScrolled">
     <div (click)="home()" class="title-wrapper" >
         <img class="title-icon" src="../../image.png"  />
-        <div class="title">Baldwin Legal Group, PLLC</div>
+        <div class="title">myLLCAttorneys</div>
     </div>
 
     <div *ngIf="auth.currentUser" class="welcome">Hi {{auth.currentUser?.givenName}}</div>

@@ -1,19 +1,20 @@
-import { AfterViewInit, Component, inject } from '@angular/core';
+import { AfterViewInit, Component, inject, ViewChild, ElementRef } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { AsyncPipe, NgFor, NgIf } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSidenavModule, MatSidenavContent } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable } from 'rxjs';
-import { filter, map, shareReplay, take } from 'rxjs/operators';
+import { Observable, fromEvent } from 'rxjs';
+import { filter, map, shareReplay, take, throttleTime } from 'rxjs/operators';
 import { RouterOutlet } from '@angular/router';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { DASHBOARD_CARDS, DashboardCard } from '../../models/dashboard-card.model';
 import { CustomerService } from '../../services/customer.service';
 import { UrlPreservationService } from '../../services/url-preservation.service';
+import { ScrollService } from '../../services/scroll.service';
 
 @Component({
   selector: 'app-app-navigation',
@@ -35,15 +36,28 @@ export class AppNavigationComponent implements AfterViewInit {
   private breakpointObserver = inject(BreakpointObserver);
   public auth = inject(AuthService);
   public cards: DashboardCard[] = DASHBOARD_CARDS;
-  
+
+  @ViewChild(MatSidenavContent) sidenavContent!: MatSidenavContent;
+
   constructor(
-    private router: Router, 
-    public authService: AuthService, 
+    private router: Router,
+    public authService: AuthService,
     private custService: CustomerService,
-    private urlPreservation: UrlPreservationService
+    private urlPreservation: UrlPreservationService,
+    private scrollService: ScrollService
   ) { }
 
   ngAfterViewInit() {
+    // Set up scroll detection on the sidenav content
+    if (this.sidenavContent) {
+      const scrollElement = this.sidenavContent.getElementRef().nativeElement;
+      fromEvent(scrollElement, 'scroll')
+        .pipe(throttleTime(50))
+        .subscribe(() => {
+          const scrollTop = scrollElement.scrollTop;
+          this.scrollService.setScrolled(scrollTop > 50);
+        });
+    }
 
     // This is the kickoff of the user interaction with the app
     this.auth.isAuthenticated$

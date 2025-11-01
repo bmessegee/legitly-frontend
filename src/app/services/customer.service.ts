@@ -53,6 +53,7 @@ export class CustomerService {
                 TenantId: user.tenantId,                 
                 Name: `${user.givenName ?? ''} ${user.familyName ?? ''}`.trim(),
                 CustomerEmail: user.email ?? '',
+                UserIds: [user.email || ''],
                 Created: new Date(),
                 Updated: new Date(),
                 CreatedBy: user.userId || '',

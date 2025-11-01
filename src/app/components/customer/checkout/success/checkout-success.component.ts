@@ -59,9 +59,9 @@ export class CheckoutSuccessComponent implements OnInit {
         this.isLoading = false;
         
         // Clear the cart after successful payment
-        this.cartService.clearCart().subscribe({
-          next: () => console.log('Cart cleared after successful payment'),
-          error: (error) => console.error('Error clearing cart:', error)
+        this.cartService.refreshCart().subscribe({
+          next: () => console.log('Cart refreshed after successful payment'),
+          error: (error) => console.error('Error refreshing cart:', error)
         });
       },
       error: (error) => {

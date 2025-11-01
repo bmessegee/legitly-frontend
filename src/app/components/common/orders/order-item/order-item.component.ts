@@ -60,11 +60,12 @@ export class OrderItemComponent {
   }
 
   editOrderItem(itemIndex: number) {
-    if (this.order?.OrderId) {
+    if (this.order?.OrderId && this.order.OrderItems[itemIndex]) {
+      const orderItem = this.order.OrderItems[itemIndex];
       // Navigate to product form with order ID and item index
       this.router.navigate(['/customer/product'], {
         queryParams: {
-          query: this.order.OrderItems[itemIndex].FormType,
+          query: orderItem.FormType || orderItem.ProductId,
           orderId: this.order.OrderId,
           itemIndex: itemIndex
         }
@@ -136,7 +137,7 @@ export class OrderItemComponent {
       const firstItem = this.order.OrderItems[0];
       this.router.navigate(['/customer/product'], {
         queryParams: {
-          query: firstItem.FormType,
+          query: firstItem.FormType || firstItem.ProductId,
           orderId: this.order.OrderId
         }
       });

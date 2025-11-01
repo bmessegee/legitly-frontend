@@ -327,7 +327,7 @@ export class CartService {
     return this.orderService.getOrders().pipe(
       switchMap(orders => {
         const cartOrder = orders.find(order => 
-          order.Status === OrderStatus.Created && 
+          (order.Status === OrderStatus.Created || order.Status === OrderStatus.InCart) && 
           order.CustomerId === this.authService.currentUser?.customerId
         );
         return of(cartOrder || null);
@@ -389,16 +389,23 @@ export class CartService {
             return;
           }
 
-          // Find orders that are still in Created status but have a StripeSessionId
+          // Find orders that are still in InCart status but have a StripeSessionId
           // This indicates the user started payment but was interrupted before redirect
           const incompletePaymentOrder = orders.find(order => 
-            order.Status === OrderStatus.Created && 
+            order.Status === OrderStatus.InCart && 
             order.StripeSessionId && 
             order.StripeSessionId.trim().length > 0
           );
 
           if (incompletePaymentOrder) {
             console.log('Found incomplete payment order:', incompletePaymentOrder.OrderId, 'with session:', incompletePaymentOrder.StripeSessionId);
+            
+            // Check if current URL is checkout/cancel to avoid interfering with cancel process
+            const currentUrl = window.location.pathname;
+            if (currentUrl.includes('/checkout/cancel')) {
+              console.log('Currently on checkout/cancel page, skipping automatic redirect to avoid interfering with cancel process');
+              return;
+            }
             
             // Redirect to checkout success to complete the order
             this.router.navigate(['/checkout/success'], { 

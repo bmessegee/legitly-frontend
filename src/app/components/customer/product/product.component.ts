@@ -323,6 +323,14 @@ export class ProductComponent implements OnDestroy {
         next: (updatedOrder) => {
           this.currentOrder = updatedOrder;
           console.log('Order item auto-saved successfully');
+          
+          // Show brief toast notification for auto-save
+          this.snackBar.open('Changes saved', '', {
+            duration: 1000,
+            horizontalPosition: 'right',
+            verticalPosition: 'bottom',
+            panelClass: ['auto-save-toast']
+          });
         },
         error: (error) => {
           console.error('Error auto-saving order item:', error);
@@ -756,9 +764,70 @@ export class ProductComponent implements OnDestroy {
   switchPackage(packageId: string) {
     if (packageId !== this.selectedForm) {
       console.log('Switching from', this.selectedForm, 'to', packageId);
+      
+      // Save current form data before switching
+      if (this.hasFormChanged && this.currentOrder) {
+        this.addOrUpdateOrderItem();
+      }
+      
+      const previousForm = this.selectedForm;
       this.selectedForm = packageId;
       this.loadForm(packageId);
       this.showComparison = false; // Hide comparison after selection
+      
+      // Update the order with the new package
+      this.updateOrderWithNewPackage(previousForm, packageId);
+    }
+  }
+
+  private updateOrderWithNewPackage(previousForm: string, newPackageId: string) {
+    // If we have an order, update the order item with the new package
+    if (this.currentOrder && this.currentOrderItem) {
+      const newFormConfig = new ProductForm().getForm(newPackageId);
+      if (newFormConfig) {
+        console.log('Updating order item with new package:', newPackageId);
+        
+        // Update the current order item with new package details
+        this.currentOrderItem.ProductId = newPackageId;
+        this.currentOrderItem.ProductName = newFormConfig.title;
+        this.currentOrderItem.FormType = newPackageId;
+        this.currentOrderItem.FormTitle = newFormConfig.title;
+        this.currentOrderItem.Price = newFormConfig.cost;
+        
+        // Update the order item in the order's items array
+        if (this.currentOrderItemIndex >= 0 && this.currentOrder.OrderItems) {
+          this.currentOrder.OrderItems[this.currentOrderItemIndex] = this.currentOrderItem;
+        }
+        
+        // Recalculate order total
+        this.currentOrder.TotalAmount = this.calculateOrderTotal(this.currentOrder.OrderItems);
+        
+        // Persist changes to backend
+        this.orderService.updateOrder(this.currentOrder).subscribe({
+          next: (updatedOrder) => {
+            this.currentOrder = updatedOrder;
+            console.log('Successfully updated order with new package:', newPackageId);
+            this.snackBar.open(
+              `Switched to ${newFormConfig.title}`,
+              'Close',
+              { duration: 3000 }
+            );
+          },
+          error: (error) => {
+            console.error('Error updating order with new package:', error);
+            this.snackBar.open(
+              'Error switching package. Please try again.',
+              'Close',
+              { duration: 3000 }
+            );
+          }
+        });
+      }
+    } else if (this.currentOrder) {
+      // If we have an order but no current item, we might need to create a new order item
+      console.log('No current order item found, will create new one when form is saved');
+    } else {
+      console.log('No current order found, new order will be created when form is saved');
     }
   }
 

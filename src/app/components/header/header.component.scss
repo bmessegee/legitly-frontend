@@ -5,9 +5,11 @@
     background: linear-gradient(135deg, #354759 0%, #2b3d4f 100%);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     padding: 16px 24px;
-    position: relative;
-    z-index: 10;
-    
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
     // Subtle animated border bottom
     &::after {
         content: '';
@@ -19,6 +21,37 @@
         background: linear-gradient(90deg, #4A90E2 0%, #229E85 50%, #4A90E2 100%);
         background-size: 200% 100%;
         animation: gradientShift 3s ease-in-out infinite;
+        transition: height 0.3s ease;
+    }
+
+    // Scrolled state - shrink the header
+    &.scrolled {
+        padding: 8px 24px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+
+        &::after {
+            height: 2px;
+        }
+
+        .title-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .title {
+            font-size: 1.1rem;
+        }
+
+        .welcome {
+            font-size: 0.875rem;
+            padding: 6px 12px;
+        }
+
+        .cart-icon, .menu-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+        }
     }
 }
 
@@ -48,8 +81,8 @@
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
     .title-wrapper:hover & {
         transform: rotate(5deg) scale(1.05);
         box-shadow: 0 8px 30px rgba(74, 144, 226, 0.3);
@@ -63,7 +96,8 @@
     font-weight: 700;
     margin-left: 16px;
     letter-spacing: -0.5px;
-    
+    transition: font-size 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
     // Subtle gradient text effect
     background: linear-gradient(135deg, #ffffff 0%, #e8f4f8 100%);
     -webkit-background-clip: text;
@@ -83,8 +117,8 @@
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
-    
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
     &:hover {
         background: rgba(255, 255, 255, 0.15);
         transform: translateY(-1px);
@@ -131,22 +165,41 @@
 @media (max-width: 768px) {
     .wrapper {
         padding: 12px 16px;
+
+        &.scrolled {
+            padding: 6px 16px;
+
+            .title-icon {
+                width: 36px;
+                height: 36px;
+            }
+
+            .title {
+                font-size: 1rem;
+            }
+
+            .cart-icon, .menu-icon {
+                width: 36px;
+                height: 36px;
+                font-size: 20px;
+            }
+        }
     }
-    
+
     .title-icon {
         width: 48px;
         height: 48px;
     }
-    
+
     .title {
         font-size: 1.2rem;
         margin-left: 12px;
     }
-    
+
     .welcome {
         display: none; // Hide welcome message on mobile for space
     }
-    
+
     .cart-icon, .menu-icon {
         width: 44px;
         height: 44px;
@@ -157,22 +210,41 @@
 @media (max-width: 480px) {
     .wrapper {
         padding: 8px 12px;
+
+        &.scrolled {
+            padding: 4px 12px;
+
+            .title-icon {
+                width: 32px;
+                height: 32px;
+            }
+
+            .title {
+                font-size: 0.875rem;
+            }
+
+            .cart-icon, .menu-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 18px;
+            }
+        }
     }
-    
+
     .title-icon {
         width: 40px;
         height: 40px;
     }
-    
+
     .title {
         font-size: 1rem;
         margin-left: 8px;
     }
-    
+
     .cart {
         gap: 8px;
     }
-    
+
     .cart-icon, .menu-icon {
         width: 40px;
         height: 40px;

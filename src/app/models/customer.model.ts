@@ -7,4 +7,5 @@ export interface Customer {
     Updated: Date;
     CreatedBy: string;
     UpdatedBy: string;
+    UserIds: string[];
 }

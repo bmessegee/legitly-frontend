@@ -48,16 +48,17 @@ export class CheckoutCancelComponent implements OnInit {
       next: (orders) => {
         const orderWithSession = orders.find(order => 
           order.StripeSessionId === sessionId && 
-          order.Status === OrderStatus.Created
+          order.Status === OrderStatus.InCart
         );
 
         if (orderWithSession) {
           console.log('Found order with cancelled session, clearing StripeSessionId:', orderWithSession.OrderId);
           
-          // Clear the StripeSessionId from the order
+          // Clear the StripeSessionId from the order and set status back to Created
           const updatedOrder = { 
             ...orderWithSession, 
-            StripeSessionId: undefined 
+            StripeSessionId: undefined,
+            Statu: OrderStatus.Created
           };
           
           // Update the order to remove the session ID

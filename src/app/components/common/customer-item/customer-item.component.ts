@@ -59,4 +59,10 @@ export class CustomerItemComponent {
     // Load the first tab (orders) when expansion panel opens
     this.loadedTabs.orders = true;
   }
+  getCustomerEmail(): string{
+    if(!this.customer || !this.customer.UserIds || this.customer.UserIds.length < 1){
+      return "";
+    }
+    return this.customer.UserIds[0];
+  }
 }
