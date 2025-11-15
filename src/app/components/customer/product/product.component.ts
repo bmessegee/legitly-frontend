@@ -48,6 +48,7 @@ export class ProductComponent implements OnDestroy {
   model: any = {};
   // Holds the current form definition as an array of Formly fields.
   fields: FormlyFieldConfig[] = [];
+  options: any = { formState: {} };
 
   selectedForm = "";
   currentOrder: Order | null = null;
@@ -110,10 +111,41 @@ export class ProductComponent implements OnDestroy {
       );
   }
 
+  /**
+   * Initialize the form model with package context data
+   * This injects metadata that form fields can use for conditional visibility
+   * IMPORTANT: Using formState for global data so it's accessible in nested fieldGroups
+   */
+  private initializeModelWithPackageContext() {
+    if (!this.formConfig) return;
+
+    // Set package context in formState for global access in expressions
+    // formState is accessible in all expressions regardless of nesting
+    this.options.formState = {
+      ...this.options.formState,
+      packageContext: {
+        packageId: this.selectedForm,           // e.g., 'llc-essentials'
+        packageTier: this.formConfig.tier,      // e.g., 'essentials', 'complete', 'executive'
+        packageName: this.formConfig.title,     // e.g., 'New Business Essentials Package'
+        packageCost: this.formConfig.cost       // e.g., 999.00
+      }
+    };
+
+    console.log('Initialized package context in formState:', this.options.formState.packageContext);
+  }
+
+  /**
+   * Get the current package tier for use in conditional logic
+   * Returns: 'essentials' | 'complete' | 'executive' | 'addon' | undefined
+   */
+  getCurrentPackageTier(): string | undefined {
+    return this.model?._packageContext?.packageTier || this.formConfig?.tier;
+  }
+
   loadForm(form: string) {
     try {
       this.formConfig = new ProductForm().getForm(form);
-      
+
       if (!this.formConfig) {
         this.snackBar.open('Form configuration not found', 'Close', { duration: 3000 });
         return;
@@ -121,15 +153,50 @@ export class ProductComponent implements OnDestroy {
 
       // If this is a package that references another form, load that form's fields
       let fieldsToUse = this.formConfig.fields;
+      console.log('Initial fields count:', fieldsToUse?.length);
+      console.log('Form type reference:', this.formConfig.formType);
+
       if (this.formConfig.formType) {
         const referencedForm = new ProductForm().getForm(this.formConfig.formType);
+        console.log('Referenced form found:', !!referencedForm);
+        console.log('Referenced form name:', this.formConfig.formType);
+
         if (referencedForm && Array.isArray(referencedForm.fields)) {
           fieldsToUse = referencedForm.fields;
+          console.log('Using referenced form fields, count:', fieldsToUse.length);
+
+          // Log field keys to see what's actually in the form
+          const fieldKeys = fieldsToUse.map((f: any) => f.key).filter((k: any) => k);
+          console.log('Field keys in form:', fieldKeys);
+
+          // Check if our executive fields are present
+          const hasEINField = fieldsToUse.some((section: any) =>
+            section.fieldGroup?.some((field: any) => field.key === 'hasEIN')
+          );
+          const hasRAField = fieldsToUse.some((section: any) => section.key === 'registeredAgentSection');
+          console.log('Has EIN field:', hasEINField);
+          console.log('Has Registered Agent section:', hasRAField);
         }
       }
-      
+
       if (Array.isArray(fieldsToUse)) {
+        // IMPORTANT: Initialize model with package tier BEFORE setting fields
+        // This ensures the model is ready when Formly evaluates expressions
+        this.initializeModelWithPackageContext();
+
+        console.log('Current package:', this.selectedForm);
+        console.log('Package tier:', this.formConfig.tier);
+        console.log('Model after init:', JSON.stringify(this.model, null, 2));
+
+        // Test the expression logic manually
+        const model = this.model;
+        const testExpression1 = !model || !model._packageContext || model._packageContext.packageTier !== 'executive';
+        console.log('Expression test (!model || !model._packageContext || tier !== executive):', testExpression1);
+        console.log('Should show fields (expression should be FALSE):', !testExpression1);
+
+        // Now set the fields - Formly will evaluate expressions with the initialized model
         this.fields = fieldsToUse;
+
         // Add async validator to LLC name field
         this.addBusinessNameValidator();
         // Form change detection will be set up after order loads
@@ -696,12 +763,20 @@ export class ProductComponent implements OnDestroy {
     // Populate the form with saved data from the order item
     if (orderItem.FormData) {
       setTimeout(() => {
-        this.model = { ...orderItem.FormData };
+        // Preserve package context while loading saved data
+        const packageContext = this.model?._packageContext;
+
+        this.model = {
+          ...orderItem.FormData,
+          _packageContext: packageContext // Ensure package context is preserved
+        };
+
         // Trigger form update if form exists
         if (this.form && this.formConfig) {
           this.form.patchValue(this.model);
         }
         console.log('Loaded form data from order item:', orderItem.ProductId);
+        console.log('Preserved package context:', packageContext);
       }, 250);
     }
   }
@@ -764,17 +839,25 @@ export class ProductComponent implements OnDestroy {
   switchPackage(packageId: string) {
     if (packageId !== this.selectedForm) {
       console.log('Switching from', this.selectedForm, 'to', packageId);
-      
+
       // Save current form data before switching
       if (this.hasFormChanged && this.currentOrder) {
         this.addOrUpdateOrderItem();
       }
-      
+
       const previousForm = this.selectedForm;
       this.selectedForm = packageId;
+
+      // Load the new form - this will automatically update package context via initializeModelWithPackageContext()
       this.loadForm(packageId);
+
+      // Update the Angular form with the new model to trigger expression re-evaluation
+      if (this.form) {
+        this.form.patchValue(this.model);
+      }
+
       this.showComparison = false; // Hide comparison after selection
-      
+
       // Update the order with the new package
       this.updateOrderWithNewPackage(previousForm, packageId);
     }

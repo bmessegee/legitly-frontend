@@ -146,7 +146,7 @@
         </div>
         
         <form [formGroup]="form" (ngSubmit)="onCheckout()">
-            <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+            <formly-form [form]="form" [fields]="fields" [model]="model" [options]="options"></formly-form>
             <div class="form-actions">
                 <div class="checkout-summary">
                     <div class="summary-line">

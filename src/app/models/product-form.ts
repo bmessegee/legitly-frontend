@@ -506,13 +506,43 @@ export class ProductForm {
                             }
                         },
                         {
+                            "key": "hasEIN",
+                            "type": "radio",
+                            "props": {
+                                "label": "Do you have an Employer Identification Number (EIN)?",
+                                "required": true,
+                                "options": [
+                                    { "value": "yes", "label": "Yes" },
+                                    { "value": "no", "label": "No" }
+                                ],
+                                "description": "An EIN is required if you plan to hire employees or open a business bank account."
+                            },
+                            "expressions": {
+                                "hide": "!formState.packageContext || formState.packageContext.packageTier !== 'executive'"
+                            }
+                        },
+                        {
                             "key": "ein",
                             "type": "input",
                             "props": {
                                 "label": "Employer Identification Number (EIN)",
-                                "placeholder": "Enter your EIN (if applicable)",
-                                "required": false,
-                                "description": "Required if you plan to hire employees or open a business bank account."
+                                "placeholder": "Enter your EIN",
+                                "required": true
+                            },
+                            "expressions": {
+                                "hide": "field.model?.hasEIN !== 'yes' || !formState.packageContext || formState.packageContext.packageTier !== 'executive'"
+                            }
+                        },
+                        {
+                            "key": "einServiceNotice",
+                            "type": "input",
+                            "props": {
+                                "label": "",
+                                "disabled": true,
+                                "placeholder": "We will obtain an EIN for you as part of your Executive package"
+                            },
+                            "expressions": {
+                                "hide": "field.model?.hasEIN !== 'no' || !formState.packageContext || formState.packageContext.packageTier !== 'executive'"
                             }
                         }
                     ]
@@ -554,7 +584,35 @@ export class ProductForm {
                     "props": {
                         "label": "Registered Agent Information"
                     },
+                    "expressions": {
+                        "hide": "!formState.packageContext || formState.packageContext.packageTier !== 'executive'"
+                    },
                     "fieldGroup": [
+                        {
+                            "key": "hasRegisteredAgent",
+                            "type": "radio",
+                            "props": {
+                                "label": "Do you have a Registered Agent?",
+                                "required": true,
+                                "options": [
+                                    { "value": "yes", "label": "Yes" },
+                                    { "value": "no", "label": "No" }
+                                ],
+                                "description": "A registered agent is required for all Washington LLCs to receive legal documents."
+                            }
+                        },
+                        {
+                            "key": "registeredAgentServiceNotice",
+                            "type": "input",
+                            "props": {
+                                "label": "",
+                                "disabled": true,
+                                "placeholder": "We will provide Registered Agent services for you as part of your Executive package"
+                            },
+                            "expressions": {
+                                "hide": "field.model?.hasRegisteredAgent !== 'no'"
+                            }
+                        },
                         {
                             "key": "registeredAgentType",
                             "type": "radio",
@@ -566,6 +624,9 @@ export class ProductForm {
                                     { "value": "commercial", "label": "Commercial Registered Agent" },
                                     { "value": "noncommercial", "label": "Non Commercial Registered Agent" }
                                 ]
+                            },
+                            "expressions": {
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes'"
                             }
                         },
                         {
@@ -575,7 +636,7 @@ export class ProductForm {
                                 "label": "I declare under penalty of perjury that the WA Limited Liability Company has in its records a signed document containing the consent of the person or business named as registered agent to serve in that capacity."
                             },
                             "expressions": {
-                                "hide": "field.model?.registeredAgentType === 'self'"
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes' || field.model?.registeredAgentType === 'self'"
                             }
                         },
                         {
@@ -590,7 +651,7 @@ export class ProductForm {
                                 ]
                             },
                             "expressions": {
-                                "hide": "field.model?.registeredAgentType === 'self'"
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes' || field.model?.registeredAgentType === 'self'"
                             }
                         },
                         {
@@ -602,7 +663,7 @@ export class ProductForm {
                                 "required": true
                             },
                             "expressions": {
-                                "hide": "field.model?.registeredAgentType === 'self' || field.model?.registeredAgentEntityType !== 'individual'"
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes' || field.model?.registeredAgentType === 'self' || field.model?.registeredAgentEntityType !== 'individual'"
                             }
                         },
                         {
@@ -614,7 +675,7 @@ export class ProductForm {
                                 "required": true
                             },
                             "expressions": {
-                                "hide": "field.model?.registeredAgentType === 'self' || field.model?.registeredAgentEntityType !== 'individual'"
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes' || field.model?.registeredAgentType === 'self' || field.model?.registeredAgentEntityType !== 'individual'"
                             }
                         },
                         {
@@ -626,7 +687,7 @@ export class ProductForm {
                                 "required": true
                             },
                             "expressions": {
-                                "hide": "field.model?.registeredAgentType === 'self' || field.model?.registeredAgentEntityType !== 'entity'"
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes' || field.model?.registeredAgentType === 'self' || field.model?.registeredAgentEntityType !== 'entity'"
                             }
                         },
                         {
@@ -638,7 +699,7 @@ export class ProductForm {
                                 "required": true
                             },
                             "expressions": {
-                                "hide": "field.model?.registeredAgentType === 'self'"
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes' || field.model?.registeredAgentType === 'self'"
                             }
                         },
                         {
@@ -650,7 +711,7 @@ export class ProductForm {
                                 "required": false
                             },
                             "expressions": {
-                                "hide": "field.model?.registeredAgentType === 'self'"
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes' || field.model?.registeredAgentType === 'self'"
                             }
                         },
                         {
@@ -662,7 +723,7 @@ export class ProductForm {
                                 "required": false
                             },
                             "expressions": {
-                                "hide": "field.model?.registeredAgentType === 'self'"
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes' || field.model?.registeredAgentType === 'self'"
                             }
                         },
                         {
@@ -672,6 +733,9 @@ export class ProductForm {
                                 "label": "Street Address 1",
                                 "placeholder": "Enter street address",
                                 "required": true
+                            },
+                            "expressions": {
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes'"
                             }
                         },
                         {
@@ -681,6 +745,9 @@ export class ProductForm {
                                 "label": "Street Address 2",
                                 "placeholder": "Enter street address line 2",
                                 "required": false
+                            },
+                            "expressions": {
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes'"
                             }
                         },
                         {
@@ -690,6 +757,9 @@ export class ProductForm {
                                 "label": "City",
                                 "placeholder": "Enter city",
                                 "required": true
+                            },
+                            "expressions": {
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes'"
                             }
                         },
                         {
@@ -699,6 +769,9 @@ export class ProductForm {
                                 "label": "ZIP Code",
                                 "placeholder": "Enter ZIP code",
                                 "required": true
+                            },
+                            "expressions": {
+                                "hide": "field.model?.hasRegisteredAgent !== 'yes'"
                             }
                         }
                     ]
@@ -734,16 +807,6 @@ export class ProductForm {
                             },
                             "expressions": {
                                 "hide": "field.model?.hasPreparedCertificate !== 'yes'"
-                            }
-                        },
-                        {
-                            "key": "otherProvisions",
-                            "type": "textarea",
-                            "props": {
-                                "label": "Other Provisions",
-                                "placeholder": "Enter any other provisions you would like to include in your formation",
-                                "maxLength": 500,
-                                "description": "500 character limit"
                             }
                         }
                     ]
@@ -974,6 +1037,9 @@ export class ProductForm {
                     "props": {
                         "label": "Executor Information"
                     },
+                    "expressions": {
+                        "hide": "true"
+                    },
                     "fieldGroup": [
                         {
                             "key": "iAmExecutor",
@@ -1036,21 +1102,22 @@ export class ProductForm {
                     ]
                 },
                 {
-                    "key": "governorsSection",
+                    "key": "governor1Section",
                     "wrappers": ["panel"],
                     "props": {
-                        "label": "Governors Information"
+                        "label": "Governor #1 (Required)",
+                        "description": "At least one governor is required for your LLC."
                     },
                     "fieldGroup": [
                         {
-                            "key": "iAmGovernor",
+                            "key": "iAmGovernor1",
                             "type": "checkbox",
                             "props": {
-                                "label": "I am a Governor (adds the filer as a governor)"
+                                "label": "I am Governor #1 (adds the filer as a governor)"
                             }
                         },
                         {
-                            "key": "governorType",
+                            "key": "governor1Type",
                             "type": "radio",
                             "props": {
                                 "label": "Governor Type",
@@ -1061,43 +1128,197 @@ export class ProductForm {
                                 ]
                             },
                             "expressions": {
-                                "hide": "field.model?.iAmGovernor"
+                                "hide": "field.model?.iAmGovernor1"
                             }
                         },
                         {
-                            "key": "governorFirstName",
+                            "key": "governor1FirstName",
                             "type": "input",
                             "props": {
-                                "label": "Governor First Name",
+                                "label": "First Name",
                                 "placeholder": "Enter first name",
                                 "required": true
                             },
                             "expressions": {
-                                "hide": "field.model?.iAmGovernor || field.model?.governorType !== 'individual'"
+                                "hide": "field.model?.iAmGovernor1 || field.model?.governor1Type !== 'individual'"
                             }
                         },
                         {
-                            "key": "governorLastName",
+                            "key": "governor1LastName",
                             "type": "input",
                             "props": {
-                                "label": "Governor Last Name",
+                                "label": "Last Name",
                                 "placeholder": "Enter last name",
                                 "required": true
                             },
                             "expressions": {
-                                "hide": "field.model?.iAmGovernor || field.model?.governorType !== 'individual'"
+                                "hide": "field.model?.iAmGovernor1 || field.model?.governor1Type !== 'individual'"
                             }
                         },
                         {
-                            "key": "governorEntityName",
+                            "key": "governor1EntityName",
                             "type": "input",
                             "props": {
-                                "label": "Governor Entity Name",
+                                "label": "Entity Name",
                                 "placeholder": "Enter entity name",
                                 "required": true
                             },
                             "expressions": {
-                                "hide": "field.model?.iAmGovernor || field.model?.governorType !== 'entity'"
+                                "hide": "field.model?.iAmGovernor1 || field.model?.governor1Type !== 'entity'"
+                            }
+                        },
+                        {
+                            "key": "addGovernor2",
+                            "type": "checkbox",
+                            "props": {
+                                "label": "Add another governor?"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "governor2Section",
+                    "wrappers": ["panel"],
+                    "props": {
+                        "label": "Governor #2 (Optional)"
+                    },
+                    "expressions": {
+                        "hide": "!formState.mainModel || !formState.mainModel.addGovernor2"
+                    },
+                    "fieldGroup": [
+                        {
+                            "key": "iAmGovernor2",
+                            "type": "checkbox",
+                            "props": {
+                                "label": "I am Governor #2 (adds the filer as a governor)"
+                            }
+                        },
+                        {
+                            "key": "governor2Type",
+                            "type": "radio",
+                            "props": {
+                                "label": "Governor Type",
+                                "required": true,
+                                "options": [
+                                    { "value": "individual", "label": "Individual" },
+                                    { "value": "entity", "label": "Entity" }
+                                ]
+                            },
+                            "expressions": {
+                                "hide": "field.model?.iAmGovernor2"
+                            }
+                        },
+                        {
+                            "key": "governor2FirstName",
+                            "type": "input",
+                            "props": {
+                                "label": "First Name",
+                                "placeholder": "Enter first name",
+                                "required": true
+                            },
+                            "expressions": {
+                                "hide": "field.model?.iAmGovernor2 || field.model?.governor2Type !== 'individual'"
+                            }
+                        },
+                        {
+                            "key": "governor2LastName",
+                            "type": "input",
+                            "props": {
+                                "label": "Last Name",
+                                "placeholder": "Enter last name",
+                                "required": true
+                            },
+                            "expressions": {
+                                "hide": "field.model?.iAmGovernor2 || field.model?.governor2Type !== 'individual'"
+                            }
+                        },
+                        {
+                            "key": "governor2EntityName",
+                            "type": "input",
+                            "props": {
+                                "label": "Entity Name",
+                                "placeholder": "Enter entity name",
+                                "required": true
+                            },
+                            "expressions": {
+                                "hide": "field.model?.iAmGovernor2 || field.model?.governor2Type !== 'entity'"
+                            }
+                        },
+                        {
+                            "key": "addGovernor3",
+                            "type": "checkbox",
+                            "props": {
+                                "label": "Add another governor?"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "governor3Section",
+                    "wrappers": ["panel"],
+                    "props": {
+                        "label": "Governor #3 (Optional)"
+                    },
+                    "expressions": {
+                        "hide": "!formState.mainModel || !formState.mainModel.addGovernor3"
+                    },
+                    "fieldGroup": [
+                        {
+                            "key": "iAmGovernor3",
+                            "type": "checkbox",
+                            "props": {
+                                "label": "I am Governor #3 (adds the filer as a governor)"
+                            }
+                        },
+                        {
+                            "key": "governor3Type",
+                            "type": "radio",
+                            "props": {
+                                "label": "Governor Type",
+                                "required": true,
+                                "options": [
+                                    { "value": "individual", "label": "Individual" },
+                                    { "value": "entity", "label": "Entity" }
+                                ]
+                            },
+                            "expressions": {
+                                "hide": "field.model?.iAmGovernor3"
+                            }
+                        },
+                        {
+                            "key": "governor3FirstName",
+                            "type": "input",
+                            "props": {
+                                "label": "First Name",
+                                "placeholder": "Enter first name",
+                                "required": true
+                            },
+                            "expressions": {
+                                "hide": "field.model?.iAmGovernor3 || field.model?.governor3Type !== 'individual'"
+                            }
+                        },
+                        {
+                            "key": "governor3LastName",
+                            "type": "input",
+                            "props": {
+                                "label": "Last Name",
+                                "placeholder": "Enter last name",
+                                "required": true
+                            },
+                            "expressions": {
+                                "hide": "field.model?.iAmGovernor3 || field.model?.governor3Type !== 'individual'"
+                            }
+                        },
+                        {
+                            "key": "governor3EntityName",
+                            "type": "input",
+                            "props": {
+                                "label": "Entity Name",
+                                "placeholder": "Enter entity name",
+                                "required": true
+                            },
+                            "expressions": {
+                                "hide": "field.model?.iAmGovernor3 || field.model?.governor3Type !== 'entity'"
                             }
                         }
                     ]
@@ -1111,9 +1332,9 @@ export class ProductForm {
                     "fieldGroup": [
                         {
                             "key": "natureOfBusiness",
-                            "type": "multicheckbox",
+                            "type": "select",
                             "props": {
-                                "label": "What is your business' nature of business? (may select more than one)",
+                                "label": "What is your business' nature of business?",
                                 "required": true,
                                 "options": [
                                     { "value": "ADMIN_BUSINESS_SUPPORT", "label": "ADMINISTRATION & BUSINESS SUPPORT SERVICES" },
@@ -1160,7 +1381,7 @@ export class ProductForm {
                                 "description": "500 character limit"
                             },
                             "expressions": {
-                                "hide": "!field.model?.natureOfBusiness"
+                                "hide": "field.model?.natureOfBusiness !== 'OTHER'"
                             }
                         }
                     ]
@@ -1275,22 +1496,6 @@ export class ProductForm {
                             },
                             "expressions": {
                                 "hide": "field.model?.hasAdditionalDocuments !== 'yes'"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "key": "emailOptInSection",
-                    "wrappers": ["panel"],
-                    "props": {
-                        "label": "Email Notifications"
-                    },
-                    "fieldGroup": [
-                        {
-                            "key": "emailOptIn",
-                            "type": "checkbox",
-                            "props": {
-                                "label": "By checking this box, I hereby opt into receiving all notifications from the Secretary of State for this entity via email only. I acknowledge that I will no longer receive paper notifications."
                             }
                         }
                     ]
@@ -1445,28 +1650,55 @@ export class ProductForm {
                     },
                     "fieldGroup": [
                         {
-                            "key": "operatingAgreement",
-                            "type": "radio",
+                            "key": "hasOperatingAgreement",
+                            "type": "checkbox",
                             "props": {
-                                "label": "Operating Agreement",
-                                "required": false,
-                                "options": [
-                                    { "value": "yes", "label": "I have an Operating Agreement" },
-                                    { "value": "no", "label": "I need to create one" }
-                                ],
-                                "description": "While not required in Washington, an operating agreement is highly recommended."
+                                "label": "I already have an operating agreement, I don't need one."
                             }
                         },
                         {
-                            "key": "businessLicenses",
-                            "type": "multicheckbox",
+                            "key": "hasBusinessLicense",
+                            "type": "checkbox",
                             "props": {
-                                "label": "Business Licenses and Permits",
-                                "description": "Select the licenses and permits you require assistance with.",
-                                "options": [
-                                    { "value": "license", "label": "Business License" },
-                                    { "value": "permit", "label": "Permit" }
-                                ]
+                                "label": "I already have a business license, I don't need one."
+                            }
+                        }
+                    ]
+                },
+                {
+                    "key": "disclaimerSection",
+                    "wrappers": ["panel"],
+                    "props": {
+                        "label": "Terms and Disclaimer"
+                    },
+                    "fieldGroup": [
+                        {
+                            "key": "disclaimerText",
+                            "type": "input",
+                            "props": {
+                                "label": "",
+                                "disabled": true,
+                                "readonly": true,
+                                "description": "PLACEHOLDER DISCLAIMER TEXT: By submitting this form, you acknowledge that the information provided is accurate and complete to the best of your knowledge. You understand that this service is for the preparation and filing of LLC formation documents with the Washington Secretary of State. This service does not constitute legal advice. You agree to hold harmless Legitly and its representatives from any claims arising from the use of this service. You acknowledge that all fees are non-refundable once filing has been initiated with the state. [AWAITING FINAL DISCLAIMER TEXT FROM CLB]"
+                            }
+                        },
+                        {
+                            "key": "disclaimerSignature",
+                            "type": "input",
+                            "props": {
+                                "label": "Electronic Signature",
+                                "placeholder": "Type your full legal name to sign",
+                                "required": true,
+                                "description": "By typing your name above, you electronically sign this document and agree to the terms stated above."
+                            }
+                        },
+                        {
+                            "key": "disclaimerSignatureDate",
+                            "type": "datepicker",
+                            "props": {
+                                "label": "Signature Date",
+                                "required": true,
+                                "description": "Date of electronic signature"
                             }
                         }
                     ]
