@@ -1102,223 +1102,81 @@ export class ProductForm {
                     ]
                 },
                 {
-                    "key": "governor1Section",
+                    "key": "governorsSection",
                     "wrappers": ["panel"],
                     "props": {
-                        "label": "Governor #1 (Required)",
+                        "label": "Governors",
                         "description": "At least one governor is required for your LLC."
                     },
                     "fieldGroup": [
                         {
-                            "key": "iAmGovernor1",
-                            "type": "checkbox",
+                            "key": "governors",
+                            "type": "repeat",
                             "props": {
-                                "label": "I am Governor #1 (adds the filer as a governor)"
-                            }
-                        },
-                        {
-                            "key": "governor1Type",
-                            "type": "radio",
-                            "props": {
-                                "label": "Governor Type",
-                                "required": true,
-                                "options": [
-                                    { "value": "individual", "label": "Individual" },
-                                    { "value": "entity", "label": "Entity" }
+                                "label": "",
+                                "addText": "Add Governor"
+                            },
+                            "fieldArray": {
+                                "fieldGroup": [
+                                    {
+                                        "key": "iAmGovernor",
+                                        "type": "checkbox",
+                                        "props": {
+                                            "label": "I am this governor (adds the filer as a governor)"
+                                        }
+                                    },
+                                    {
+                                        "key": "governorType",
+                                        "type": "radio",
+                                        "props": {
+                                            "label": "Governor Type",
+                                            "required": true,
+                                            "options": [
+                                                { "value": "individual", "label": "Individual" },
+                                                { "value": "entity", "label": "Entity" }
+                                            ]
+                                        },
+                                        "expressions": {
+                                            "hide": "field.model?.iAmGovernor"
+                                        }
+                                    },
+                                    {
+                                        "key": "firstName",
+                                        "type": "input",
+                                        "props": {
+                                            "label": "First Name",
+                                            "placeholder": "Enter first name",
+                                            "required": true
+                                        },
+                                        "expressions": {
+                                            "hide": "field.model?.iAmGovernor || field.model?.governorType !== 'individual'"
+                                        }
+                                    },
+                                    {
+                                        "key": "lastName",
+                                        "type": "input",
+                                        "props": {
+                                            "label": "Last Name",
+                                            "placeholder": "Enter last name",
+                                            "required": true
+                                        },
+                                        "expressions": {
+                                            "hide": "field.model?.iAmGovernor || field.model?.governorType !== 'individual'"
+                                        }
+                                    },
+                                    {
+                                        "key": "entityName",
+                                        "type": "input",
+                                        "props": {
+                                            "label": "Entity Name",
+                                            "placeholder": "Enter entity name",
+                                            "required": true
+                                        },
+                                        "expressions": {
+                                            "hide": "field.model?.iAmGovernor || field.model?.governorType !== 'entity'"
+                                        }
+                                    }
                                 ]
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor1"
-                            }
-                        },
-                        {
-                            "key": "governor1FirstName",
-                            "type": "input",
-                            "props": {
-                                "label": "First Name",
-                                "placeholder": "Enter first name",
-                                "required": true
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor1 || field.model?.governor1Type !== 'individual'"
-                            }
-                        },
-                        {
-                            "key": "governor1LastName",
-                            "type": "input",
-                            "props": {
-                                "label": "Last Name",
-                                "placeholder": "Enter last name",
-                                "required": true
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor1 || field.model?.governor1Type !== 'individual'"
-                            }
-                        },
-                        {
-                            "key": "governor1EntityName",
-                            "type": "input",
-                            "props": {
-                                "label": "Entity Name",
-                                "placeholder": "Enter entity name",
-                                "required": true
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor1 || field.model?.governor1Type !== 'entity'"
-                            }
-                        },
-                        {
-                            "key": "addGovernor2",
-                            "type": "checkbox",
-                            "props": {
-                                "label": "Add another governor?"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "key": "governor2Section",
-                    "wrappers": ["panel"],
-                    "props": {
-                        "label": "Governor #2 (Optional)"
-                    },
-                    "expressions": {
-                        "hide": "!formState.mainModel || !formState.mainModel.addGovernor2"
-                    },
-                    "fieldGroup": [
-                        {
-                            "key": "iAmGovernor2",
-                            "type": "checkbox",
-                            "props": {
-                                "label": "I am Governor #2 (adds the filer as a governor)"
-                            }
-                        },
-                        {
-                            "key": "governor2Type",
-                            "type": "radio",
-                            "props": {
-                                "label": "Governor Type",
-                                "required": true,
-                                "options": [
-                                    { "value": "individual", "label": "Individual" },
-                                    { "value": "entity", "label": "Entity" }
-                                ]
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor2"
-                            }
-                        },
-                        {
-                            "key": "governor2FirstName",
-                            "type": "input",
-                            "props": {
-                                "label": "First Name",
-                                "placeholder": "Enter first name",
-                                "required": true
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor2 || field.model?.governor2Type !== 'individual'"
-                            }
-                        },
-                        {
-                            "key": "governor2LastName",
-                            "type": "input",
-                            "props": {
-                                "label": "Last Name",
-                                "placeholder": "Enter last name",
-                                "required": true
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor2 || field.model?.governor2Type !== 'individual'"
-                            }
-                        },
-                        {
-                            "key": "governor2EntityName",
-                            "type": "input",
-                            "props": {
-                                "label": "Entity Name",
-                                "placeholder": "Enter entity name",
-                                "required": true
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor2 || field.model?.governor2Type !== 'entity'"
-                            }
-                        },
-                        {
-                            "key": "addGovernor3",
-                            "type": "checkbox",
-                            "props": {
-                                "label": "Add another governor?"
-                            }
-                        }
-                    ]
-                },
-                {
-                    "key": "governor3Section",
-                    "wrappers": ["panel"],
-                    "props": {
-                        "label": "Governor #3 (Optional)"
-                    },
-                    "expressions": {
-                        "hide": "!formState.mainModel || !formState.mainModel.addGovernor3"
-                    },
-                    "fieldGroup": [
-                        {
-                            "key": "iAmGovernor3",
-                            "type": "checkbox",
-                            "props": {
-                                "label": "I am Governor #3 (adds the filer as a governor)"
-                            }
-                        },
-                        {
-                            "key": "governor3Type",
-                            "type": "radio",
-                            "props": {
-                                "label": "Governor Type",
-                                "required": true,
-                                "options": [
-                                    { "value": "individual", "label": "Individual" },
-                                    { "value": "entity", "label": "Entity" }
-                                ]
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor3"
-                            }
-                        },
-                        {
-                            "key": "governor3FirstName",
-                            "type": "input",
-                            "props": {
-                                "label": "First Name",
-                                "placeholder": "Enter first name",
-                                "required": true
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor3 || field.model?.governor3Type !== 'individual'"
-                            }
-                        },
-                        {
-                            "key": "governor3LastName",
-                            "type": "input",
-                            "props": {
-                                "label": "Last Name",
-                                "placeholder": "Enter last name",
-                                "required": true
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor3 || field.model?.governor3Type !== 'individual'"
-                            }
-                        },
-                        {
-                            "key": "governor3EntityName",
-                            "type": "input",
-                            "props": {
-                                "label": "Entity Name",
-                                "placeholder": "Enter entity name",
-                                "required": true
-                            },
-                            "expressions": {
-                                "hide": "field.model?.iAmGovernor3 || field.model?.governor3Type !== 'entity'"
                             }
                         }
                     ]

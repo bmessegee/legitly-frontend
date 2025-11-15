@@ -11,6 +11,7 @@ import { FormlyMaterialModule } from '@ngx-formly/material';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { FormlyWrapperPanelComponent } from './components/formly-wrapper-panel/formly-wrapper-panel.component';
 import { FileFieldComponent } from './components/formly-fields/file-field/file-field.component';
+import { RepeatFieldComponent } from './components/formly-fields/repeat-field/repeat-field.component';
 // import { businessNameValidator } from './validators/business-name.validator';
 import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { authConfig } from './auth/auth.config';
@@ -31,6 +32,7 @@ export const appConfig: ApplicationConfig = {
         ],
         types: [
           { name: 'file', component: FileFieldComponent },
+          { name: 'repeat', component: RepeatFieldComponent },
         ],
         // asyncValidators: [
         //   { name: 'businessName', validation: businessNameValidator },

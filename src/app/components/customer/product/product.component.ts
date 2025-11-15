@@ -131,6 +131,11 @@ export class ProductComponent implements OnDestroy {
       }
     };
 
+    // Initialize governors array with one empty governor for fieldArray
+    if (!this.model.governors) {
+      this.model.governors = [{}];
+    }
+
     console.log('Initialized package context in formState:', this.options.formState.packageContext);
   }
 
